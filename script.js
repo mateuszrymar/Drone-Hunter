@@ -10,13 +10,16 @@
         height: window.innerHeight,
         depth: 0,
     }
-    const imagePlaneScale = 0.01;
+    const fov = 39.6;
+    const imagePlaneDepth = 1.0;
     const imagePlane = {
         name: 'imagePlane',
-        width: window.innerWidth,
-        height: window.innerHeight,
-        depth: 1.0,
+        width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180), // window.innerWidth, <<< TU MOZE BYĆ BUG
+        height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (window.innerWidth / window.innerHeight),
+        depth: imagePlaneDepth,
     }
+    console.log(imagePlane);
+    const imagePlaneScale = imagePlane.width / window.innerWidth;
     const perspective = {
         name: 'perspective',
     }
@@ -40,8 +43,8 @@
         X:0,
         Y:0,
     };
-    let leftHandDistance = 1.2;
-    let rightHandDistance;
+    let leftHandDistance = 0.8;
+    let rightHandDistance = 0.1;
 
 //
 
@@ -73,6 +76,9 @@
 
     // Translator: screen -> imagePlane
         // TODO: create a XY function that operates on both coordinates at a time 
+
+
+        /// THIS IS ALL WRONG FROM HERE!!!!!!!
       
      
         function screenToImagePlane_X(X) {
@@ -80,7 +86,7 @@
                 x: 0            
             };
 
-            pointOnImagePlane.x = (X - (imagePlane.width/2)) * imagePlaneScale;
+            pointOnImagePlane.x = (X - (imagePlane.width / 2)) * imagePlaneScale; // <<< TU MOZE BYĆ BUG
             return pointOnImagePlane.x;
         }
 
@@ -93,8 +99,12 @@
             return pointOnImagePlane.y;
         }
 
+
+        /// THIS IS ALL WRONG TO HERE!!!!!!!
+    //
+
     // Translator: imagePlane -> perspective
-        //This one needs an additional variable of depth.
+        // this one needs an additional variable of depth.
 
         
         function imagePlaneToPerspective(input_xyz, w) {
@@ -106,23 +116,39 @@
             let input_x = input_xyz.x;
             let input_y = input_xyz.y;
             let input_z = input_xyz.z;
-            // console.log(input_x);
-            // console.log(input_y);
-            // console.log(input_z);
 
-            pointInPerspective.u = (input_x * w) / input_z;
-            pointInPerspective.v = (input_y * w) / input_z ;
+            pointInPerspective.u = input_x * w / input_z;
+            pointInPerspective.v = input_y * w / input_z ;
             pointInPerspective.w = w;
             
-            console.log(pointInPerspective);
-
-
             return pointInPerspective;
         }
 
         // let testPoint = {x:400, y:500, z:1};        
         // let log = imagePlaneToPerspective(testPoint, leftHandDistance);
         // console.log(log);
+    //
+
+    // Translator: perspective -> imagePlane
+        
+        function perspectiveToImagePlane(input_uvw) {
+            let pointOnImagePlane = {
+                x: 0,
+                y: 0,
+            }
+            let input_u = input_xyz.u;
+            let input_v = input_xyz.v;
+            let input_w = input_xyz.w;
+
+            pointOnImagePlane.x = input_u * imagePlaneDepth / input_w;
+            pointOnImagePlane.y = input_v * imagePlaneDepth / input_w;
+
+            return pointOnImagePlane;
+        }
+            
+        //
+
+
 
 //
 
