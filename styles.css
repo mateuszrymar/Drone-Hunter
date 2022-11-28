@@ -92,7 +92,13 @@ body {
     left: 2em;
     
     color: white;
-}  
+}
+
+.debug-text {
+    font-size: 0.75em;
+    margin-left: 60px;
+    margin-bottom: 10px;
+}
 
 #game-area {
     position: absolute;
@@ -164,7 +170,7 @@ body {
 
 #left-hand {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: var(--left-hand-size);
     height: var(--left-hand-size);
     background-color: none;
