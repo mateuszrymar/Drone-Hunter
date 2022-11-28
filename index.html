@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <title>Archer 0.1 (pre-alpha)</title>
+</head>
+<body>
+    
+    <section class="ui">
+        <label class="debug-switch">
+            <input type="checkbox" id="debug-toggle">
+            <span class="slider"><span id ='debug-state-label'>Debug: OFF</span></span>
+        </label>
+    </section>
+    
+    <section id="game-area">
+        <div id="point-area-1" class="point-area"></div>
+        <div id="ground"></div>
+        <div id="sky"></div>
+        <div id="left-hand"></div>
+        <div id="right-hand"></div>
+    </section>
+    
+</body>
+<script src="script.js"></script>
+</html>
