@@ -3,6 +3,7 @@
     // UI Elements
     const debugToggle = document.getElementById('debug-toggle');
     const debugStateLabel = document.getElementById('debug-state-label');    
+    
     // Perspective data
     const screen = {
         name: 'screen',
@@ -24,11 +25,17 @@
     const perspective = {
         name: 'perspective',
     }
+    
     // Graphical elements
     const gameArea = document.getElementById('game-area');
+    const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('point-area-1');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
+    let targetSize = 1.22;
+    let targetDistance = 30;
+    let targetHeight = 1.2;
+    
     let debugMode;
     let leftHandPosition;
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
@@ -38,6 +45,7 @@
         X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
         Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
     }    
+    
     // Player input
     let leftHandSet = {
         X:0,
@@ -45,23 +53,15 @@
     };
     let leftHandDistance = 1.4;
     let rightHandDistance = 0.7;
+    
     // Debug mode - specific variables
     const testValues = 
-        [0, 20, 0,
-            3.600222, 20, 2,
-            7.200443, 20, 2,
-            -3.600222, 20, 2,
-            -7.200443, 20, 2,
-            0, 30, 2,
-            3.600222, 30, 2,
-            7.200443, 30, 2,
-            -3.600222, 30, 2,
-            -7.200443, 30, 2,
-            0, 40, 0,
-            3.600222, 40, 2,
-            7.200443, 40, 2,
-            -3.600222, 40, 2,
-            -7.200443, 40, 2
+        [0, 30, 0,
+            10.800665, 30, 0,
+            -10.800665, 30, 0,
+            0, 30, 1.2,
+            0.61, 30, 1.2,
+            -0.61, 30, 1.2            
             ]
     
     // const testPoints = {id:0, u:0, v:10, w:-cameraHeight}
@@ -113,7 +113,7 @@
 
 //
 
-// Perspective translator
+// Perspective transformer functions
     
     /* We'll have 4 coordinate systems:
 
@@ -270,38 +270,13 @@
             // return pointCollection;
         }
         console.log(pointCollection);
-        ground.innerHTML = pointCollection;        
+        debugPoints.innerHTML = pointCollection;        
     }
 
     display(testValues, 'test-point');
+//
 
-
-
-// Test points on the ground for debugging
-    
-    /*
-    let groundPts = pointArrayToObjects(testValues);
-    console.log(groundPts);
-
-    for (let i = 0; i < groundPts.length; i++) {
-        // I have coordinates of a point in perspective coordinates:
-        let pointInPerspective = groundPts[i];
-        // Now I need to find its position on the screen:
-        console.log(pointInPerspective);
-        let pointOnScreen = imagePlaneToScreen(perspectiveToImagePlane(pointInPerspective));
-        console.log(pointOnScreen);
-
-        let pointDiv = `
-        <div class="test-point" style="
-        top: ${point.v};
-        left: ${point.u};
-        ">
-        </div>
-        `;
-        console.log(point.u);        
-    } */
-
-    // ground.appendChild(point);
+// Target size calculation
 
 
 // Target - here we define point areas

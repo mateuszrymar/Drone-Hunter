@@ -12,7 +12,7 @@
     
     --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2);
     --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));
-    --target-size: 10vw;
+    --target-size: 10vw; /* to be defined in JS */
     --target-border: calc((var(--target-size))*0.01);
     --point-area-size: calc(var(--target-size)/20);
 
@@ -20,6 +20,8 @@
 
     
 }
+
+html, body {margin: 0; height: 100%; overflow: hidden}
 
 body {
     margin: 0;
@@ -105,6 +107,8 @@ body {
     width: 2px;
     height: 2px;
     background-color: black;
+    transform: translate(-1px, -1px);
+    z-index: 20;
 }
 
 #game-area {
@@ -128,7 +132,7 @@ body {
 }
 
 #ground {
-    position: fixed;
+    position: absolute;
     top: var(--sky-height);
     width: 100vw;
     height: calc(100vh - var(--sky-height));
@@ -137,16 +141,15 @@ body {
     z-index: -1;
 }
 
+/* Target settings */
 #point-area-1 {
     position: absolute;
     top: var(--target-position-Y);
     left: var(--target-position-X);
     display: flex;
-    display: hi;
     width: var(--target-size);
     height: var(--target-size);
     background-color: var(--target-white);
-    /* margin: var(--target-position-Y) auto auto auto; */
     border-radius: 50%;
     border: var(--target-border) solid black;
     margin: 0;
