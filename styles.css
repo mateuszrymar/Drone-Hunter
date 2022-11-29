@@ -100,6 +100,13 @@ body {
     margin-bottom: 10px;
 }
 
+.test-point {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: black;
+}
+
 #game-area {
     position: absolute;
     height: 100vh;

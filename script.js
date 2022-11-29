@@ -11,6 +11,7 @@
         depth: 0,
     }
     const fov = 39.6;
+    const cameraHeight = 1.7;
     const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
@@ -19,6 +20,7 @@
         depth: imagePlaneDepth,
     }
     const imagePlaneScale = imagePlane.width / window.innerWidth;
+    console.log(window.innerWidth);
     const perspective = {
         name: 'perspective',
     }
@@ -43,6 +45,26 @@
     };
     let leftHandDistance = 1.4;
     let rightHandDistance = 0.7;
+    // Debug mode - specific variables
+    const testValues = 
+        [0, 20, 0,
+            3.600222, 20, 2,
+            7.200443, 20, 2,
+            -3.600222, 20, 2,
+            -7.200443, 20, 2,
+            0, 30, 2,
+            3.600222, 30, 2,
+            7.200443, 30, 2,
+            -3.600222, 30, 2,
+            -7.200443, 30, 2,
+            0, 40, 0,
+            3.600222, 40, 2,
+            7.200443, 40, 2,
+            -3.600222, 40, 2,
+            -7.200443, 40, 2
+            ]
+    
+    // const testPoints = {id:0, u:0, v:10, w:-cameraHeight}
 
 //
 
@@ -61,6 +83,34 @@
             debugStateLabel.innerHTML = `Debug: OFF`;
         }
     }
+//
+
+// Point array formatting function
+    // Input format: [num0, num1, num2, num3, num4... numn];
+    // Target format: {id:0, u:0, v:10, w:-cameraHeight};
+    
+    function pointArrayToObjects(pointArray) {
+              
+        let objectCollection = [];
+        let pointObject;
+        let chunkSize = 3;
+        let chunk;
+        for (let i = 0; i < pointArray.length; i += chunkSize) {
+            chunk = pointArray.slice(i, i + chunkSize);
+            pointObject = {
+                u: chunk[0],
+                v: chunk[2],
+                w: chunk[1]
+            }
+
+            objectCollection.push(pointObject);
+        };
+        objectCollection = objectCollection.filter( Boolean );
+        return objectCollection;
+        }
+
+    // console.log(pointArrayToObjects(testValues));
+
 //
 
 // Perspective translator
@@ -87,8 +137,8 @@
             let input_Xs = input_XsYs.Xs;
             let input_Ys = input_XsYs.Ys;
 
-            reorientedPoint.Xo = (input_Xs - screen.width / 2) * imagePlaneScale; // Multiplying by imagePlaneScale lets us go directly from scrAtOrg to imagePlane
-            reorientedPoint.Yo = (originPosition.Y - input_Ys) * imagePlaneScale; 
+            reorientedPoint.x = (input_Xs - screen.width / 2) * imagePlaneScale; // Multiplying by imagePlaneScale lets us go directly from scrAtOrg to imagePlane
+            reorientedPoint.y = (originPosition.Y - input_Ys) * imagePlaneScale; 
 
             return reorientedPoint; 
         }
@@ -121,18 +171,33 @@
 
     // Transform: perspective -> imagePlane
         
-        function perspectiveToImagePlane(input_uvw) {
+        function perspectiveToImagePlane (input_uvw, depth) {
             let pointOnImagePlane = {
                 x: 0,
                 y: 0,
+                z: 0
             }
-            let input_u = input_xyz.u;
-            let input_v = input_xyz.v;
-            let input_w = input_xyz.w;
+            // console.log(input_uvw);
+            let input_u = input_uvw.u;
+            let input_v = input_uvw.v;
+            let input_w = input_uvw.w;
+            // console.log(input_u);
+            
+            /* IF w=0, the function doesn't work because of division by zero. FIX IT!
+            if (input_w === 0){
+                
 
-            pointOnImagePlane.x = input_u * imagePlaneDepth / input_w;
-            pointOnImagePlane.y = input_v * imagePlaneDepth / input_w;
+            } else {
+                
+            }*/
 
+            pointOnImagePlane.x = input_u * depth / input_w;
+            pointOnImagePlane.y = input_v * depth / input_w;
+            pointOnImagePlane.z = depth;
+            
+            // console.log(pointOnImagePlane);
+            
+            // console.log(pointOnImagePlane);
             return pointOnImagePlane;
         }
 
@@ -143,19 +208,100 @@
         function imagePlaneToScreen (input_xyz) {
             
             let pointOnScreen = {
-                x: 0,
-                y: 0,
-                z: 0
+                Xs: 0,
+                Ys: 0,
             }
+            // console.log(input_xyz)
+            let input_x = input_xyz.x;
+            let input_y = input_xyz.y;
+            let input_z = input_xyz.z;
 
-            
+            pointOnScreen.Xs = (input_x / imagePlaneScale) + (screen.width / 2);
+            pointOnScreen.Ys = originPosition.Y - (input_y / imagePlaneScale); // 
 
             return pointOnScreen;
         }
 
+    // Transform perspective -> screen
+
+        // function perspectiveToScreen (input_uvw) {
+        //     //imagePlaneToScreen(
+        //         perspectiveToImagePlane (input_uvw);
+        //         //);
+        // }
+
 
 
 //
+
+// Display function
+    // This function takes as an input an array of perspective points,
+    // it projects these points onto browser screen,
+    // and assigns divs of a given class to them.
+
+    let groundPts = pointArrayToObjects(testValues);
+    // console.log(groundPts);
+    
+    function display (pointArray, divClass) {
+        let pointCollection = '';
+        for (let i = 0; i < (pointArray.length / 3); i++) {
+            // I have coordinates of a point in perspective coordinates:
+            let pointInPerspective = groundPts[i];
+            let pointOnScreen;
+            let pointOnImagePlane;
+            // Now I need to find its position on the screen:
+            // console.log(pointInPerspective);
+            pointOnImagePlane = perspectiveToImagePlane(pointInPerspective, imagePlaneDepth);
+            // console.log(pointOnImagePlane);
+            pointOnScreen = imagePlaneToScreen(pointOnImagePlane);
+            // console.log(pointOnScreen);
+    
+            let pointDiv = `
+            <div class="${divClass}" style="
+            top: ${pointOnScreen.Ys}px;
+            left: ${pointOnScreen.Xs}px;">
+            </div>
+            `;
+            
+            pointCollection = `${pointCollection} ${pointDiv}`;
+            // console.log(pointCollection);
+
+            
+            // return pointCollection;
+        }
+        console.log(pointCollection);
+        ground.innerHTML = pointCollection;        
+    }
+
+    display(testValues, 'test-point');
+
+
+
+// Test points on the ground for debugging
+    
+    /*
+    let groundPts = pointArrayToObjects(testValues);
+    console.log(groundPts);
+
+    for (let i = 0; i < groundPts.length; i++) {
+        // I have coordinates of a point in perspective coordinates:
+        let pointInPerspective = groundPts[i];
+        // Now I need to find its position on the screen:
+        console.log(pointInPerspective);
+        let pointOnScreen = imagePlaneToScreen(perspectiveToImagePlane(pointInPerspective));
+        console.log(pointOnScreen);
+
+        let pointDiv = `
+        <div class="test-point" style="
+        top: ${point.v};
+        left: ${point.u};
+        ">
+        </div>
+        `;
+        console.log(point.u);        
+    } */
+
+    // ground.appendChild(point);
 
 
 // Target - here we define point areas
@@ -184,6 +330,7 @@
 //
 
 // Left Hand Aim
+
     function leftHandAim(e) {
         leftHand.style.left = `${e.clientX-leftHandSize/2}px`;
         leftHand.style.top = `${e.clientY-leftHandSize/2}px`;
@@ -191,8 +338,8 @@
         leftHandSet.Ys = e.clientY;
        
         let ipCoordinates = {
-            x: screenToImagePlane(leftHandSet).Xo,
-            y: screenToImagePlane(leftHandSet).Yo,
+            x: screenToImagePlane(leftHandSet).x,
+            y: screenToImagePlane(leftHandSet).y,
             z: imagePlane.depth,
         }
 
@@ -203,6 +350,10 @@
             w: leftHandDistance,
         }
 
+        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, leftHandDistance);
+
+        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
+        
         if (debugMode === true) {
             leftHand.innerHTML = `
             <span class="debug-text">
@@ -222,13 +373,27 @@
                 ${ppCoordinates.v},<br>
                 ${ppCoordinates.w}
             </span>
+            <span class="debug-text">
+                imgpl-rtrn:<br>
+                ${ipRtrnCoords.x},<br>
+                ${ipRtrnCoords.y},<br>
+                ${ipRtrnCoords.z}
+            </span>
+            <span class="debug-text">
+                scrn-rtrn:<br>
+                ${scrnRtrnCoords.Xs},<br>
+                ${scrnRtrnCoords.Ys}
+            </span>
             `;
         }
 
         return leftHandSet;
     }
 
-// screenToImagePlane(leftHandSet.X, leftHandSet.Y);
+//
+
+// Test Point matrix
+    
 
 
 // screenToImagePlane(leftHandSet);
