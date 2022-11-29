@@ -21,7 +21,7 @@
         depth: imagePlaneDepth,
     }
     const imagePlaneScale = imagePlane.width / window.innerWidth;
-    console.log(window.innerWidth);
+    // console.log(window.innerWidth);
     const perspective = {
         name: 'perspective',
     }
@@ -32,6 +32,7 @@
     const target = document.getElementById('point-area-1');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
+
     let targetSize = 1.22;
     let targetDistance = 30;
     let targetHeight = 1.2;
@@ -48,8 +49,8 @@
     
     // Player input
     let leftHandSet = {
-        X:0,
-        Y:0,
+        Xs:0,
+        Ys:0,
     };
     let leftHandDistance = 1.4;
     let rightHandDistance = 0.7;
@@ -79,10 +80,14 @@
         debugMode = debugToggle.checked
         if (debugMode === true) {
             debugStateLabel.innerHTML = `Debug: ON`;
+            console.log('Debug: ON');
         } else {
             debugStateLabel.innerHTML = `Debug: OFF`;
+            console.log('Debug: OFF');
         }
+        return debugMode
     }
+    console.log(debugMode);
 //
 
 // Point array formatting function
@@ -269,14 +274,19 @@
             
             // return pointCollection;
         }
-        console.log(pointCollection);
+        // console.log(pointCollection);
         debugPoints.innerHTML = pointCollection;        
     }
 
     display(testValues, 'test-point');
 //
 
-// Target size calculation
+// Target size & position calculation
+
+    // Target size calculation:
+        targetSize;
+        targetDistance;
+        targetHeight;
 
 
 // Target - here we define point areas
@@ -309,8 +319,9 @@
     function leftHandAim(e) {
         leftHand.style.left = `${e.clientX-leftHandSize/2}px`;
         leftHand.style.top = `${e.clientY-leftHandSize/2}px`;
-        leftHandSet.Xs = e.clientX
+        leftHandSet.Xs = e.clientX;
         leftHandSet.Ys = e.clientY;
+        console.log(leftHandSet);
        
         let ipCoordinates = {
             x: screenToImagePlane(leftHandSet).x,
@@ -325,7 +336,7 @@
             w: leftHandDistance,
         }
 
-        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, leftHandDistance);
+        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
 
         let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
         
@@ -365,14 +376,6 @@
         return leftHandSet;
     }
 
+    // leftHandAim();
+
 //
-
-// Test Point matrix
-    
-
-
-// screenToImagePlane(leftHandSet);
-
-
-
-
