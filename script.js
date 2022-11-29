@@ -1,5 +1,6 @@
-// Document variables
 
+// Document variables
+    const root = document.querySelector(':root');
     // UI Elements
     const debugToggle = document.getElementById('debug-toggle');
     const debugStateLabel = document.getElementById('debug-state-label');    
@@ -33,9 +34,12 @@
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
 
-    let targetSize = 1.22;
-    let targetDistance = 30;
-    let targetHeight = 1.2;
+    let targetSize = 1*1.22;
+    let targetSizePixels;
+    let targetPosition = {u: 0, v:(1.2-cameraHeight), w:30};
+    let targetPositionPixels;
+    // targetPosition.w = 30;
+    // targetPosition.u = 1.2;
     
     let debugMode;
     let leftHandPosition;
@@ -87,7 +91,7 @@
         }
         return debugMode
     }
-    console.log(debugMode);
+    // console.log(debugMode);
 //
 
 // Point array formatting function
@@ -129,6 +133,8 @@
 
     We need functions to transform the coordinates of a point, 
     given in one of these coordinate systems into a needed coordinate system. */
+
+
 
     // Transform: screen -> imagePlane
         
@@ -187,15 +193,7 @@
             let input_v = input_uvw.v;
             let input_w = input_uvw.w;
             // console.log(input_u);
-            
-            /* IF w=0, the function doesn't work because of division by zero. FIX IT!
-            if (input_w === 0){
-                
-
-            } else {
-                
-            }*/
-
+                        
             pointOnImagePlane.x = input_u * depth / input_w;
             pointOnImagePlane.y = input_v * depth / input_w;
             pointOnImagePlane.z = depth;
@@ -229,10 +227,8 @@
 
     // Transform perspective -> screen
 
-        // function perspectiveToScreen (input_uvw) {
-        //     //imagePlaneToScreen(
-        //         perspectiveToImagePlane (input_uvw);
-        //         //);
+        // function perspectiveToScreen (input_uvw, depth) {
+        //     imagePlaneToScreen(perspectiveToImagePlane(input_uvw, depth));
         // }
 
 
@@ -284,9 +280,37 @@
 // Target size & position calculation
 
     // Target size calculation:
-        targetSize;
-        targetDistance;
-        targetHeight;
+        // targetSize;
+        // targetPosition.w;
+        ;
+
+        // we need to calculate distance in px from a point [targetSize/2, targetPosition.]
+        (function targetSizePx() {            
+            let rightPoint = {u: targetSize/2, v: targetPosition.v , w: targetPosition.w};
+            let leftPoint = {u: -targetSize/2, v: targetPosition.v , w: targetPosition.w};
+            let rightPointPx = imagePlaneToScreen(perspectiveToImagePlane(rightPoint, imagePlaneDepth));
+            let leftPointPx = imagePlaneToScreen(perspectiveToImagePlane(leftPoint, imagePlaneDepth));
+
+            let result = rightPointPx.Xs - leftPointPx.Xs;
+            
+            targetSizePixels = result;
+        }());
+        console.log(targetSizePixels);
+        root.style.setProperty('--target-size', `${targetSizePixels}px`);
+        
+        // we need to calculate the position of the target in px
+        
+        targetPositionPixels = imagePlaneToScreen(perspectiveToImagePlane(targetPosition, imagePlaneDepth));
+        console.log(targetPositionPixels);
+        let targetPositionPixelsXs = targetPositionPixels.Xs;
+
+        root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
+        root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        
+         
+        
+
+        
 
 
 // Target - here we define point areas
@@ -375,7 +399,5 @@
 
         return leftHandSet;
     }
-
-    // leftHandAim();
 
 //
