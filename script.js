@@ -11,14 +11,13 @@
         depth: 0,
     }
     const fov = 39.6;
-    const imagePlaneDepth = 1.0;
+    const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
         width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180), // window.innerWidth, <<< TU MOZE BYĆ BUG
         height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (window.innerWidth / window.innerHeight),
         depth: imagePlaneDepth,
     }
-    console.log(imagePlane);
     const imagePlaneScale = imagePlane.width / window.innerWidth;
     const perspective = {
         name: 'perspective',
@@ -33,18 +32,17 @@
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
         leftHandSize = leftHandSize.slice(0, -2);
         leftHandSize = Number(leftHandSize);
-    let targetPosition = {
+    let originPosition = {
         X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
         Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
     }    
-    // console.log(targetPosition);    
     // Player input
     let leftHandSet = {
         X:0,
         Y:0,
     };
-    let leftHandDistance = 0.8;
-    let rightHandDistance = 0.1;
+    let leftHandDistance = 1.4;
+    let rightHandDistance = 0.7;
 
 //
 
@@ -67,69 +65,61 @@
 
 // Perspective translator
     
-    /* We'll have 3 coordinate systems:
-      - screen      [X,Y],   2D, with screen top left as origin;
-      - imagePlane  [x,y,z], 2D, with Oz (vanishing point) as origin;
-      - perspective [u,v,w], 3D, with camera as origin;
-    We need functions to translate the coordinates of a point, 
+    /* We'll have 4 coordinate systems:
+
+      - screen         [Xs,Ys],   2D, with screen top left as origin,       units: pixels;
+      - scrAtOrg       [Xo,Yo],   2D, with Vp (vanishing point) as origin   units: pixels;
+      - imagePlane     [x,y,z],   2D, with Vp (vanishing point) as origin   units: meters;
+      - perspective    [u,v,w],   3D, with camera as origin                 units: meters;
+
+    We need functions to transform the coordinates of a point, 
     given in one of these coordinate systems into a needed coordinate system. */
 
-    // Translator: screen -> imagePlane
-        // TODO: create a XY function that operates on both coordinates at a time 
+    // Transform: screen -> imagePlane
+        
+        function screenToImagePlane (input_XsYs) {
+            let reorientedPoint = {
+                x: 0,
+                y: 0,
+                z: imagePlaneDepth,
+            }
 
+            let input_Xs = input_XsYs.Xs;
+            let input_Ys = input_XsYs.Ys;
 
-        /// THIS IS ALL WRONG FROM HERE!!!!!!!
-      
-     
-        function screenToImagePlane_X(X) {
-            let pointOnImagePlane = {
-                x: 0            
-            };
+            reorientedPoint.Xo = (input_Xs - screen.width / 2) * imagePlaneScale; // Multiplying by imagePlaneScale lets us go directly from scrAtOrg to imagePlane
+            reorientedPoint.Yo = (originPosition.Y - input_Ys) * imagePlaneScale; 
 
-            pointOnImagePlane.x = (X - (imagePlane.width / 2)) * imagePlaneScale; // <<< TU MOZE BYĆ BUG
-            return pointOnImagePlane.x;
+            return reorientedPoint; 
         }
 
-        function screenToImagePlane_Y(Y) {
-            let pointOnImagePlane = {
-                y: 0
-            };
-
-            pointOnImagePlane.y = (targetPosition.Y - Y) * imagePlaneScale;
-            return pointOnImagePlane.y;
-        }
-
-
-        /// THIS IS ALL WRONG TO HERE!!!!!!!
     //
 
-    // Translator: imagePlane -> perspective
+    // Transform: imagePlane -> perspective
         // this one needs an additional variable of depth.
 
+        // It actually can be used for ANY plane (?).
         
-        function imagePlaneToPerspective(input_xyz, w) {
+        function imagePlaneToPerspective(input_xyz, depth) {
             let pointInPerspective = {
                 u: 0,
                 v: 0,
-                w: w
+                w: depth
             };
             let input_x = input_xyz.x;
             let input_y = input_xyz.y;
             let input_z = input_xyz.z;
 
-            pointInPerspective.u = input_x * w / input_z;
-            pointInPerspective.v = input_y * w / input_z ;
-            pointInPerspective.w = w;
+            pointInPerspective.u = input_x * depth / input_z;
+            pointInPerspective.v = input_y * depth / input_z ;
+            pointInPerspective.w = depth;
             
             return pointInPerspective;
         }
-
-        // let testPoint = {x:400, y:500, z:1};        
-        // let log = imagePlaneToPerspective(testPoint, leftHandDistance);
-        // console.log(log);
+        
     //
 
-    // Translator: perspective -> imagePlane
+    // Transform: perspective -> imagePlane
         
         function perspectiveToImagePlane(input_uvw) {
             let pointOnImagePlane = {
@@ -145,8 +135,23 @@
 
             return pointOnImagePlane;
         }
+
+    //
+
+    // Transform imagePlane -> screen
+
+        function imagePlaneToScreen (input_xyz) {
             
-        //
+            let pointOnScreen = {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+
+            
+
+            return pointOnScreen;
+        }
 
 
 
@@ -182,16 +187,15 @@
     function leftHandAim(e) {
         leftHand.style.left = `${e.clientX-leftHandSize/2}px`;
         leftHand.style.top = `${e.clientY-leftHandSize/2}px`;
-        leftHandSet.X = e.clientX
-        leftHandSet.Y = e.clientY;
-        
+        leftHandSet.Xs = e.clientX
+        leftHandSet.Ys = e.clientY;
+       
         let ipCoordinates = {
-            x: screenToImagePlane_X(e.clientX),
-            y: screenToImagePlane_Y(e.clientY),
+            x: screenToImagePlane(leftHandSet).Xo,
+            y: screenToImagePlane(leftHandSet).Yo,
             z: imagePlane.depth,
         }
 
-        // console.log(ipCoordinates);
         
         let ppCoordinates = {
             u: imagePlaneToPerspective(ipCoordinates, leftHandDistance).u,
@@ -199,10 +203,7 @@
             w: leftHandDistance,
         }
 
-
-
         if (debugMode === true) {
-            // console.log(e.clientX, e.clientY);
             leftHand.innerHTML = `
             <span class="debug-text">
                 ${screen.name}:<br>

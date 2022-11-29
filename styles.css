@@ -8,7 +8,7 @@
     --target-red: rgb(233, 92, 111);
     --target-yellow: rgb(247, 213, 129);
 
-    --sky-height: 70vh;
+    --sky-height: 40vh;
     
     --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2);
     --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));
@@ -122,7 +122,7 @@ body {
 
 #ground {
     position: fixed;
-    top: 70vh;
+    top: var(--sky-height);
     width: 100vw;
     height: calc(100vh - var(--sky-height));
     background: rgb(104,150,37);
