@@ -33,6 +33,7 @@
     const target = document.getElementById('point-area-1');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
+    const rightHand = document.getElementById('right-hand');
 
     let targetSize = 1*1.22;
     let targetSizePixels;
@@ -46,6 +47,10 @@
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
         leftHandSize = leftHandSize.slice(0, -2);
         leftHandSize = Number(leftHandSize);
+    let rightHandSize = getComputedStyle(rightHand).getPropertyValue('--right-hand-size');
+        rightHandSize = rightHandSize.slice(0, -2);
+        rightHandSize = Number(rightHandSize);
+    console.log(rightHandSize);
     let originPosition = {
         X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
         Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
@@ -56,8 +61,14 @@
         Xs:0,
         Ys:0,
     };
+    let rightHandSet = {
+        Xs:0,
+        Ys:0,
+    };
     let leftHandDistance = 1.4;
     let rightHandDistance = 0.7;
+    
+
     
     // Debug mode - specific variables
     const testValues = 
@@ -76,7 +87,10 @@
 
 // Add event listeners
     debugToggle.addEventListener('click', toggle);
-    gameArea.addEventListener('mousedown', leftHandAim);
+    // gameArea.addEventListener('mousedown', leftHandAim);
+    gameArea.addEventListener('touchstart', leftHandAim);
+    // gameArea.addEventListener('mouseup', rightHandAim);
+    gameArea.addEventListener('touchend', rightHandAim);
 //
 
 // Debug mode toggle
@@ -364,8 +378,73 @@
 
         let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
         
+        // if (debugMode === true) {
+        //     leftHand.innerHTML = `
+        //     <span class="debug-text">
+        //         ${screen.name}:<br>
+        //         ${e.clientX},<br>
+        //         ${e.clientY}
+        //     </span>
+        //     <span class="debug-text">
+        //         ${imagePlane.name}:<br>
+        //         ${ipCoordinates.x},<br>
+        //         ${ipCoordinates.y},<br>
+        //         ${ipCoordinates.z}
+        //     </span>
+        //     <span class="debug-text">
+        //         ${perspective.name}:<br>
+        //         ${ppCoordinates.u},<br>
+        //         ${ppCoordinates.v},<br>
+        //         ${ppCoordinates.w}
+        //     </span>
+        //     <span class="debug-text">
+        //         imgpl-rtrn:<br>
+        //         ${ipRtrnCoords.x},<br>
+        //         ${ipRtrnCoords.y},<br>
+        //         ${ipRtrnCoords.z}
+        //     </span>
+        //     <span class="debug-text">
+        //         scrn-rtrn:<br>
+        //         ${scrnRtrnCoords.Xs},<br>
+        //         ${scrnRtrnCoords.Ys}
+        //     </span>
+        //     `;
+        // }
+
+        return leftHandSet;
+    }
+
+//
+
+// Right hand aim
+    function rightHandAim(e) {
+        rightHand.style.setProperty('display', 'block');
+
+        rightHand.style.left = `${e.clientX-rightHandSize/2}px`;
+        rightHand.style.top = `${e.clientY-rightHandSize/2}px`;
+        rightHandSet.Xs = e.clientX;
+        rightHandSet.Ys = e.clientY;
+        console.log(rightHandSet);
+    
+        let ipCoordinates = {
+            x: screenToImagePlane(rightHandSet).x,
+            y: screenToImagePlane(rightHandSet).y,
+            z: imagePlane.depth,
+        }
+
+        
+        let ppCoordinates = {
+            u: imagePlaneToPerspective(ipCoordinates, rightHandDistance).u,
+            v: imagePlaneToPerspective(ipCoordinates, rightHandDistance).v,
+            w: rightHandDistance,
+        }
+
+        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
+
+        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
+        
         if (debugMode === true) {
-            leftHand.innerHTML = `
+            rightHand.innerHTML = `
             <span class="debug-text">
                 ${screen.name}:<br>
                 ${e.clientX},<br>
@@ -397,7 +476,5 @@
             `;
         }
 
-        return leftHandSet;
+        return rightHandSet;
     }
-
-//
