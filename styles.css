@@ -90,7 +90,7 @@ body {
 }
 
 #debug-toggle {
-    display: hidden;
+    display: none;
 }
 
 #debug-state-label {
