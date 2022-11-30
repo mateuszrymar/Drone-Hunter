@@ -57,6 +57,7 @@
     }    
     
     // Player input
+    let device;
     let leftHandSet = {
         Xs:0,
         Ys:0,
@@ -82,16 +83,35 @@
     
     // const testPoints = {id:0, u:0, v:10, w:-cameraHeight}
 
-//
-
+//      
+            
 
 // Add event listeners
     debugToggle.addEventListener('click', toggle);
-    // gameArea.addEventListener('mousedown', leftHandAim);
+    gameArea.addEventListener('mousedown', mouse);
+    gameArea.addEventListener('mousedown', leftHandAim);
+    gameArea.addEventListener('mouseup', rightHandAim);
+    gameArea.addEventListener('touchstart', touch);
     gameArea.addEventListener('touchstart', leftHandAim);
-    // gameArea.addEventListener('mouseup', rightHandAim);
-    gameArea.addEventListener('touchend', rightHandAim);
+    gameArea.addEventListener('touchmove', rightHandAim);
+    // gameArea.addEventListener('touchcancel', touchCancelled);
+    // gameArea.addEventListener('touchmove', touchMoved);
+
 //
+
+// Device recognition           
+    function mouse () {
+        device = 'mouse';
+        console.log(device);
+        return device;
+    };
+    function touch () {
+        device = 'touch';
+        console.log(device);
+        return device;
+    };
+    
+            
 
 // Debug mode toggle
     function toggle(e) {
@@ -105,7 +125,7 @@
         }
         return debugMode
     }
-    // console.log(debugMode);
+    
 //
 
 // Point array formatting function
@@ -352,13 +372,28 @@
     };
 //
 
+// console.log(debugMode);
+
 // Left Hand Aim
 
     function leftHandAim(e) {
-        leftHand.style.left = `${e.clientX-leftHandSize/2}px`;
-        leftHand.style.top = `${e.clientY-leftHandSize/2}px`;
-        leftHandSet.Xs = e.clientX;
-        leftHandSet.Ys = e.clientY;
+        leftHand.style.setProperty('display', 'block');
+        let triggerX;
+        let triggerY;
+        if (device === 'mouse') {
+            triggerX = e.clientX;
+            triggerY = e.clientY;
+        } else {
+            triggerX = e.touches[0].clientX;
+            triggerY = e.touches[0].clientY;
+        }
+        // let triggerX = e.touches[0].clientX, e.clientX // e.touches[0].clientX for mobile; e.clientX for desktop
+
+        leftHand.style.left = `${triggerX-leftHandSize/2}px`;
+        leftHand.style.top = `${triggerY-leftHandSize/2}px`;
+
+        leftHandSet.Xs = triggerX;
+        leftHandSet.Ys = triggerY;
         console.log(leftHandSet);
        
         let ipCoordinates = {
@@ -378,77 +413,13 @@
 
         let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
         
-        // if (debugMode === true) {
-        //     leftHand.innerHTML = `
-        //     <span class="debug-text">
-        //         ${screen.name}:<br>
-        //         ${e.clientX},<br>
-        //         ${e.clientY}
-        //     </span>
-        //     <span class="debug-text">
-        //         ${imagePlane.name}:<br>
-        //         ${ipCoordinates.x},<br>
-        //         ${ipCoordinates.y},<br>
-        //         ${ipCoordinates.z}
-        //     </span>
-        //     <span class="debug-text">
-        //         ${perspective.name}:<br>
-        //         ${ppCoordinates.u},<br>
-        //         ${ppCoordinates.v},<br>
-        //         ${ppCoordinates.w}
-        //     </span>
-        //     <span class="debug-text">
-        //         imgpl-rtrn:<br>
-        //         ${ipRtrnCoords.x},<br>
-        //         ${ipRtrnCoords.y},<br>
-        //         ${ipRtrnCoords.z}
-        //     </span>
-        //     <span class="debug-text">
-        //         scrn-rtrn:<br>
-        //         ${scrnRtrnCoords.Xs},<br>
-        //         ${scrnRtrnCoords.Ys}
-        //     </span>
-        //     `;
-        // }
-
-        return leftHandSet;
-    }
-
-//
-
-// Right hand aim
-    function rightHandAim(e) {
-        rightHand.style.setProperty('display', 'block');
-
-        rightHand.style.left = `${e.clientX-rightHandSize/2}px`;
-        rightHand.style.top = `${e.clientY-rightHandSize/2}px`;
-        rightHandSet.Xs = e.clientX;
-        rightHandSet.Ys = e.clientY;
-        console.log(rightHandSet);
-    
-        let ipCoordinates = {
-            x: screenToImagePlane(rightHandSet).x,
-            y: screenToImagePlane(rightHandSet).y,
-            z: imagePlane.depth,
-        }
-
-        
-        let ppCoordinates = {
-            u: imagePlaneToPerspective(ipCoordinates, rightHandDistance).u,
-            v: imagePlaneToPerspective(ipCoordinates, rightHandDistance).v,
-            w: rightHandDistance,
-        }
-
-        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
-
-        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
         
         if (debugMode === true) {
-            rightHand.innerHTML = `
+            leftHand.innerHTML = `
             <span class="debug-text">
                 ${screen.name}:<br>
-                ${e.clientX},<br>
-                ${e.clientY}
+                ${triggerX},<br>
+                ${triggerY}
             </span>
             <span class="debug-text">
                 ${imagePlane.name}:<br>
@@ -474,7 +445,88 @@
                 ${scrnRtrnCoords.Ys}
             </span>
             `;
+        } else {
+            leftHand.innerHTML = ``;
+        };
+
+        return leftHandSet;
+    }
+
+//
+
+// Right hand aim
+    function rightHandAim(e) {
+        rightHand.style.setProperty('display', 'block');
+        let triggerX;
+        let triggerY;
+
+
+        if (device === 'mouse') {
+            triggerX = e.clientX;
+            triggerY = e.clientY;
+        } else {
+            triggerX = e.touches[0].clientX;
+            triggerY = e.touches[0].clientY;
         }
+
+
+        rightHand.style.left = `${triggerX-rightHandSize/2}px`;
+        rightHand.style.top = `${triggerY-rightHandSize/2}px`;
+        rightHandSet.Xs = triggerX;
+        rightHandSet.Ys = triggerY;
+        console.log(rightHandSet);
+    
+        let ipCoordinates = {
+            x: screenToImagePlane(rightHandSet).x,
+            y: screenToImagePlane(rightHandSet).y,
+            z: imagePlane.depth,
+        }
+
+        
+        let ppCoordinates = {
+            u: imagePlaneToPerspective(ipCoordinates, rightHandDistance).u,
+            v: imagePlaneToPerspective(ipCoordinates, rightHandDistance).v,
+            w: rightHandDistance,
+        }
+
+        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
+
+        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
+        
+        if (debugMode === true) {
+            rightHand.innerHTML = `
+            <span class="debug-text">
+                ${screen.name}:<br>
+                ${triggerX},<br>
+                ${triggerY}
+            </span>
+            <span class="debug-text">
+                ${imagePlane.name}:<br>
+                ${ipCoordinates.x},<br>
+                ${ipCoordinates.y},<br>
+                ${ipCoordinates.z}
+            </span>
+            <span class="debug-text">
+                ${perspective.name}:<br>
+                ${ppCoordinates.u},<br>
+                ${ppCoordinates.v},<br>
+                ${ppCoordinates.w}
+            </span>
+            <span class="debug-text">
+                imgpl-rtrn:<br>
+                ${ipRtrnCoords.x},<br>
+                ${ipRtrnCoords.y},<br>
+                ${ipRtrnCoords.z}
+            </span>
+            <span class="debug-text">
+                scrn-rtrn:<br>
+                ${scrnRtrnCoords.Xs},<br>
+                ${scrnRtrnCoords.Ys}
+            </span>
+            `;
+        } else {
+            rightHand.innerHTML = ``;
+        };
 
         return rightHandSet;
     }

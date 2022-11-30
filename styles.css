@@ -180,7 +180,7 @@ body {
 }
 
 #left-hand {
-    display: flex;
+    display: none;
     flex-direction: column;
     width: var(--left-hand-size);
     height: var(--left-hand-size);
