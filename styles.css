@@ -89,6 +89,10 @@ body {
     transition: .4s;
 }
 
+#debug-toggle {
+    display: hidden;
+}
+
 #debug-state-label {
     position: absolute;
     width: max-content;
