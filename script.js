@@ -1,11 +1,11 @@
-
 // Document variables
-    const root = document.querySelector(':root');
-    // UI Elements
+    
+
+// UI Elements
     const debugToggle = document.getElementById('debug-toggle');
     const debugStateLabel = document.getElementById('debug-state-label');    
-    
-    // Perspective data
+
+// Perspective data
     const screen = {
         name: 'screen',
         width: window.innerWidth,
@@ -26,8 +26,9 @@
     const perspective = {
         name: 'perspective',
     }
-    
-    // Graphical elements
+
+// Graphical elements
+    const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
     const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('point-area-1');
@@ -39,39 +40,43 @@
     let targetSizePixels;
     let targetPosition = {u: 0, v:(1.2-cameraHeight), w:30};
     let targetPositionPixels;
-    // targetPosition.w = 30;
-    // targetPosition.u = 1.2;
-    
-    let debugMode;
     let leftHandPosition;
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
-        leftHandSize = leftHandSize.slice(0, -2);
+    leftHandSize = leftHandSize.slice(0, -2);
         leftHandSize = Number(leftHandSize);
-    let rightHandSize = getComputedStyle(rightHand).getPropertyValue('--right-hand-size');
+        let rightHandSize = getComputedStyle(rightHand).getPropertyValue('--right-hand-size');
         rightHandSize = rightHandSize.slice(0, -2);
         rightHandSize = Number(rightHandSize);
-    console.log(rightHandSize);
-    let originPosition = {
-        X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
-        Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
-    }    
-    
-    // Player input
-    let device;
-    let leftHandSet = {
-        Xs:0,
-        Ys:0,
+        let originPosition = {
+            X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
+            Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
+        }    
+        
+        // Player input
+        let device;
+        let leftHandScr = {
+            Xs: 0,
+            Ys: 0
+        };
+        let leftHand_uvw = {
+            u: 0,
+            v: 0,
+            w: 0
+        }
+    let rightHandScr = {
+        Xs: 0,
+        Ys: 0
     };
-    let rightHandSet = {
-        Xs:0,
-        Ys:0,
-    };
+    let rightHand_uvw = {
+        u: 0,
+        v: 0,
+        w: 0
+    }
     let leftHandDistance = 1.4;
-    let rightHandDistance = 0.7;
+    let rightHandDistance = 0.7;   
     
-
-    
-    // Debug mode - specific variables
+// Debug mode - specific variables
+    let debugMode;
     const testValues = 
         [0, 30, 0,
             10.800665, 30, 0,
@@ -80,11 +85,30 @@
             0.61, 30, 1.2,
             -0.61, 30, 1.2            
             ]
-    
-    // const testPoints = {id:0, u:0, v:10, w:-cameraHeight}
 
-//      
-            
+// Physics variables
+    const gravity = 9.8; // m/s
+    let t = 0;  // time will start at arrow release.
+    let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
+    const ArwLng = 0.85; // arrow length
+    let arwSpdAtRel; // Arrow speed at release
+    let arwSpd; // for storing current arrow speed
+    let arwVecAtRel; // Arrow vector at release
+    let arwVec; // for storing current arrow vector
+    let arwHead;
+    let arwEnd;
+
+
+//
+
+
+
+
+
+
+
+
+// GLOBAL UTILITIES SECTION ////////////////////////////////////////////////////////           
 
 // Add event listeners
     debugToggle.addEventListener('click', toggle);
@@ -102,30 +126,14 @@
 // Device recognition           
     function mouse () {
         device = 'mouse';
-        console.log(device);
+        // console.log(device);
         return device;
     };
     function touch () {
         device = 'touch';
-        console.log(device);
+        // console.log(device);
         return device;
     };
-    
-            
-
-// Debug mode toggle
-    function toggle(e) {
-        debugMode = debugToggle.checked
-        if (debugMode === true) {
-            debugStateLabel.innerHTML = `Debug: ON`;
-            console.log('Debug: ON');
-        } else {
-            debugStateLabel.innerHTML = `Debug: OFF`;
-            console.log('Debug: OFF');
-        }
-        return debugMode
-    }
-    
 //
 
 // Point array formatting function
@@ -151,10 +159,43 @@
         objectCollection = objectCollection.filter( Boolean );
         return objectCollection;
         }
+//
 
-    // console.log(pointArrayToObjects(testValues));
+// General math functions
+
+    function vectorLength (input_vector) {
+        let result;
+        result = Math.sqrt( Math.pow(input_vector[0], 2) + Math.pow(input_vector[1], 2) + Math.pow(input_vector[2], 2));
+        return result;
+    };
+
+    function crossProduct (vec1, vec2) {
+        let result;
+        result = [(vec1[1]*vec2[2] - vec1[2]*vec2[1]), (vec1[2]*vec2[0] - vec1[0]*vec2[2]), (vec1[0]*vec2[1] - vec1[1]*vec2[0])];
+        return result;
+    };
+
+    function dotProduct (vec1, vec2) {
+        let result;
+        result = (vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]);
+        return result;
+    };
+
+    function vectorFromPoints (input1_uvw, input2_uvw) {
+        let result;
+        result = [input2_uvw.u - input1_uvw.u, input2_uvw.v - input1_uvw.v, input2_uvw.w - input1_uvw.w,]
+        return result;
+    };
+
+    function vectorAngle (vec1, vec2) {
+        let result;
+        result = Math.acos( dotProduct(vec1,vec2) / (vectorLength(vec1) * vectorLength(vec2)) );
+        return result;
+    }
+
 
 //
+    
 
 // Perspective transformer functions
     
@@ -260,28 +301,30 @@
         }
 
     // Transform perspective -> screen
+    // TODO - figure out, why below code doesn't work:
 
         // function perspectiveToScreen (input_uvw, depth) {
         //     imagePlaneToScreen(perspectiveToImagePlane(input_uvw, depth));
         // }
 
+        //  Temporary solution:
+        //  imagePlaneToScreen(perspectiveToImagePlane(input_uvw, imagePlaneDepth));
+
 
 
 //
 
-// Display function
+// Display & Clear display functions
     // This function takes as an input an array of perspective points,
     // it projects these points onto browser screen,
     // and assigns divs of a given class to them.
-
-    let groundPts = pointArrayToObjects(testValues);
-    // console.log(groundPts);
-    
-    function display (pointArray, divClass) {
+   
+    function display (pointArray, targetDiv, divClass) {
         let pointCollection = '';
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
-            let pointInPerspective = groundPts[i];
+            let pointInPerspective = pointArrayToObjects(pointArray)[i];
+            
             let pointOnScreen;
             let pointOnImagePlane;
             // Now I need to find its position on the screen:
@@ -305,11 +348,52 @@
             // return pointCollection;
         }
         // console.log(pointCollection);
-        debugPoints.innerHTML = pointCollection;        
+        targetDiv.innerHTML = pointCollection;        
     }
 
-    display(testValues, 'test-point');
+    function clearDisplay (targetDiv) {
+        targetDiv.innerHTML = null;
+    }
+
 //
+
+
+
+
+
+
+
+
+
+// USER INTERFACE SECTION ////////////////////////////////////////////////////////
+// This section contains all UI elements.
+
+    // Debug mode
+    function toggle(e) {
+        debugMode = debugToggle.checked
+        if (debugMode === true) {
+            debugStateLabel.innerHTML = `Debug: ON`;
+            console.log('Debug: ON');
+            display(testValues, debugPoints, 'test-point');
+        } else {
+            debugStateLabel.innerHTML = `Debug: OFF`;
+            console.log('Debug: OFF');
+            clearDisplay(debugPoints);
+        }
+        return debugMode
+    }    
+
+//
+
+
+
+
+
+
+
+
+// SCENE SECTION ////////////////////////////////////////////////////////
+// This section contains all stuff that is visible on the screen when the page loads, excluding UI elements.
 
 // Target size & position calculation
 
@@ -329,23 +413,15 @@
             
             targetSizePixels = result;
         }());
-        console.log(targetSizePixels);
         root.style.setProperty('--target-size', `${targetSizePixels}px`);
         
         // we need to calculate the position of the target in px
         
         targetPositionPixels = imagePlaneToScreen(perspectiveToImagePlane(targetPosition, imagePlaneDepth));
-        console.log(targetPositionPixels);
         let targetPositionPixelsXs = targetPositionPixels.Xs;
 
         root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
         root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
-        
-         
-        
-
-        
-
 
 // Target - here we define point areas
 
@@ -372,161 +448,265 @@
     };
 //
 
-// console.log(debugMode);
 
-// Left Hand Aim
 
-    function leftHandAim(e) {
-        leftHand.style.setProperty('display', 'block');
-        let triggerX;
-        let triggerY;
-        if (device === 'mouse') {
-            triggerX = e.clientX;
-            triggerY = e.clientY;
-        } else {
-            triggerX = e.touches[0].clientX;
-            triggerY = e.touches[0].clientY;
+
+
+
+
+
+
+
+// USER INPUT SECTION ////////////////////////////////////////////////////////
+// This section contains all objects the player interacts with, excluding UI.
+
+    // Left Hand Aim
+
+        function leftHandAim(e) {
+            leftHand.style.setProperty('display', 'block');
+            let triggerX;
+            let triggerY;
+            if (device === 'mouse') {
+                triggerX = e.clientX;
+                triggerY = e.clientY;
+            } else {
+                triggerX = e.touches[0].clientX;
+                triggerY = e.touches[0].clientY;
+            }
+            // let triggerX = e.touches[0].clientX, e.clientX // e.touches[0].clientX for mobile; e.clientX for desktop
+
+            leftHand.style.left = `${triggerX-leftHandSize/2}px`;
+            leftHand.style.top = `${triggerY-leftHandSize/2}px`;
+
+            leftHandScr.Xs = triggerX;
+            leftHandScr.Ys = triggerY;
+        
+            let ipCoordinates = {
+                x: screenToImagePlane(leftHandScr).x,
+                y: screenToImagePlane(leftHandScr).y,
+                z: imagePlane.depth,
+            }
+
+            
+            let ppCoordinates = {
+                u: imagePlaneToPerspective(ipCoordinates, leftHandDistance).u,
+                v: imagePlaneToPerspective(ipCoordinates, leftHandDistance).v,
+                w: leftHandDistance,
+            }
+
+            let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
+
+            let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
+
+            leftHand_uvw = ppCoordinates;        
+            
+            if (debugMode === true) {
+                leftHand.innerHTML = `
+                <span class="debug-text">
+                    ${screen.name}:<br>
+                    ${triggerX},<br>
+                    ${triggerY}
+                </span>
+                <span class="debug-text">
+                    ${imagePlane.name}:<br>
+                    ${ipCoordinates.x},<br>
+                    ${ipCoordinates.y},<br>
+                    ${ipCoordinates.z}
+                </span>
+                <span class="debug-text">
+                    ${perspective.name}:<br>
+                    ${ppCoordinates.u},<br>
+                    ${ppCoordinates.v},<br>
+                    ${ppCoordinates.w}
+                </span>
+                <span class="debug-text">
+                    imgpl-rtrn:<br>
+                    ${ipRtrnCoords.x},<br>
+                    ${ipRtrnCoords.y},<br>
+                    ${ipRtrnCoords.z}
+                </span>
+                <span class="debug-text">
+                    scrn-rtrn:<br>
+                    ${scrnRtrnCoords.Xs},<br>
+                    ${scrnRtrnCoords.Ys}
+                </span>
+                `;
+            } else {
+                leftHand.innerHTML = ``;
+            };
+
+            return leftHandScr, leftHand_uvw;
         }
-        // let triggerX = e.touches[0].clientX, e.clientX // e.touches[0].clientX for mobile; e.clientX for desktop
 
-        leftHand.style.left = `${triggerX-leftHandSize/2}px`;
-        leftHand.style.top = `${triggerY-leftHandSize/2}px`;
+    //
 
-        leftHandSet.Xs = triggerX;
-        leftHandSet.Ys = triggerY;
-        console.log(leftHandSet);
+    // Right hand aim
+        // TODO: this function is basically a duplicaye code of leftHandAim. These two should be combined into one.
+
+        function rightHandAim(e) {
+            rightHand.style.setProperty('display', 'block');
+            let triggerX;
+            let triggerY;
+
+
+            if (device === 'mouse') {
+                triggerX = e.clientX;
+                triggerY = e.clientY;
+            } else {
+                triggerX = e.touches[0].clientX;
+                triggerY = e.touches[0].clientY;
+            }
+
+
+            rightHand.style.left = `${triggerX-rightHandSize/2}px`;
+            rightHand.style.top = `${triggerY-rightHandSize/2}px`;
+            rightHandScr.Xs = triggerX;
+            rightHandScr.Ys = triggerY;
        
-        let ipCoordinates = {
-            x: screenToImagePlane(leftHandSet).x,
-            y: screenToImagePlane(leftHandSet).y,
-            z: imagePlane.depth,
+            let ipCoordinates = {
+                x: screenToImagePlane(rightHandScr).x,
+                y: screenToImagePlane(rightHandScr).y,
+                z: imagePlane.depth,
+            }
+
+            
+            let ppCoordinates = {
+                u: imagePlaneToPerspective(ipCoordinates, rightHandDistance).u,
+                v: imagePlaneToPerspective(ipCoordinates, rightHandDistance).v,
+                w: rightHandDistance,
+            }
+
+            let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
+
+            let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
+
+            rightHand_uvw = ppCoordinates;
+            
+            if (debugMode === true) {
+                rightHand.innerHTML = `
+                <span class="debug-text">
+                    ${screen.name}:<br>
+                    ${triggerX},<br>
+                    ${triggerY}
+                </span>
+                <span class="debug-text">
+                    ${imagePlane.name}:<br>
+                    ${ipCoordinates.x},<br>
+                    ${ipCoordinates.y},<br>
+                    ${ipCoordinates.z}
+                </span>
+                <span class="debug-text">
+                    ${perspective.name}:<br>
+                    ${ppCoordinates.u},<br>
+                    ${ppCoordinates.v},<br>
+                    ${ppCoordinates.w}
+                </span>
+                <span class="debug-text">
+                    imgpl-rtrn:<br>
+                    ${ipRtrnCoords.x},<br>
+                    ${ipRtrnCoords.y},<br>
+                    ${ipRtrnCoords.z}
+                </span>
+                <span class="debug-text">
+                    scrn-rtrn:<br>
+                    ${scrnRtrnCoords.Xs},<br>
+                    ${scrnRtrnCoords.Ys}
+                </span>
+                `;
+            } else {
+                rightHand.innerHTML = ``;
+            };
+    
+            return rightHandScr, rightHand_uvw;
         }
 
-        
-        let ppCoordinates = {
-            u: imagePlaneToPerspective(ipCoordinates, leftHandDistance).u,
-            v: imagePlaneToPerspective(ipCoordinates, leftHandDistance).v,
-            w: leftHandDistance,
-        }
+    //
 
-        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
-
-        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
-        
-        
-        if (debugMode === true) {
-            leftHand.innerHTML = `
-            <span class="debug-text">
-                ${screen.name}:<br>
-                ${triggerX},<br>
-                ${triggerY}
-            </span>
-            <span class="debug-text">
-                ${imagePlane.name}:<br>
-                ${ipCoordinates.x},<br>
-                ${ipCoordinates.y},<br>
-                ${ipCoordinates.z}
-            </span>
-            <span class="debug-text">
-                ${perspective.name}:<br>
-                ${ppCoordinates.u},<br>
-                ${ppCoordinates.v},<br>
-                ${ppCoordinates.w}
-            </span>
-            <span class="debug-text">
-                imgpl-rtrn:<br>
-                ${ipRtrnCoords.x},<br>
-                ${ipRtrnCoords.y},<br>
-                ${ipRtrnCoords.z}
-            </span>
-            <span class="debug-text">
-                scrn-rtrn:<br>
-                ${scrnRtrnCoords.Xs},<br>
-                ${scrnRtrnCoords.Ys}
-            </span>
-            `;
-        } else {
-            leftHand.innerHTML = ``;
-        };
-
-        return leftHandSet;
-    }
+    //console.log(leftHand_uvw);
+    //console.log(rightHand_uvw);
 
 //
 
-// Right hand aim
-    function rightHandAim(e) {
-        rightHand.style.setProperty('display', 'block');
-        let triggerX;
-        let triggerY;
 
 
-        if (device === 'mouse') {
-            triggerX = e.clientX;
-            triggerY = e.clientY;
-        } else {
-            triggerX = e.touches[0].clientX;
-            triggerY = e.touches[0].clientY;
-        }
 
 
-        rightHand.style.left = `${triggerX-rightHandSize/2}px`;
-        rightHand.style.top = `${triggerY-rightHandSize/2}px`;
-        rightHandSet.Xs = triggerX;
-        rightHandSet.Ys = triggerY;
-        console.log(rightHandSet);
+
+
+
+
+
+// SHOOTING SECTION ////////////////////////////////////////////////////////
+// This section contains creates an arrow flight simulation based on user input.
     
-        let ipCoordinates = {
-            x: screenToImagePlane(rightHandSet).x,
-            y: screenToImagePlane(rightHandSet).y,
-            z: imagePlane.depth,
-        }
-
+    // Arrow flight plane
+    // We create a plane with rightHand_uvw (arrow release position) as origin.
+    // We'll need functions to transform between arrow plane coordinates to uvw, too.
+    
+    // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
         
-        let ppCoordinates = {
-            u: imagePlaneToPerspective(ipCoordinates, rightHandDistance).u,
-            v: imagePlaneToPerspective(ipCoordinates, rightHandDistance).v,
-            w: rightHandDistance,
-        }
+        // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED        
+            leftHand_uvw = {
+                "u": 0.12967788232866576,
+                "v": -0.12233762483836391,
+                "w": 1.4
+            };
+            rightHand_uvw = {
+                "u": 0.1406882685641185,
+                "v": -0.16270904103502398,
+                "w": 0.7
+            };
+        //
 
-        let ipRtrnCoords = perspectiveToImagePlane(ppCoordinates, imagePlaneDepth);
-
-        let scrnRtrnCoords = imagePlaneToScreen(ipRtrnCoords);
-        
-        if (debugMode === true) {
-            rightHand.innerHTML = `
-            <span class="debug-text">
-                ${screen.name}:<br>
-                ${triggerX},<br>
-                ${triggerY}
-            </span>
-            <span class="debug-text">
-                ${imagePlane.name}:<br>
-                ${ipCoordinates.x},<br>
-                ${ipCoordinates.y},<br>
-                ${ipCoordinates.z}
-            </span>
-            <span class="debug-text">
-                ${perspective.name}:<br>
-                ${ppCoordinates.u},<br>
-                ${ppCoordinates.v},<br>
-                ${ppCoordinates.w}
-            </span>
-            <span class="debug-text">
-                imgpl-rtrn:<br>
-                ${ipRtrnCoords.x},<br>
-                ${ipRtrnCoords.y},<br>
-                ${ipRtrnCoords.z}
-            </span>
-            <span class="debug-text">
-                scrn-rtrn:<br>
-                ${scrnRtrnCoords.Xs},<br>
-                ${scrnRtrnCoords.Ys}
-            </span>
-            `;
-        } else {
-            rightHand.innerHTML = ``;
+        function perspectiveToArwPln (input_uvw) {
+            let result = {d:0, h:0};
+            result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw.u), 2) + Math.pow( (rightHand_uvw.w-input_uvw.w), 2) );
+            result.h = input_uvw.v - rightHand_uvw.v;
+            return result;
         };
 
-        return rightHandSet;
-    }
+        let testPointOnArwPln = perspectiveToArwPln(leftHand_uvw);
+        console.log(perspectiveToArwPln(leftHand_uvw));
+
+    //
+
+    // Transform arrowPlane (dh) to perspective (uvw) [d - distance on horizontal plane, h - height]
+        
+        // We need to get the angle between | rH -> lH | vector projected to uw plane and | w | axis vector.
+        // First, we need to create the | rH -> lH | vector in uvw space.
+        arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
+        console.log(arwVecAtRel);
+        
+        function arwPlnToPerspective (input_dh) {
+            
+            let projectedArwVec;
+            projectedArwVec = [arwVecAtRel[0], 0, arwVecAtRel[2]]; 
+            let wAxis;
+            wAxis = [0, 0, arwVecAtRel[2]];            
+            let angle;            
+            angle = vectorAngle(wAxis, projectedArwVec);
+            // this is the angle we've been looking for.
+
+            console.log(angle);
+            
+            
+            return angle;
+        };
+
+
+        // We know, that the coordinates of leftHand on arrowPlane are:
+        perspectiveToArwPln(leftHand_uvw);
+
+        console.log(arwPlnToPerspective({d:0, h:0}))
+
+    //
+    
+    
+    
+    
+
+    // Arrow vector at release
+    arwVecAtRel = [0, 0, 0];
+
+    //U
+    // console.log(arwVecAtRel);
