@@ -35,6 +35,7 @@
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
+    const displayPoints = document.getElementById('display-points');
 
     let targetSize = 1*1.22;
     let targetSizePixels;
@@ -73,21 +74,22 @@
         w: 0
     }
     let leftHandDistance = 1.4;
-    let rightHandDistance = 0.7;   
+    let rightHandDistance = 0.7;
+    let shotTrajectory;   
     
 // Debug mode - specific variables
     let debugMode;
     const testValues = 
-        [0, 30, 0,
-            10.800665, 30, 0,
-            -10.800665, 30, 0,
-            0, 30, 1.2,
-            0.61, 30, 1.2,
-            -0.61, 30, 1.2            
+        [0, 0, 30,
+            10.800665, 0, 30,
+            -10.800665, 0, 30,
+            0, 1.2, 30,
+            0.61, 1.2, 30,
+            -0.61, 1.2, 30,          
             ]
 
 // Physics variables
-    const gravity = 9.8; // m/s
+    const g = 9.8; // m/s
     let t = 0;  // time will start at arrow release.
     let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
     const ArwLng = 0.85; // arrow length
@@ -150,8 +152,8 @@
             chunk = pointArray.slice(i, i + chunkSize);
             pointObject = {
                 u: chunk[0],
-                v: chunk[2],
-                w: chunk[1]
+                v: chunk[1],
+                w: chunk[2]
             }
 
             objectCollection.push(pointObject);
@@ -165,31 +167,92 @@
 
     function vectorLength (input_vector) {
         let result;
-        result = Math.sqrt( Math.pow(input_vector[0], 2) + Math.pow(input_vector[1], 2) + Math.pow(input_vector[2], 2));
+        if (input_vector.length === 2 && input_vector.length === 2) {
+            result = Math.sqrt( Math.pow(input_vector[0], 2) + Math.pow(input_vector[1], 2));
+        } else if (input_vector.length === 3 && input_vector.length === 3) {
+            result = Math.sqrt( Math.pow(input_vector[0], 2) + Math.pow(input_vector[1], 2) + Math.pow(input_vector[2], 2));
+        } else {
+            result = 'Invalid input.'
+        };
         return result;
     };
 
-    function crossProduct (vec1, vec2) {
-        let result;
-        result = [(vec1[1]*vec2[2] - vec1[2]*vec2[1]), (vec1[2]*vec2[0] - vec1[0]*vec2[2]), (vec1[0]*vec2[1] - vec1[1]*vec2[0])];
-        return result;
-    };
+    // We don't need cross product, but can be useful later.
+    // function crossProduct (vec1, vec2) {
+    //     let result;
+    //     result = [(vec1[1]*vec2[2] - vec1[2]*vec2[1]), (vec1[2]*vec2[0] - vec1[0]*vec2[2]), (vec1[0]*vec2[1] - vec1[1]*vec2[0])];
+    //     return result;
+    // };
 
     function dotProduct (vec1, vec2) {
         let result;
-        result = (vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]);
+        if (vec1.length === 2 && vec2.length === 2) {
+            result = (vec1[0]*vec2[0] + vec1[1]*vec2[1]);
+        } else if (vec1.length === 3 && vec2.length === 3) {
+            result = (vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2]);
+        } else {
+            result = 'Invalid input.'
+        };
         return result;
     };
 
-    function vectorFromPoints (input1_uvw, input2_uvw) {
+    function vectorFromPoints (input1, input2) {
         let result;
-        result = [input2_uvw.u - input1_uvw.u, input2_uvw.v - input1_uvw.v, input2_uvw.w - input1_uvw.w,]
+        let vec1 = Object.values(input1);
+        let vec2 = Object.values(input2);
+
+        if (vec1.length === 2 && vec2.length === 2) {
+            result = [vec2[0] - vec1[0], vec2[1] - vec1[1]];
+        } else if (vec1.length === 3 && vec2.length === 3) {
+            result = [vec2[0] - vec1[0], vec2[1] - vec1[1], vec2[2] - vec1[2]];
+        } else {
+            result = 'Invalid input.'
+        };
+        
         return result;
     };
+
+    function series (startNumber, endNumber, count) {
+        let result = [];
+        let step = ( endNumber - startNumber ) / ( count - 1 );
+
+        for ( i = 0; i < count; i++) {
+            let y;
+            y = startNumber + step * [i];
+            result.push(y); 
+        }
+        return result;
+    }
+
+    console.log(series(-5, 5, 11));
+
+    // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
+        leftHand_uvw = {
+            "u": 0.12967788232866576,
+            "v": -0.12233762483836391,
+            "w": 1.4
+        };
+        rightHand_uvw = {
+            "u": 0.1406882685641185,
+            "v": -0.16270904103502398,
+            "w": 0.7
+        };
+        // leftHand_uvw = [0.12967788232866576, 0.12967788232866576, 0]
+        // rightHand_uvw = [-0.16270904103502398, 0.12967788232866576]
+        
+        // rightHand_uvw = [] 
+    //
+
+    // console.log(vectorFromPoints(rightHand_uvw, leftHand_uvw));
+    // console.log(leftHand_uvw.length);
 
     function vectorAngle (vec1, vec2) {
         let result;
-        result = Math.acos( dotProduct(vec1,vec2) / (vectorLength(vec1) * vectorLength(vec2)) );
+        if ((vec1.length === 2 && vec2.length === 2) || (vec1.length === 3 && vec2.length === 3)) {
+            result = Math.acos( dotProduct(vec1,vec2) / (vectorLength(vec1) * vectorLength(vec2)) )
+        } else {
+            result = 'Invalid input.'
+        };
         return result;
     }
 
@@ -324,6 +387,7 @@
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
             let pointInPerspective = pointArrayToObjects(pointArray)[i];
+            console.log(pointInPerspective);
             
             let pointOnScreen;
             let pointOnImagePlane;
@@ -427,7 +491,6 @@
 
     let previousPointArea = '';
     let thisPointArea = '';
-    let nextPointArea = '';
 
     for (let i = 0; i <= 9;) {
         
@@ -642,21 +705,24 @@
     // Arrow flight plane
     // We create a plane with rightHand_uvw (arrow release position) as origin.
     // We'll need functions to transform between arrow plane coordinates to uvw, too.
+
+    // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
+        leftHand_uvw = {
+            "u": 0.12967788232866576,
+            "v": -0.12233762483836391,
+            "w": 1.4
+        };
+        rightHand_uvw = {
+            "u": 0.1406882685641185,
+            "v": -0.16270904103502398,
+            "w": 0.7
+        };
+    //
     
+    // First, we need to create the | rH -> lH | vector in uvw space.
+    arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
+
     // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
-        
-        // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED        
-            leftHand_uvw = {
-                "u": 0.12967788232866576,
-                "v": -0.12233762483836391,
-                "w": 1.4
-            };
-            rightHand_uvw = {
-                "u": 0.1406882685641185,
-                "v": -0.16270904103502398,
-                "w": 0.7
-            };
-        //
 
         function perspectiveToArwPln (input_uvw) {
             let result = {d:0, h:0};
@@ -664,49 +730,102 @@
             result.h = input_uvw.v - rightHand_uvw.v;
             return result;
         };
-
-        let testPointOnArwPln = perspectiveToArwPln(leftHand_uvw);
-        console.log(perspectiveToArwPln(leftHand_uvw));
+        // console.log(perspectiveToArwPln(leftHand_uvw));
 
     //
 
     // Transform arrowPlane (dh) to perspective (uvw) [d - distance on horizontal plane, h - height]
-        
         // We need to get the angle between | rH -> lH | vector projected to uw plane and | w | axis vector.
-        // First, we need to create the | rH -> lH | vector in uvw space.
-        arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
-        console.log(arwVecAtRel);
         
         function arwPlnToPerspective (input_dh) {
             
+            let result = {u: 0, v: 0, w: 0}
+            // We calculate a horizontal projection of the release angle.
             let projectedArwVec;
             projectedArwVec = [arwVecAtRel[0], 0, arwVecAtRel[2]]; 
             let wAxis;
             wAxis = [0, 0, arwVecAtRel[2]];            
             let angle;            
             angle = vectorAngle(wAxis, projectedArwVec);
-            // this is the angle we've been looking for.
 
-            console.log(angle);
+            // Now we can calculate u & w values of the point.
+            let delta_u;
+            let delta_v;
+            let delta_w;
+
+            delta_u = input_dh.d*Math.sin(angle);
+            delta_w = input_dh.d*Math.cos(angle);
+
+            if (leftHand_uvw.u < rightHand_uvw.u) {
+                result.u = rightHand_uvw.u - delta_u;
+                result.w = rightHand_uvw.w + delta_w;
+            } else {
+                result.u = rightHand_uvw.u + delta_u;
+                result.w = rightHand_uvw.w + delta_w;
+            };
+
+            // Now we just need v value.
+            delta_v = input_dh.h;
+            result.v = rightHand_uvw.v + delta_v;            
             
-            
-            return angle;
+            return result;
         };
-
-
-        // We know, that the coordinates of leftHand on arrowPlane are:
-        perspectiveToArwPln(leftHand_uvw);
-
-        console.log(arwPlnToPerspective({d:0, h:0}))
+        // console.log(arwPlnToPerspective(perspectiveToArwPln(leftHand_uvw)));
 
     //
-    
-    
-    
-    
+ 
+    // Arrow flight path calculation in dh coordinate space
 
-    // Arrow vector at release
-    arwVecAtRel = [0, 0, 0];
+        // First, we need the vector of the arrow at release in dh coordinates
 
-    //U
-    // console.log(arwVecAtRel);
+            let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
+            let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
+
+            let arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
+            // console.log([rightHand_dh, leftHand_dh, arwVecAtRel_dh]);
+
+        // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
+            
+            function arrowMotion(angle, v0, t) {
+                let result = [];
+                let v0x = v0 * Math.cos(angle);
+                let v0y = v0 * Math.sin(angle);
+                // console.log(v0y);
+                
+                
+                for (i = 0; i < t.length;) {
+                    let currentPosition = {d:0, h:0}; // SUPER IMPORTANT BASIC STUFF!! To get stuff out from the loop, we need to declare this variable in loop scope, not outside.
+                    
+                    // Displacement
+                    currentPosition.d = v0x * t[i];
+                    // Height 
+                    currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5);
+                    i++;
+
+                    result.push(currentPosition) ;
+                }            
+                
+                return result;
+            };
+            
+            // console.log(arwVecAtRel_dh[0]);
+            let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
+            console.log(arwAngAtRel_dh);
+            let v0 = 105; // this will be a complex equation later.
+            t = series(0, 1, 100);
+
+            let shotTrajectory_dh = arrowMotion(arwAngAtRel_dh, v0, t);
+            
+            shotTrajectory = [];
+            for (i = 0; i < shotTrajectory_dh.length;) {
+                shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
+                i++;
+            }
+            console.log(shotTrajectory);
+            
+            display(shotTrajectory.flat(), displayPoints, 'trajectory');
+
+
+
+
+

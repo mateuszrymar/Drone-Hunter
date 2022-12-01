@@ -116,6 +116,15 @@ body {
     z-index: 20;
 }
 
+.trajectory {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: black;
+    transform: translate(-1px, -1px);
+    z-index: 20;
+}
+
 #game-area {
     height: 100vh;
     width: 100vw;
@@ -211,5 +220,4 @@ body {
     z-index: 20;
     /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
     --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));  */
-
 }
