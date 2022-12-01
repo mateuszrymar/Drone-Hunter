@@ -101,8 +101,11 @@
     let arwEnd;
 
 
-// Trigger - related variables
-    let triggered = false;
+// Scene state variables
+    let sceneState = 'start';
+    console.log(sceneState);
+
+//
 
 
 
@@ -116,12 +119,12 @@
 // Add event listeners
     debugToggle.addEventListener('click', toggle);
     gameArea.addEventListener('mousedown', mouse);
-    gameArea.addEventListener('mousedown', leftHandAim);
+    gameArea.addEventListener('mousedown', gameStarted);
     gameArea.addEventListener('mouseup', rightHandAim);
     gameArea.addEventListener('touchstart', touch);
-    gameArea.addEventListener('touchstart', leftHandAim);
+    gameArea.addEventListener('touchstart', gameStarted);
     gameArea.addEventListener('touchmove', rightHandAim);
-    gameArea.addEventListener('touchend', trigger);
+    gameArea.addEventListener('touchend', bowReleased);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 
@@ -524,6 +527,15 @@
 // USER INPUT SECTION ////////////////////////////////////////////////////////
 // This section contains all objects the player interacts with, excluding UI.
 
+// TRIGGER EVENT /////////////////////////////
+    function gameStarted (e) {
+        sceneState = 'bowAim';
+        console.log(sceneState);
+        leftHandAim(e);
+        };
+//
+
+//
     // Left Hand Aim
 
         function leftHandAim(e) {
@@ -602,8 +614,20 @@
             return leftHandScr, leftHand_uvw;
         }
 
-    //
+//
 
+// TRIGGER EVENT /////////////////////////////
+    
+    function bowAimed (e) {
+        sceneState = 'bowDraw';
+        console.log(sceneState);
+        
+        rightHandAim(e);
+    };
+
+//
+
+//
     // Right hand aim
         // TODO: this function is basically a duplicaye code of leftHandAim. These two should be combined into one.
 
@@ -680,28 +704,17 @@
             } else {
                 rightHand.innerHTML = ``;
             };
+            
+            shotPreview();
+
     
             return rightHandScr, rightHand_uvw;
         }
 
     //
 
-    console.log(leftHand_uvw);
-    console.log(rightHand_uvw);
 
 //
-
-// TRIGGER EVENT //////////////////////////////
-
-    function trigger (e) {
-        
-    }
-
-/*
-
-
-
-
 
 
 
@@ -724,12 +737,8 @@
         //     "w": 0.7
         // };
     //
-    
-    // First, we need to create the | rH -> lH | vector in uvw space.
-    arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
 
     // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
-
         function perspectiveToArwPln (input_uvw) {
             let result = {d:0, h:0};
             result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw.u), 2) + Math.pow( (rightHand_uvw.w-input_uvw.w), 2) );
@@ -739,10 +748,9 @@
         // console.log(perspectiveToArwPln(leftHand_uvw));
 
     //
-
+    
     // Transform arrowPlane (dh) to perspective (uvw) [d - distance on horizontal plane, h - height]
-        // We need to get the angle between | rH -> lH | vector projected to uw plane and | w | axis vector.
-        
+        // We need to get the angle between | rH -> lH | vector projected to uw plane and | w | axis vector.        
         function arwPlnToPerspective (input_dh) {
             
             let result = {u: 0, v: 0, w: 0}
@@ -779,48 +787,59 @@
         // console.log(arwPlnToPerspective(perspectiveToArwPln(leftHand_uvw)));
 
     //
- 
-    // Arrow flight path calculation in dh coordinate space
 
-        // First, we need the vector of the arrow at release in dh coordinates
+    // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
+                
+        function arrowMotion(angle, v0, t) {
+            let result = [];
+            let v0x = v0 * Math.cos(angle);
+            let v0y = v0 * Math.sin(angle);
+            // console.log(v0y);
+            
+            
+            for (i = 0; i < t.length;) {
+                let currentPosition = {d:0, h:0}; // SUPER IMPORTANT BASIC STUFF!! To get stuff out from the loop, we need to declare this variable in loop scope, not outside.
+                
+                // Displacement
+                currentPosition.d = v0x * t[i];
+                // Height 
+                currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5);
+                i++;
 
+                result.push(currentPosition) ;
+            }            
+            
+            return result;
+        };
+    //
+
+    // Shot preview function
+        
+        function shotPreview () {
+                    // Arrow flight path calculation in dh coordinate space
+
+            // First, we need the vector of the arrow at release in dh coordinates
+            console.log('Shot preview active.');
             let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
             let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
 
             let arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
             // console.log([rightHand_dh, leftHand_dh, arwVecAtRel_dh]);
 
-        // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
-            
-            function arrowMotion(angle, v0, t) {
-                let result = [];
-                let v0x = v0 * Math.cos(angle);
-                let v0y = v0 * Math.sin(angle);
-                // console.log(v0y);
-                
-                
-                for (i = 0; i < t.length;) {
-                    let currentPosition = {d:0, h:0}; // SUPER IMPORTANT BASIC STUFF!! To get stuff out from the loop, we need to declare this variable in loop scope, not outside.
-                    
-                    // Displacement
-                    currentPosition.d = v0x * t[i];
-                    // Height 
-                    currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5);
-                    i++;
-
-                    result.push(currentPosition) ;
-                }            
-                
-                return result;
-            };
+        
+        //
+        // First, we need to create the | rH -> lH | vector in uvw space.
+            arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
 
         // Now we calculate the trajectory of the END of the arrow.
+
+
             
             // console.log(arwVecAtRel_dh[0]);
             let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
             console.log(arwAngAtRel_dh);
-            let v0 = 105; // this will be a complex equation later.
-            t = series(0, 1, 10);
+            let v0 = 30; // this will be a complex equation later.
+            t = series(0, 0.5, 60);
 
             let shotTrajectory_dh = arrowMotion(arwAngAtRel_dh, v0, t);
             
@@ -832,9 +851,18 @@
             console.log(shotTrajectory);
             
             display(shotTrajectory.flat(), displayPoints, 'trajectory');
+        };
+ 
 
 
+//
 
+// TRIGGER EVENT //////////////////////////////
 
+function bowReleased (e) {
+    sceneState = 'arwFlight';
+    console.log(sceneState);
+};
 
-*/
+//
+

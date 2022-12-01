@@ -118,9 +118,11 @@ body {
 
 .trajectory {
     position: absolute;
-    width: 2px;
-    height: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background-color: black;
+    opacity: 30%;
     transform: translate(-1px, -1px);
     z-index: 20;
 }
