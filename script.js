@@ -1,5 +1,8 @@
 // Document variables
     
+// Scene state variables
+    let sceneState = 'start';
+    console.log(sceneState);
 
 // UI Elements
     const debugToggle = document.getElementById('debug-toggle');
@@ -75,20 +78,20 @@
     }
     let leftHandDistance = 1.4;
     let rightHandDistance = 0.7;
-    let shotTrajectory;   
+    let shotTrajectory;
     
-// Debug mode - specific variables
+    // Debug mode - specific variables
     let debugMode;
     const testValues = 
-        [0, 0, 30,
-            10.800665, 0, 30,
-            -10.800665, 0, 30,
-            0, 1.2, 30,
-            0.61, 1.2, 30,
-            -0.61, 1.2, 30,          
-            ]
-
-// Physics variables
+    [0, 0, 30,
+        10.800665, 0, 30,
+        -10.800665, 0, 30,
+        0, 1.2, 30,
+        0.61, 1.2, 30,
+        -0.61, 1.2, 30,          
+    ]
+    
+    // Physics variables
     const g = 9.8; // m/s
     let t = 0;  // time will start at arrow release.
     let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
@@ -99,13 +102,12 @@
     let arwVec; // for storing current arrow vector
     let arwHead;
     let arwEnd;
+    
+    // Bow parameters            
+    let v0 = 50; // this will be a complex equation later.
+    let shotPreviewSteps = 60;   
 
 
-// Scene state variables
-    let sceneState = 'start';
-    console.log(sceneState);
-
-//
 
 
 
@@ -387,11 +389,9 @@
    
     function display (pointArray, targetDiv, divClass) {
         let pointCollection = '';
-        console.log(pointArray);
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
             let pointInPerspective = pointArrayToObjects(pointArray)[i];
-            console.log(pointInPerspective);
             
             let pointOnScreen;
             let pointOnImagePlane;
@@ -620,8 +620,7 @@
     
     function bowAimed (e) {
         sceneState = 'bowDraw';
-        console.log(sceneState);
-        
+        console.log(sceneState);        
         rightHandAim(e);
     };
 
@@ -718,24 +717,24 @@
 
 
 
-// SHOOTING SECTION ////////////////////////////////////////////////////////
-// This section contains creates an arrow flight simulation based on user input.
+// BOW DRAW SECTION ////////////////////////////////////////////////////////
+// This section contains creates an arrow flight preview based on user input.
     
     // Arrow flight plane
     // We create a plane with rightHand_uvw (arrow release position) as origin.
     // We'll need functions to transform between arrow plane coordinates to uvw, too.
 
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
-        // leftHand_uvw = {
-        //     "u": 0.12967788232866576,
-        //     "v": -0.12233762483836391,
-        //     "w": 1.4
-        // };
-        // rightHand_uvw = {
-        //     "u": 0.1406882685641185,
-        //     "v": -0.16270904103502398,
-        //     "w": 0.7
-        // };
+        leftHand_uvw = {
+            "u": 0.12967788232866576,
+            "v": -0.12233762483836391,
+            "w": 1.4
+        };
+        rightHand_uvw = {
+            "u": 0.1406882685641185,
+            "v": -0.16270904103502398,
+            "w": 0.7
+        };
     //
 
     // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
@@ -813,56 +812,115 @@
         };
     //
 
+    // This function calculates time, when the arrow SHOULD arrive at tha target.
+        // distance to cover:
+        
+        function timeAtTargetDist () {
+            let timeAtTargetDistance;
+            let targetPosition_dh = perspectiveToArwPln(targetPosition);
+            timeAtTargetDistance = targetPosition_dh.d / v0;
+            return timeAtTargetDistance;
+        };
+
     // Shot preview function
         
         function shotPreview () {
-                    // Arrow flight path calculation in dh coordinate space
 
-            // First, we need the vector of the arrow at release in dh coordinates
-            console.log('Shot preview active.');
+            // First, we need to create the | rH -> lH | vector in uvw space.
+            arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
+                        
+            // Now, we need the vector of the arrow at release in dh coordinates
             let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
             let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
 
             let arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
-            // console.log([rightHand_dh, leftHand_dh, arwVecAtRel_dh]);
 
-        
-        //
-        // First, we need to create the | rH -> lH | vector in uvw space.
-            arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
-
-        // Now we calculate the trajectory of the END of the arrow.
-
-
-            
-            // console.log(arwVecAtRel_dh[0]);
+            // Now we calculate the trajectory of the END of the arrow.
             let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            console.log(arwAngAtRel_dh);
-            let v0 = 30; // this will be a complex equation later.
-            t = series(0, 0.5, 60);
-
             let shotTrajectory_dh = arrowMotion(arwAngAtRel_dh, v0, t);
+            
+            t = series(0, timeAtTargetDist(), shotPreviewSteps);
+            //
+            
+
             
             shotTrajectory = [];
             for (i = 0; i < shotTrajectory_dh.length;) {
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
                 i++;
             }
-            console.log(shotTrajectory);
             
             display(shotTrajectory.flat(), displayPoints, 'trajectory');
-        };
- 
 
+            // console.log(shotTrajectory.flat());
+        };
 
 //
 
 // TRIGGER EVENT //////////////////////////////
 
-function bowReleased (e) {
-    sceneState = 'arwFlight';
-    console.log(sceneState);
-};
+    function bowReleased () {
+        sceneState = 'arwFlight';
+        console.log(sceneState);
+    };
 
 //
 
+// ARROW FLIGHT SECTION ////////////////////////////////////////////////////////
+// This section contains checks, where the arrow hit and displays an animation of the flight.
+
+
+    // To simplify the calculations, we consider the arrow a single point, that starts from rightHand and reaches either target or the ground.
+    // To check where the arrow hit, we need to calculate the intersectionPoint of the arrow horizontal vector & target plane in dh coordinates.
+    // We'll figure out the height of this point by getting time when it arrived at target plane and then evaluating a simple motion equation.
+    // Now we need to convert from dh to uvw.
+    // We need to check the distance between target and intersectionPoint in uvw space, and now we know how far off the hit was.
+    // If it was less than targetSize, the target was hit.
+    // By simple division we can evaluate  how many points the player got.
+    //
+    // Else, if the distance was larger than targetSize, we go back to dh space and do another calculation.
+    // From the motion equations in dh space, we need to calculate, when the arrow reached the height of -rightHandSet.
+    // We need to get the point, where arrow was at that time and that is a groundHit position in dh space.
+    //
+    // Now we need to just create a shotTrajectory and display it.
+    // To display it as an animation, we'll need to create a new function that creates a different "style" for each div on the flightpath
+    // 
+    // In the end we can change the animated point into a line of a couple dozen divs, but this can be left for later, because it's quite simple.
+    // It will be just single point and a vector, with some trick to stop the arrow animation when the ARROWHEAD, not ARROWEND hits stuff.    
+
+//
+
+
+// TRIGGER EVENT //////////////////////////////
+
+    function arrowHit () {
+        sceneState = 'arwStopped';
+        console.log(sceneState);
+    };
+
+//
+
+// SCORE SECTION ////////////////////////////////////////////////////////
+// This section displays score calculated in the previous section and gives player the option to exit.
+
+// TRIGGER EVENT //////////////////////////////
+
+    function continueGame () {
+        sceneState = 'reload';
+        console.log(sceneState);
+    };
+
+//
+
+// RELOAD SECTION ////////////////////////////////////////////////////////
+
+// TRIGGER EVENT //////////////////////////////
+
+    function finishGame () {
+        sceneState = 'gameOver';
+        console.log(sceneState);
+    };
+
+//
+
+// GAMEOVER SECTION ////////////////////////////////////////////////////////
