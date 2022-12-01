@@ -101,7 +101,8 @@
     let arwEnd;
 
 
-//
+// Trigger - related variables
+    let triggered = false;
 
 
 
@@ -120,6 +121,7 @@
     gameArea.addEventListener('touchstart', touch);
     gameArea.addEventListener('touchstart', leftHandAim);
     gameArea.addEventListener('touchmove', rightHandAim);
+    gameArea.addEventListener('touchend', trigger);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 
@@ -224,19 +226,17 @@
         return result;
     }
 
-    console.log(series(-5, 5, 11));
-
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
-        leftHand_uvw = {
-            "u": 0.12967788232866576,
-            "v": -0.12233762483836391,
-            "w": 1.4
-        };
-        rightHand_uvw = {
-            "u": 0.1406882685641185,
-            "v": -0.16270904103502398,
-            "w": 0.7
-        };
+        // leftHand_uvw = {
+        //     "u": 0.12967788232866576,
+        //     "v": -0.12233762483836391,
+        //     "w": 1.4
+        // };
+        // rightHand_uvw = {
+        //     "u": 0.1406882685641185,
+        //     "v": -0.16270904103502398,
+        //     "w": 0.7
+        // };
         // leftHand_uvw = [0.12967788232866576, 0.12967788232866576, 0]
         // rightHand_uvw = [-0.16270904103502398, 0.12967788232866576]
         
@@ -384,6 +384,7 @@
    
     function display (pointArray, targetDiv, divClass) {
         let pointCollection = '';
+        console.log(pointArray);
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
             let pointInPerspective = pointArrayToObjects(pointArray)[i];
@@ -685,13 +686,18 @@
 
     //
 
-    //console.log(leftHand_uvw);
-    //console.log(rightHand_uvw);
+    console.log(leftHand_uvw);
+    console.log(rightHand_uvw);
 
 //
 
+// TRIGGER EVENT //////////////////////////////
 
+    function trigger (e) {
+        
+    }
 
+/*
 
 
 
@@ -707,16 +713,16 @@
     // We'll need functions to transform between arrow plane coordinates to uvw, too.
 
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
-        leftHand_uvw = {
-            "u": 0.12967788232866576,
-            "v": -0.12233762483836391,
-            "w": 1.4
-        };
-        rightHand_uvw = {
-            "u": 0.1406882685641185,
-            "v": -0.16270904103502398,
-            "w": 0.7
-        };
+        // leftHand_uvw = {
+        //     "u": 0.12967788232866576,
+        //     "v": -0.12233762483836391,
+        //     "w": 1.4
+        // };
+        // rightHand_uvw = {
+        //     "u": 0.1406882685641185,
+        //     "v": -0.16270904103502398,
+        //     "w": 0.7
+        // };
     //
     
     // First, we need to create the | rH -> lH | vector in uvw space.
@@ -807,12 +813,14 @@
                 
                 return result;
             };
+
+        // Now we calculate the trajectory of the END of the arrow.
             
             // console.log(arwVecAtRel_dh[0]);
             let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
             console.log(arwAngAtRel_dh);
             let v0 = 105; // this will be a complex equation later.
-            t = series(0, 1, 100);
+            t = series(0, 1, 10);
 
             let shotTrajectory_dh = arrowMotion(arwAngAtRel_dh, v0, t);
             
@@ -829,3 +837,4 @@
 
 
 
+*/
