@@ -925,18 +925,23 @@
             // We need to transform this equation to solve it:
             // height = v0y * t - (g * Math.pow(t, 2) * 0.5) + startPoint_dh.h;
             // Quadratic equation looks like this:
-            // -gt^2 + 2*v0y*t - 2*(h-startPoint_dh.h) = 0
+            // -gt^2/2 + v0y*t + (startPoint_dh.h - height) = 0
             // ,hence:
 
-            let a = -g;
-            let b = 2 * v0y;
-            let c = -2 * (height - startPoint_dh.h);
+            let a = -g/2;
+            let b = v0y;
+            let c = startPoint_dh.h - height;
 
             // console.log(a,b,c);
             result = solveQuadraticEquation(a,b,c);
             // console.log(result);
             return result;
         };
+
+        test = timeAtHeight(0, {d:0, h:68}, (67/180)*Math.PI, 29);
+        console.log(test);
+
+        
     //
 
     // Shot preview function
@@ -1061,6 +1066,9 @@
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
             let distToGroundAtRel;
+
+            // This section can get confusing, especially because we set arrowHead as start of the simulation. 
+            // To simplify stuff: we'll get correct time, if we set starting point at {d=0, h=arwHeadAtRel_dh.h}
             distToGroundAtRel = (cameraHeight + rightHand_uvw.v);
             time = timeAtHeight(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
             console.log(time);
