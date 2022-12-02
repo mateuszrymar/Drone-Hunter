@@ -127,6 +127,16 @@ body {
     z-index: 20;
 }
 
+.arrow-head {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: grey;
+    transform: translate(-1px, -1px);
+    z-index: 20;
+}
+
 #game-area {
     height: 100vh;
     width: 100vw;

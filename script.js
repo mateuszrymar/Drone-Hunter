@@ -38,7 +38,8 @@
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
-    const displayPoints = document.getElementById('display-points');
+    const trajectoryPoints = document.getElementById('trajectory-points'); 
+    const arrowPoints = document.getElementById('arrow-points'); 
 
     let targetSize = 1*1.22;
     let targetSizePixels;
@@ -95,7 +96,7 @@
     const g = 9.8; // m/s
     let t = 0;  // time will start at arrow release.
     let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
-    const ArwLng = 0.85; // arrow length
+    const arwLng = 0.85; // arrow length
     let arwSpdAtRel; // Arrow speed at release
     let arwSpd; // for storing current arrow speed
     let arwVecAtRel; // Arrow vector at release
@@ -122,6 +123,7 @@
     debugToggle.addEventListener('click', toggle);
     gameArea.addEventListener('mousedown', mouse);
     gameArea.addEventListener('mousedown', gameStarted);
+    // gameArea.addEventListener('mousemove', rightHandAim);
     gameArea.addEventListener('mouseup', rightHandAim);
     gameArea.addEventListener('touchstart', touch);
     gameArea.addEventListener('touchstart', gameStarted);
@@ -216,6 +218,18 @@
             result = 'Invalid input.'
         };
         
+        return result;
+    };
+
+    function multiplyVector (vec, multiplier) {
+        let result;
+        if (vec.length === 2) {
+            result = [vec[0]*multiplier, vec[1]*multiplier];
+        } else if (vec.length === 3) {
+            result = [vec[0]*multiplier, vec[1]*multiplier, vec[2]*multiplier];
+        } else {
+            result = 'Invalid input.'
+        };
         return result;
     };
 
@@ -725,22 +739,23 @@
     // We'll need functions to transform between arrow plane coordinates to uvw, too.
 
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
-        leftHand_uvw = {
-            "u": 0.12967788232866576,
-            "v": -0.12233762483836391,
-            "w": 1.4
-        };
-        rightHand_uvw = {
-            "u": 0.1406882685641185,
-            "v": -0.16270904103502398,
-            "w": 0.7
-        };
+        // leftHand_uvw = {
+        //     "u": 0.12967788232866576,
+        //     "v": -0.12233762483836391,
+        //     "w": 1.4
+        // };
+        // rightHand_uvw = {
+        //     "u": 0.1406882685641185,
+        //     "v": -0.16270904103502398,
+        //     "w": 0.7
+        // };
     //
 
     // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
         function perspectiveToArwPln (input_uvw) {
             let result = {d:0, h:0};
             result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw.u), 2) + Math.pow( (rightHand_uvw.w-input_uvw.w), 2) );
+             
             result.h = input_uvw.v - rightHand_uvw.v;
             return result;
         };
@@ -777,8 +792,9 @@
                 result.w = rightHand_uvw.w + delta_w;
             };
 
+            
             // Now we just need v value.
-            delta_v = input_dh.h;
+            delta_v = input_dh.h; // correct.
             result.v = rightHand_uvw.v + delta_v;            
             
             return result;
@@ -787,12 +803,27 @@
 
     //
 
+    // arrowHead calculation
+
+        function arrowHeadPos (arrowEndPos_dh, arwVec_dh) {
+            let result = {d: 0, h: 0};
+            result.d = arrowEndPos_dh.d + arwVec_dh[0];
+            result.h = arrowEndPos_dh.h + arwVec_dh[1];
+            return result;
+        };
+
     // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
                 
         function arrowMotion(angle, v0, t) {
             let result = [];
             let v0x = v0 * Math.cos(angle);
-            let v0y = v0 * Math.sin(angle);
+            let v0y;
+            
+            if (leftHand_uvw.v >= rightHand_uvw.v) {
+               v0y = v0 * Math.sin(angle);
+            } else {
+                v0y = - v0 * Math.sin(angle);
+            }
             // console.log(v0y);
             
             
@@ -825,15 +856,19 @@
     // Shot preview function
         
         function shotPreview () {
-
             // First, we need to create the | rH -> lH | vector in uvw space.
             arwVecAtRel = vectorFromPoints(rightHand_uvw, leftHand_uvw); 
+
                         
             // Now, we need the vector of the arrow at release in dh coordinates
             let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
             let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
-
+            
             let arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
+            arwVecAtRel_dh =  multiplyVector( arwVecAtRel_dh, ( arwLng / vectorLength (vectorFromPoints(rightHand_dh, leftHand_dh) ) ) ); // Now we need to change the magnitude of the vector to arwLength
+            console.log(arwVecAtRel_dh);
+            let arwHeadAtRel_dh = arrowHeadPos(rightHand_dh, arwVecAtRel_dh);
+            // console.log(arwHeadAtRel_dh);
 
             // Now we calculate the trajectory of the END of the arrow.
             let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
@@ -841,16 +876,17 @@
             
             t = series(0, timeAtTargetDist(), shotPreviewSteps);
             //
-            
-
-            
+                        
             shotTrajectory = [];
             for (i = 0; i < shotTrajectory_dh.length;) {
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
                 i++;
             }
+            let arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
+            // console.log(arwHeadAtRel_uvw);
             
-            display(shotTrajectory.flat(), displayPoints, 'trajectory');
+            display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
+            display(arwHeadAtRel_uvw, arrowPoints, 'arrow-head');
 
             // console.log(shotTrajectory.flat());
         };
@@ -869,8 +905,9 @@
 // ARROW FLIGHT SECTION ////////////////////////////////////////////////////////
 // This section contains checks, where the arrow hit and displays an animation of the flight.
 
-
-    // To simplify the calculations, we consider the arrow a single point, that starts from rightHand and reaches either target or the ground.
+    // To simplify the calculations, we consider the arrow a single point, that starts from arrow TIP and reaches either target or the ground.
+    // To do that, we need to calculate the tip position of the arrowTip in dh coordinates, and then plugging this position into our motion equations.
+    
     // To check where the arrow hit, we need to calculate the intersectionPoint of the arrow horizontal vector & target plane in dh coordinates.
     // We'll figure out the height of this point by getting time when it arrived at target plane and then evaluating a simple motion equation.
     // Now we need to convert from dh to uvw.
@@ -889,6 +926,8 @@
     // It will be just single point and a vector, with some trick to stop the arrow animation when the ARROWHEAD, not ARROWEND hits stuff.    
 
 //
+
+
 
 
 // TRIGGER EVENT //////////////////////////////
