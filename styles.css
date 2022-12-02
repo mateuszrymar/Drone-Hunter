@@ -129,11 +129,11 @@ body {
 
 .arrow-head {
     position: absolute;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+    width: 16px;
+    height: 16px;
     background-color: grey;
     transform: translate(-1px, -1px);
+    /* transform: scaleX(75%) rotate(45deg); */
     z-index: 20;
 }
 

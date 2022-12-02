@@ -814,7 +814,7 @@
 
     // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
                 
-        function arrowMotion(angle, v0, t) {
+        function arrowMotion(startPoint_dh, angle, v0, t) {
             let result = [];
             let v0x = v0 * Math.cos(angle);
             let v0y;
@@ -824,16 +824,14 @@
             } else {
                 v0y = - v0 * Math.sin(angle);
             }
-            // console.log(v0y);
-            
-            
+          
             for (i = 0; i < t.length;) {
                 let currentPosition = {d:0, h:0}; // SUPER IMPORTANT BASIC STUFF!! To get stuff out from the loop, we need to declare this variable in loop scope, not outside.
                 
                 // Displacement
-                currentPosition.d = v0x * t[i];
+                currentPosition.d = v0x * t[i] + startPoint_dh.d;
                 // Height 
-                currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5);
+                currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5) + startPoint_dh.h;
                 i++;
 
                 result.push(currentPosition) ;
@@ -846,10 +844,10 @@
     // This function calculates time, when the arrow SHOULD arrive at tha target.
         // distance to cover:
         
-        function timeAtTargetDist () {
+        function timeAtTargetDist (startPoint_dh) {
             let timeAtTargetDistance;
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
-            timeAtTargetDistance = targetPosition_dh.d / v0;
+            timeAtTargetDistance = (targetPosition_dh.d - startPoint_dh.d) / v0;
             return timeAtTargetDistance;
         };
 
@@ -872,9 +870,9 @@
 
             // Now we calculate the trajectory of the END of the arrow.
             let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            let shotTrajectory_dh = arrowMotion(arwAngAtRel_dh, v0, t);
+            let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t);
             
-            t = series(0, timeAtTargetDist(), shotPreviewSteps);
+            t = series(0, timeAtTargetDist(arwHeadAtRel_dh), shotPreviewSteps);
             //
                         
             shotTrajectory = [];
@@ -887,8 +885,7 @@
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowPoints, 'arrow-head');
-
-            // console.log(shotTrajectory.flat());
+                        
         };
 
 //
