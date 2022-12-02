@@ -275,6 +275,31 @@
         return result;
     }
 
+    let a = 1;
+    let b = 2;
+    let c = -3;
+
+    function solveQuadraticEquation (a, b, c) {
+        let delta;
+        let result1;
+        let result2;
+        let result;
+        delta = Math.pow(b, 2) - 4 * a * c;
+        if (delta > 0) {
+            result1 = ( - b - Math.sqrt(delta)) / ( 2 * a );
+            result2 = ( - b + Math.sqrt(delta)) / ( 2 * a );
+            result = [result1, result2];
+        } else if (delta = 0) {
+            result = - b / ( 2 * a );
+        } else {
+            result = 'no solution';
+        }
+        return result;
+    };
+
+    test = solveQuadraticEquation(a, b, c);
+    console.log(test);
+
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
         // leftHand_uvw = {
         //     "u": 0.12967788232866576,
@@ -884,12 +909,42 @@
             timeAtTargetDistance = (distance - startPoint_dh.d) / v0;
             return timeAtTargetDistance;
         }; 
+    //
+
+    // This function calculates time, when the arrow SHOULD hit the ground.
+
+        function timeAtHeight (height, startPoint_dh, angle, v0) {
+            let result;
+            let v0y;
+            if (leftHand_uvw.v >= rightHand_uvw.v) {
+                v0y = v0 * Math.sin(angle);
+            } else {
+                v0y = - v0 * Math.sin(angle);
+            }
+            
+            // We need to transform this equation to solve it:
+            // height = v0y * t - (g * Math.pow(t, 2) * 0.5) + startPoint_dh.h;
+            // Quadratic equation looks like this:
+            // -gt^2 + 2*v0y*t - 2*(h-startPoint_dh.h) = 0
+            // ,hence:
+
+            let a = -g;
+            let b = 2 * v0y;
+            let c = -2 * (height - startPoint_dh.h);
+
+            // console.log(a,b,c);
+            result = solveQuadraticEquation(a,b,c);
+            // console.log(result);
+            return result;
+        };
+    //
 
     // Shot preview function
         
         let arwVecAtRel_dh;
         let arwHeadAtRel_dh;
         let arwAngAtRel_dh;
+        let arwHeadAtRel_uvw;
         
         function shotPreview () {
             // First, we need to create the | rH -> lH | vector in uvw space.
@@ -916,7 +971,7 @@
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
                 i++;
             }
-            let arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
+            arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowPoints, 'arrow-head');
@@ -952,8 +1007,8 @@
     // If it was less than targetSize, the target was hit. DONE
     // By simple division we can evaluate  how many points the player got. DONE
     //
-    // Else, if the distance was larger than targetSize, we go back to dh space and do another calculation.
-    // From the motion equations in dh space, we need to calculate, when the arrow reached the height of -leftHandSet.
+    // Else, if the distance was larger than targetSize, we go back to dh space and do another calculation. OK
+    // From the motion equations in dh space, we need to calculate, when the arrow reached the height of -arwHeightAtRel. DONE
     // We need to get the point, where arrow was at that time and that is a groundHit position in dh space.
     //
     // Now we need to just create a shotTrajectory and display it.
@@ -978,6 +1033,8 @@
         let time;
         let intersectionPoint_dh;
         let intersectionPoint_uvw;
+        let groundHit_dh;
+        let groundHit_uvw;
 
         delta_w = targetPosition.w - rightHand_uvw.w;
         delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
@@ -1003,11 +1060,18 @@
             pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
+            let distToGroundAtRel;
+            distToGroundAtRel = (cameraHeight + rightHand_uvw.v);
+            time = timeAtHeight(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
+            console.log(time);
+            // console.log(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
+            groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
+            groundHit_dh = groundHit_dh[0] 
+            console.log(groundHit_dh);
 
         }
 
         
-
 
 
 
