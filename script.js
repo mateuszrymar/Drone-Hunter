@@ -16,7 +16,7 @@
         depth: 0,
     }
     const fov = 39.6;
-    const cameraHeight = 1.7;
+    const cameraHeight = 1.5;
     const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
@@ -40,10 +40,11 @@
     const rightHand = document.getElementById('right-hand');
     const trajectoryPoints = document.getElementById('trajectory-points'); 
     const arrowPoints = document.getElementById('arrow-points'); 
+    const score = document.getElementById('score'); 
 
     let targetSize = 1*1.22;
     let targetSizePixels;
-    let targetPosition = {u: 0, v:(1.2-cameraHeight), w:30};
+    let targetPosition = {u: 0, v:(1.5-cameraHeight), w:30};
     let targetPositionPixels;
     let leftHandPosition;
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
@@ -1065,8 +1066,9 @@
             pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
+            pointResult = 0;
             let distToGroundAtRel;
-
+            
             // This section can get confusing, especially because we set arrowHead as start of the simulation. 
             // To simplify stuff: we'll get correct time, if we set starting point at {d=0, h=arwHeadAtRel_dh.h}
             distToGroundAtRel = (cameraHeight + rightHand_uvw.v);
@@ -1076,8 +1078,9 @@
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
             groundHit_dh = groundHit_dh[0] 
             console.log(groundHit_dh);
-
+            
         }
+        score.innerHTML = `Score: ${pointResult}`
 
         
 
