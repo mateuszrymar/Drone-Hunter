@@ -186,6 +186,36 @@
         return result;
     };
 
+    function distance (point1, point2) {
+        let result;
+        let pt1;
+        let pt2;
+        let isPt1Array = Array.isArray(point1);
+        let isPt2Array = Array.isArray(point2);
+
+        if (Array.isArray(point1)) {
+            pt1 = point1;
+        } else {
+            pt1 = Object.values (point1);
+        };
+
+        if (Array.isArray(point2)) {
+            pt2 = point2;
+        } else {
+            pt2 = Object.values (point2);
+        };
+
+        point1;
+        if (pt1.length === 2 && pt2.length === 2) {
+            result = Math.sqrt( Math.pow((pt2[0] - pt1[0]), 2) + Math.pow((pt2[1] - pt1[1]), 2));
+        } else if (pt1.length === 3 && pt2.length === 3) {
+            result = Math.sqrt( Math.pow((pt2[0] - pt1[0]), 2) + Math.pow((pt2[1] - pt1[1]), 2) + Math.pow((pt2[2] - pt1[2]), 2));
+        } else {
+            result = 'Invalid input.'
+        };
+        return result;
+    };
+
     // We don't need cross product, but can be useful later.
     // function crossProduct (vec1, vec2) {
     //     let result;
@@ -765,6 +795,8 @@
     
     // Transform arrowPlane (dh) to perspective (uvw) [d - distance on horizontal plane, h - height]
         // We need to get the angle between | rH -> lH | vector projected to uw plane and | w | axis vector.        
+        let horizRelAng_uvw;
+        
         function arwPlnToPerspective (input_dh) {
             
             let result = {u: 0, v: 0, w: 0}
@@ -775,6 +807,7 @@
             wAxis = [0, 0, arwVecAtRel[2]];            
             let angle;            
             angle = vectorAngle(wAxis, projectedArwVec);
+            horizRelAng_uvw = angle;
 
             // Now we can calculate u & w values of the point.
             let delta_u;
@@ -814,7 +847,7 @@
 
     // Now, we need to create a function that calculates the position of the arrow on arrowPlane.
                 
-        function arrowMotion(startPoint_dh, angle, v0, t) {
+        function arrowMotion(startPoint_dh, angle, v0, t=[]) {
             let result = [];
             let v0x = v0 * Math.cos(angle);
             let v0y;
@@ -844,14 +877,19 @@
     // This function calculates time, when the arrow SHOULD arrive at tha target.
         // distance to cover:
         
-        function timeAtTargetDist (startPoint_dh) {
+        let targetPosition_dh = perspectiveToArwPln(targetPosition);
+        
+        function timeAtDist (startPoint_dh, distance) {
             let timeAtTargetDistance;
-            let targetPosition_dh = perspectiveToArwPln(targetPosition);
-            timeAtTargetDistance = (targetPosition_dh.d - startPoint_dh.d) / v0;
+            timeAtTargetDistance = (distance - startPoint_dh.d) / v0;
             return timeAtTargetDistance;
-        };
+        }; 
 
     // Shot preview function
+        
+        let arwVecAtRel_dh;
+        let arwHeadAtRel_dh;
+        let arwAngAtRel_dh;
         
         function shotPreview () {
             // First, we need to create the | rH -> lH | vector in uvw space.
@@ -862,17 +900,15 @@
             let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
             let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
             
-            let arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
+            arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
             arwVecAtRel_dh =  multiplyVector( arwVecAtRel_dh, ( arwLng / vectorLength (vectorFromPoints(rightHand_dh, leftHand_dh) ) ) ); // Now we need to change the magnitude of the vector to arwLength
-            console.log(arwVecAtRel_dh);
-            let arwHeadAtRel_dh = arrowHeadPos(rightHand_dh, arwVecAtRel_dh);
-            // console.log(arwHeadAtRel_dh);
+            arwHeadAtRel_dh = arrowHeadPos(rightHand_dh, arwVecAtRel_dh);
 
             // Now we calculate the trajectory of the END of the arrow.
-            let arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
+            arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
             let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t);
             
-            t = series(0, timeAtTargetDist(arwHeadAtRel_dh), shotPreviewSteps);
+            t = series(0, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d), shotPreviewSteps);
             //
                         
             shotTrajectory = [];
@@ -881,12 +917,14 @@
                 i++;
             }
             let arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
-            // console.log(arwHeadAtRel_uvw);
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowPoints, 'arrow-head');
-                        
+
+            // return arwVecAtRel_dh;                        
         };
+
+        // console.log(arwVecAtRel_dh);
 
 //
 
@@ -895,6 +933,8 @@
     function bowReleased () {
         sceneState = 'arwFlight';
         console.log(sceneState);
+        evalHit();
+        //animFlight();
     };
 
 //
@@ -902,27 +942,83 @@
 // ARROW FLIGHT SECTION ////////////////////////////////////////////////////////
 // This section contains checks, where the arrow hit and displays an animation of the flight.
 
-    // To simplify the calculations, we consider the arrow a single point, that starts from arrow TIP and reaches either target or the ground.
-    // To do that, we need to calculate the tip position of the arrowTip in dh coordinates, and then plugging this position into our motion equations.
+    // To simplify the calculations, we consider the arrow a single point, that starts from arrow TIP and reaches either target or the ground. OK
+    // To do that, we need to calculate the tip position of the arrowTip in dh coordinates, and then plugging this position into our motion equations. DONE
     
-    // To check where the arrow hit, we need to calculate the intersectionPoint of the arrow horizontal vector & target plane in dh coordinates.
-    // We'll figure out the height of this point by getting time when it arrived at target plane and then evaluating a simple motion equation.
-    // Now we need to convert from dh to uvw.
-    // We need to check the distance between target and intersectionPoint in uvw space, and now we know how far off the hit was.
-    // If it was less than targetSize, the target was hit.
-    // By simple division we can evaluate  how many points the player got.
+    // To check where the arrow hit, we need to calculate the intersectionPoint of the arrow horizontal vector & target plane in dh coordinates. DONE
+    // We'll figure out the height of this point by getting time when it arrived at target plane and then evaluating a simple motion equation. DONE
+    // Now we need to convert from dh to uvw. DONE
+    // We need to check the distance between target and intersectionPoint in uvw space, and now we know how far off the hit was. DONE
+    // If it was less than targetSize, the target was hit. DONE
+    // By simple division we can evaluate  how many points the player got. DONE
     //
     // Else, if the distance was larger than targetSize, we go back to dh space and do another calculation.
-    // From the motion equations in dh space, we need to calculate, when the arrow reached the height of -rightHandSet.
+    // From the motion equations in dh space, we need to calculate, when the arrow reached the height of -leftHandSet.
     // We need to get the point, where arrow was at that time and that is a groundHit position in dh space.
     //
     // Now we need to just create a shotTrajectory and display it.
     // To display it as an animation, we'll need to create a new function that creates a different "style" for each div on the flightpath
     // 
     // In the end we can change the animated point into a line of a couple dozen divs, but this can be left for later, because it's quite simple.
-    // It will be just single point and a vector, with some trick to stop the arrow animation when the ARROWHEAD, not ARROWEND hits stuff.    
+    // It will be just single point and a vector, with a condition to stop the arrow animation when the ARROWHEAD, not ARROWEND hits stuff.    
 
 //
+
+// Hit evaluation function
+
+    function evalHit () {
+        let result;
+        arwVecAtRel_dh;
+        horizRelAng_uvw;
+
+        let delta_u;
+        let delta_v;
+        let delta_w;
+        let d;
+        let time;
+        let intersectionPoint_dh;
+        let intersectionPoint_uvw;
+
+        delta_w = targetPosition.w - rightHand_uvw.w;
+        delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
+
+        d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2));
+        time = timeAtDist(arwHeadAtRel_dh, d);
+        intersectionPoint_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
+        intersectionPoint_dh = intersectionPoint_dh[0];
+        delta_v = intersectionPoint_dh.d;
+
+        // Now we have the intersectionPoint in uvw space!
+        intersectionPoint_uvw = arwPlnToPerspective(intersectionPoint_dh);
+
+        // Let's check how far off it was.
+        let offTarget;
+        let pointResult;
+
+        offTarget = distance (targetPosition, intersectionPoint_uvw);
+        // console.log(offTarget);
+
+        if (offTarget <= targetSize/2) {
+            let pointAreaSize = targetSize / 20;
+            pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
+            console.log('Target hit. Result: ', pointResult, ' points.');
+        } else {
+
+        }
+
+        
+
+
+
+
+
+
+
+
+        return result;
+    }
+
+
 
 
 
