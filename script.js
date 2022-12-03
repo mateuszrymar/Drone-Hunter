@@ -217,12 +217,15 @@
         return result;
     };
 
-    // We don't need cross product, but can be useful later.
-    // function crossProduct (vec1, vec2) {
-    //     let result;
-    //     result = [(vec1[1]*vec2[2] - vec1[2]*vec2[1]), (vec1[2]*vec2[0] - vec1[0]*vec2[2]), (vec1[0]*vec2[1] - vec1[1]*vec2[0])];
-    //     return result;
-    // };
+    function crossProduct (vec1, vec2) {
+        let result;
+        if (vec1.length === 3 && vec2.length === 3) {
+            result = [(vec1[1]*vec2[2] - vec1[2]*vec2[1]), (vec1[2]*vec2[0] - vec1[0]*vec2[2]), (vec1[0]*vec2[1] - vec1[1]*vec2[0])];
+        } else {
+            result = 'Invalid input.'
+        };
+        return result;
+    };
 
     function dotProduct (vec1, vec2) {
         let result;
@@ -298,8 +301,8 @@
         return result;
     };
 
-    test = solveQuadraticEquation(a, b, c);
-    console.log(test);
+    // test = solveQuadraticEquation(a, b, c);
+    // console.log(test);
 
     // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
         // leftHand_uvw = {
@@ -324,12 +327,60 @@
     function vectorAngle (vec1, vec2) {
         let result;
         if ((vec1.length === 2 && vec2.length === 2) || (vec1.length === 3 && vec2.length === 3)) {
-            result = Math.acos( dotProduct(vec1,vec2) / (vectorLength(vec1) * vectorLength(vec2)) )
+            // console.log('passed');
+            result = Math.acos( dotProduct(vec1,vec2) / ((vectorLength(vec1) * vectorLength(vec2))) )
+            // console.log(dotProduct(vec1,vec2));
         } else {
             result = 'Invalid input.'
         };
         return result;
     }
+
+    function planeVecVecPt (vec_x=[], vec_y=[], origin=[]) {
+        result = {type: 'plane', xAxis: [0, 0, 0], yAxis: [0, 0, 0], zAxis: [0, 0, 0], origin: [0, 0, 0]}; // this is the plane object format we'll be using.
+        if (vectorAngle (vec_x, vec_y) === Math.PI/2) {
+            result.type = 'plane';
+            result.xAxis = vec_x;
+            result.yAxis = vec_y;
+            result.zAxis = crossProduct(vec_x, vec_y);
+            result.origin = origin;
+        } else {
+            result = 'Invalid input.'
+        };
+        return result;
+    };
+    
+    // test = vectorAngle([1, 0, 0], [0, 1, 0]);
+    // console.log(test);
+    // // vec = [0, 1, 0];
+    // // console.log(vec.length)
+    // console.log(planeVecVecPt ([-1, 0, 0], [0, 1, 0], [0, 0, 0]));
+    
+    function changeOrigin (plane={}, newOrigin=[]) {
+        let result = {type: 'plane', xAxis: [0, 0, 0], yAxis: [0, 0, 0], zAxis: [0, 0, 0], origin: [0, 0, 0]};
+        if ((plane.type === 'plane' && newOrigin.length === 3) || (plane.type === 'plane' && newOrigin.length === 2)) {
+            result.type = 'plane';
+            result.xAxis = plane.xAxis;
+            result.yAxis = plane.yAxis;
+            result.zAxis = plane.zAxis;
+            result.origin = newOrigin;
+        } else {
+            result = 'Invalid input.'
+        };
+
+        return result; 
+    };
+
+    // let testPlane = planeVecVecPt ([1, 0, 0], [0, 1, 0], [0, 0, 0]);
+    // console.log(testPlane);
+    // let testOrigin = [1,1];
+    // console.log(changeOrigin(testPlane, testOrigin));
+
+
+
+
+//
+
 
 
 //
@@ -939,8 +990,8 @@
             return result;
         };
 
-        test = timeAtHeight(0, {d:0, h:68}, (67/180)*Math.PI, 29);
-        console.log(test);
+        // test = timeAtHeight(0, {d:0, h:68}, (67/180)*Math.PI, 29);
+        // console.log(test);
 
         
     //
@@ -965,7 +1016,12 @@
             arwVecAtRel_dh =  multiplyVector( arwVecAtRel_dh, ( arwLng / vectorLength (vectorFromPoints(rightHand_dh, leftHand_dh) ) ) ); // Now we need to change the magnitude of the vector to arwLength
             arwHeadAtRel_dh = arrowHeadPos(rightHand_dh, arwVecAtRel_dh);
 
-            // Now we calculate the trajectory of the END of the arrow.
+            // VERY IMPORTANT!
+            // Now we shift coordinate system to the ARROWHEAD. From now on, all calculations regarding arrow flight will be calculated in "dhAtArwHead" coordinate system.
+
+            console.log(arwHeadAtRel_dh);
+            
+            // Now we calculate the trajectory of the HEAD of the arrow.
             arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
             let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t);
             
