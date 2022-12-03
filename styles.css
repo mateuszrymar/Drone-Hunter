@@ -1,13 +1,14 @@
 /* variable library */
 :root {
     --ui-grey: rgba(100, 100, 100, 0.5);
+    --score-gold: rgb(235, 77, 29);
     --target-color: rgb(150, 144, 125);
     --target-white: rgb(238, 236, 231);
     --target-blue: rgb(110, 127, 224);
     --target-cyan: rgb(102, 195, 223);
     --target-red: rgb(233, 92, 111);
     --target-yellow: rgb(247, 213, 129);
-
+    
     --sky-height: 40vh;
     
     --target-size: ; /* Calculated in JS */
@@ -105,10 +106,30 @@ body {
 
 #score {
     position: absolute;
-    display: inline-block;
+    display: block;
     top: 1em;
     right: 1em;
 }
+
+#current-hit {
+    position: absolute;
+    top: calc(var(--target-position-Y) - 2em);
+    left: var(--target-position-X);
+    font-size: 2em;
+    font-weight: 800;
+    color: rgba(25,180,255,1);
+    opacity: 100%;
+    animation: wipe-enter 1s 1;    
+    transition: opacity .2s ease-in-out,
+                transform .2s ease-in-out;
+
+}
+
+/* .hit-animation {
+    opacity: 100%;
+    transform: translateY(-2em);
+    animation: wipe-enter 1s 1;    
+} */
 
 .debug-text {
     font-size: 0.75em;

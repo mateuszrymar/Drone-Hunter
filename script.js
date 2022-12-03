@@ -41,7 +41,9 @@
     const trajectoryPoints = document.getElementById('trajectory-points'); 
     const arrowPoints = document.getElementById('arrow-points'); 
     const score = document.getElementById('score'); 
+    const currentHit = document.getElementById('current-hit'); 
 
+    let totalScore = 0;
     let targetSize = 1*1.22;
     let targetSizePixels;
     let targetPosition = {u: 0, v:(1.5-cameraHeight), w:30};
@@ -1149,6 +1151,7 @@
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
             pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
+            totalScore = totalScore + pointResult;
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
             console.log('Ground hit.');
@@ -1163,7 +1166,8 @@
             console.log(groundHit_uvw);
             
         }
-        score.innerHTML = `Score: ${pointResult}`
+        score.innerHTML = `Score: ${totalScore}`
+        currentHit.innerHTML = `${pointResult}`
 
         
 
