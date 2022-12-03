@@ -16,7 +16,7 @@
         depth: 0,
     }
     const fov = 39.6;
-    const cameraHeight = 1.5;
+    const cameraHeight = 1.7;
     const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
@@ -965,24 +965,24 @@
 
     // This function calculates time, when the arrow SHOULD hit the ground.
 
-        function timeAtHeight (height, startPoint_dh, angle, v0) {
+        function timeAtHeight (height, angle, initialV) {
             let result;
             let v0y;
             if (leftHand_uvw.v >= rightHand_uvw.v) {
-                v0y = v0 * Math.sin(angle);
+                v0y = initialV * Math.sin(angle);
             } else {
-                v0y = - v0 * Math.sin(angle);
+                v0y = - initialV * Math.sin(angle);
             }
             
             // We need to transform this equation to solve it:
-            // height = v0y * t - (g * Math.pow(t, 2) * 0.5) + startPoint_dh.h;
+            // 0 = v0y * t - (g * Math.pow(t, 2) * 0.5) + (startPoint_dh.h + height);
             // Quadratic equation looks like this:
-            // -gt^2/2 + v0y*t + (startPoint_dh.h - height) = 0
+            // -gt^2/2 + v0y*t + (startPoint_dh.h + height) = 0
             // ,hence:
 
             let a = -g/2;
             let b = v0y;
-            let c = startPoint_dh.h - height;
+            let c = height;
 
             // console.log(a,b,c);
             result = solveQuadraticEquation(a,b,c);
@@ -990,8 +990,8 @@
             return result;
         };
 
-        // test = timeAtHeight(0, {d:0, h:68}, (67/180)*Math.PI, 29);
-        // console.log(test);
+        test = timeAtHeight(68, (67/180)*Math.PI, 29);
+        console.log(test);
 
         
     //
@@ -1026,19 +1026,17 @@
             
             // Now we calculate the trajectory of the HEAD of the arrow.
             arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            console.log({d: 0, h: arwHeadAtRel_dh.h});
+            console.log(arwAngAtRel_dh);
+            // console.log({d: 0, h: arwHeadAtRel_dh.h});
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
-            console.log(targetPosition_dh);
+            // console.log(targetPosition_dh);
             t = series(0, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh), shotPreviewSteps);
             let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
-            console.log(shotTrajectory_dh);
+            // console.log(shotTrajectory_dh);
             // Checked to this point. Should be ok up till now.
             // Displayed trajectory seems correct, but values passed for hit evaluation look wrong.
             // We need to check if we pass last point of preview trajectory as a hit Result for evaluation.
 
-            
-            //
-                        
             shotTrajectory = [];
             for (i = 0; i < shotTrajectory_dh.length;) {
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
@@ -1109,11 +1107,13 @@
         let groundHit_dh;
         let groundHit_uvw;
 
-        delta_w = targetPosition.w - rightHand_uvw.w;
-        delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
 
-        d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2));
-        time = timeAtDist(arwHeadAtRel_dh, d);
+        // Tis value is the distance the arrow travels along wAxis, until it reaches target plane:
+        delta_w = targetPosition.w - rightHand_uvw.w; // It doesn't compensate for arrow length.
+        delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
+        d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2)) - vectorLength([arwVecAtRel_dh[0], 0]); // we compensate for arrow length here.
+        time = timeAtDist(arwHeadAtRel_dh, d, arwAngAtRel_dh);
+
         intersectionPoint_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
         intersectionPoint_dh = intersectionPoint_dh[0];
         delta_v = intersectionPoint_dh.d;
@@ -1126,7 +1126,7 @@
         let pointResult;
 
         offTarget = distance (targetPosition, intersectionPoint_uvw);
-        // console.log(offTarget);
+        console.log(offTarget);
 
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
@@ -1138,13 +1138,14 @@
             
             // This section can get confusing, especially because we set arrowHead as start of the simulation. 
             // To simplify stuff: we'll get correct time, if we set starting point at {d=0, h=arwHeadAtRel_dh.h}
-            distToGroundAtRel = (cameraHeight + rightHand_uvw.v);
-            time = timeAtHeight(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
+            distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
+            time = timeAtHeight(distToGroundAtRel, arwAngAtRel_dh, v0);
             // console.log(time);
             // console.log(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
-            groundHit_dh = groundHit_dh[0] 
-            // console.log(groundHit_dh);
+            groundHit_dh = groundHit_dh[0];
+            groundHit_uvw = arwPlnToPerspective(groundHit_dh);
+            console.log(groundHit_uvw);
             
         }
         score.innerHTML = `Score: ${pointResult}`
