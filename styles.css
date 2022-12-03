@@ -127,12 +127,12 @@ body {
 
 .trajectory {
     position: absolute;
-    width: 2px;
-    height: 2px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background-color: black;
-    opacity: 0%;
-    transform: translate(-1px, -1px);
+    opacity: 30%;
+    transform: translate(-2px, -2px);
     z-index: 20;
 }
 
@@ -141,7 +141,7 @@ body {
     width: 16px;
     height: 16px;
     background-color: grey;
-    transform: translate(-1px, -1px);
+    transform: translate(-8px, -8px);
     /* transform: scaleX(75%) rotate(45deg); */
     z-index: 20;
 }

@@ -107,7 +107,7 @@
     
     // Bow parameters            
     let v0 = 50; // this will be a complex equation later.
-    let shotPreviewSteps = 60;   
+    let shotPreviewSteps = 128;   
 
 
 
@@ -954,11 +954,11 @@
     // This function calculates time, when the arrow SHOULD arrive at tha target.
         // distance to cover:
         
-        let targetPosition_dh = perspectiveToArwPln(targetPosition);
         
-        function timeAtDist (startPoint_dh, distance) {
+        function timeAtDist (startPoint_dh, distance, angle) {
             let timeAtTargetDistance;
-            timeAtTargetDistance = (distance - startPoint_dh.d) / v0;
+            let v0x = v0 * Math.cos(angle);
+            timeAtTargetDistance = (distance - startPoint_dh.d) / v0x;
             return timeAtTargetDistance;
         }; 
     //
@@ -1018,14 +1018,25 @@
 
             // VERY IMPORTANT!
             // Now we shift coordinate system to the ARROWHEAD. From now on, all calculations regarding arrow flight will be calculated in "dhAtArwHead" coordinate system.
-
-            console.log(arwHeadAtRel_dh);
+            // console.log(arwHeadAtRel_dh);
+            let dhPln = planeVecVecPt([arwVecAtRel_dh[0], 0], [0, 1], [0, 0]);
+            // console.log(dhPln);
+            let dhPlnAtArwHead = changeOrigin(dhPln, Object.values(arwHeadAtRel_dh))
+            // console.log(dhPlnAtArwHead);
             
             // Now we calculate the trajectory of the HEAD of the arrow.
             arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t);
+            console.log({d: 0, h: arwHeadAtRel_dh.h});
+            let targetPosition_dh = perspectiveToArwPln(targetPosition);
+            console.log(targetPosition_dh);
+            t = series(0, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh), shotPreviewSteps);
+            let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
+            console.log(shotTrajectory_dh);
+            // Checked to this point. Should be ok up till now.
+            // Displayed trajectory seems correct, but values passed for hit evaluation look wrong.
+            // We need to check if we pass last point of preview trajectory as a hit Result for evaluation.
+
             
-            t = series(0, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d), shotPreviewSteps);
             //
                         
             shotTrajectory = [];
@@ -1129,11 +1140,11 @@
             // To simplify stuff: we'll get correct time, if we set starting point at {d=0, h=arwHeadAtRel_dh.h}
             distToGroundAtRel = (cameraHeight + rightHand_uvw.v);
             time = timeAtHeight(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
-            console.log(time);
+            // console.log(time);
             // console.log(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
             groundHit_dh = groundHit_dh[0] 
-            console.log(groundHit_dh);
+            // console.log(groundHit_dh);
             
         }
         score.innerHTML = `Score: ${pointResult}`
