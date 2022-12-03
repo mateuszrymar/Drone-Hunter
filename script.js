@@ -356,7 +356,7 @@
     // // console.log(vec.length)
     // console.log(planeVecVecPt ([-1, 0, 0], [0, 1, 0], [0, 0, 0]));
     
-    function changeOrigin (plane={}, newOrigin=[]) {
+    function changeOrigin (plane, newOrigin) {
         let result = {type: 'plane', xAxis: [0, 0, 0], yAxis: [0, 0, 0], zAxis: [0, 0, 0], origin: [0, 0, 0]};
         if ((plane.type === 'plane' && newOrigin.length === 3) || (plane.type === 'plane' && newOrigin.length === 2)) {
             result.type = 'plane';
@@ -370,6 +370,21 @@
 
         return result; 
     };
+
+    function move (point, vector) {
+        let result;
+        let pt;
+
+        if (Array.isArray(point)) {
+            pt = point;
+        } else {
+            pt = Object.values(point);
+        };
+ 
+
+        return result; 
+    };
+
 
     // let testPlane = planeVecVecPt ([1, 0, 0], [0, 1, 0], [0, 0, 0]);
     // console.log(testPlane);
@@ -1026,7 +1041,7 @@
             
             // Now we calculate the trajectory of the HEAD of the arrow.
             arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            console.log(arwAngAtRel_dh);
+            // console.log(arwAngAtRel_dh);
             // console.log({d: 0, h: arwHeadAtRel_dh.h});
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
             // console.log(targetPosition_dh);
@@ -1116,10 +1131,13 @@
 
         intersectionPoint_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
         intersectionPoint_dh = intersectionPoint_dh[0];
-        delta_v = intersectionPoint_dh.d;
-
+        intersectionPoint_dh.d = (intersectionPoint_dh.d + vectorLength([arwVecAtRel_dh[0], 0]));
+        // delta_v = intersectionPoint_dh.d + vectorLength([arwVecAtRel_dh[0], 0]);
+        // console.log(delta_v);
+        
         // Now we have the intersectionPoint in uvw space!
         intersectionPoint_uvw = arwPlnToPerspective(intersectionPoint_dh);
+        // console.log(intersectionPoint_dh);
 
         // Let's check how far off it was.
         let offTarget;
@@ -1133,15 +1151,12 @@
             pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
+            console.log('Ground hit.');
             pointResult = 0;
             let distToGroundAtRel;
             
-            // This section can get confusing, especially because we set arrowHead as start of the simulation. 
-            // To simplify stuff: we'll get correct time, if we set starting point at {d=0, h=arwHeadAtRel_dh.h}
             distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
             time = timeAtHeight(distToGroundAtRel, arwAngAtRel_dh, v0);
-            // console.log(time);
-            // console.log(-distToGroundAtRel, arwHeadAtRel_dh, arwAngAtRel_dh, v0);
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
             groundHit_dh = groundHit_dh[0];
             groundHit_uvw = arwPlnToPerspective(groundHit_dh);
