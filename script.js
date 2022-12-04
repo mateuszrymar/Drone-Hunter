@@ -111,7 +111,9 @@
     
     // Bow parameters            
     let v0 = 50; // this will be a complex equation later.
-    let shotPreviewSteps = 128;   
+    let shotPreviewSteps = 128;
+    let arrowShaftPointsCount = 64;
+
 
 
 
@@ -282,6 +284,21 @@
         }
         return result;
     }
+
+    function interpolatePts (point1, point2, count) {
+        let result = [];
+        let stepX = ( point2[0] - point1[0] ) / ( count - 1 );
+        let stepY = ( point2[1] - point1[1] ) / ( count - 1 );
+        let stepZ = ( point2[2] - point1[2] ) / ( count - 1 );
+
+        for ( i = 0; i < count; i++) {
+            let point;
+            point = [(point1[0] + stepX * [i]), (point1[1] + stepY * [i]), (point1[2] + stepZ * [i])];
+            result.push(point); 
+        }
+        return result;
+    }
+
 
     let a = 1;
     let b = 2;
@@ -1039,6 +1056,7 @@
         
     //
 
+
     // Shot preview function
         
         let arwVecAtRel_dh;
@@ -1091,16 +1109,23 @@
             
             // Now we'll calculate arrow end position.
             arwEndAtRel_uvw = Object.values (rightHand_uvw);
-            console.log(arwEndAtRel_uvw);
-            // arwEndAtRel_uvw = Object.values ( arwPlnToPerspective(arwEndAtRel_dh) );
+
+            // We'll calculate arrowshaft here.
+            let arrowShaftAtRel;
+
+            arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
+            console.log(arrowShaftAtRel.flat());
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head');
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end');
+            display(arrowShaftAtRel.flat(), arrowShaftPoints, 'arrow-shaft');
 
-            //We'll insert the function to calculate arrowshaft here.
+
             
-            // display(arwShaftAtRel_uvw, arrowShaftPoints, 'arrow-end');
+
+            
+
             // return arwVecAtRel_dh;                        
         };
 
