@@ -110,7 +110,7 @@
     let arwEnd;
     
     // Bow parameters            
-    let v0 = 50; // this will be a complex equation later.
+    let v0 = 30; // this will be a complex equation later.
     let shotPreviewSteps = 128;
     let arrowShaftPointsCount = 64;
 
@@ -1114,7 +1114,6 @@
             let arrowShaftAtRel;
 
             arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
-            console.log(arrowShaftAtRel.flat());
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head');
