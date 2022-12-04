@@ -167,6 +167,26 @@ body {
     z-index: 20;
 }
 
+.arrow-shaft {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: rgb(148, 131, 94);
+    transform: translate(-8px, -8px);
+    /* transform: scaleX(75%) rotate(45deg); */
+    z-index: 20;
+}
+
+.arrow-end {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: red;
+    transform: translate(-8px, -8px);
+    /* transform: scaleX(75%) rotate(45deg); */
+    z-index: 22;
+}
+
 #game-area {
     height: 100vh;
     width: 100vw;

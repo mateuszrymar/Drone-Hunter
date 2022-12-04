@@ -39,7 +39,9 @@
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
     const trajectoryPoints = document.getElementById('trajectory-points'); 
-    const arrowPoints = document.getElementById('arrow-points'); 
+    const arrowHeadPoints = document.getElementById('arrow-head-points'); 
+    const arrowShaftPoints = document.getElementById('arrow-shaft-points'); 
+    const arrowEndPoints = document.getElementById('arrow-end-points'); 
     const score = document.getElementById('score'); 
     const currentHit = document.getElementById('current-hit'); 
 
@@ -97,7 +99,7 @@
     
     // Physics variables
     const g = 9.8; // m/s
-    let t = 0;  // time will start at arrow release.
+    let time = 0;  // time will start at arrow release.
     let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
     const arwLng = 0.85; // arrow length
     let arwSpdAtRel; // Arrow speed at release
@@ -968,6 +970,30 @@
         };
     //
 
+    // Arrow End evaluation
+
+        function velocityVec (v0, angle, time) {
+            let result;
+            let vx;
+            let vy;
+            let v0x = v0 * Math.cos(angle);
+            let v0y;
+            if (leftHand_uvw.v >= rightHand_uvw.v) {
+                v0y = v0 * Math.sin(angle);
+            } else {
+                v0y = - v0 * Math.sin(angle);
+            };
+
+            vx = v0x;
+            vy = v0y - (g * time);
+
+            result = [vx, vy];
+
+            return result;
+        };
+    //
+
+
     // This function calculates time, when the arrow SHOULD arrive at tha target.
         // distance to cover:
         
@@ -1019,6 +1045,8 @@
         let arwHeadAtRel_dh;
         let arwAngAtRel_dh;
         let arwHeadAtRel_uvw;
+        let arwEndAtRel_dh;
+        let arwEndAtRel_uvw;
         
         function shotPreview () {
             // First, we need to create the | rH -> lH | vector in uvw space.
@@ -1061,9 +1089,18 @@
             }
             arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
             
+            // Now we'll calculate arrow end position.
+            arwEndAtRel_uvw = Object.values (rightHand_uvw);
+            console.log(arwEndAtRel_uvw);
+            // arwEndAtRel_uvw = Object.values ( arwPlnToPerspective(arwEndAtRel_dh) );
+            
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
-            display(arwHeadAtRel_uvw, arrowPoints, 'arrow-head');
+            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head');
+            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end');
 
+            //We'll insert the function to calculate arrowshaft here.
+            
+            // display(arwShaftAtRel_uvw, arrowShaftPoints, 'arrow-end');
             // return arwVecAtRel_dh;                        
         };
 
@@ -1076,6 +1113,10 @@
     function bowReleased () {
         sceneState = 'arwFlight';
         console.log(sceneState);
+        clearDisplay(trajectoryPoints);
+        clearDisplay(arrowHeadPoints);
+        clearDisplay(arrowEndPoints);
+        clearDisplay(arrowShaftPoints);
         evalHit();
         //animFlight();
     };
@@ -1108,9 +1149,10 @@
 //
 
 // Hit evaluation function
+    let arwHeadHit;
+    let arwEndHit;
 
     function evalHit () {
-        let result;
         arwVecAtRel_dh;
         horizRelAng_uvw;
 
@@ -1134,8 +1176,6 @@
         intersectionPoint_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
         intersectionPoint_dh = intersectionPoint_dh[0];
         intersectionPoint_dh.d = (intersectionPoint_dh.d + vectorLength([arwVecAtRel_dh[0], 0]));
-        // delta_v = intersectionPoint_dh.d + vectorLength([arwVecAtRel_dh[0], 0]);
-        // console.log(delta_v);
         
         // Now we have the intersectionPoint in uvw space!
         intersectionPoint_uvw = arwPlnToPerspective(intersectionPoint_dh);
@@ -1152,6 +1192,7 @@
             let pointAreaSize = targetSize / 20;
             pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
             totalScore = totalScore + pointResult;
+            arwHeadHit = intersectionPoint_uvw;
             console.log('Target hit. Result: ', pointResult, ' points.');
         } else {
             console.log('Ground hit.');
@@ -1163,27 +1204,20 @@
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
             groundHit_dh = groundHit_dh[0];
             groundHit_uvw = arwPlnToPerspective(groundHit_dh);
-            console.log(groundHit_uvw);
-            
+            arwHeadHit = groundHit_uvw;
         }
         score.innerHTML = `Score: ${totalScore}`
-        currentHit.innerHTML = `${pointResult}`
+        currentHit.innerHTML = `${pointResult}`    
+        console.log(arwHeadHit);
+    };
+//
 
-        
+// Calculation of arrowHead and arrowEnd positions at a given time
 
+    let startTime;
+    time; // passed from hit evaluation function
 
-
-
-
-
-
-        return result;
-    }
-
-
-
-
-
+//
 
 // TRIGGER EVENT //////////////////////////////
 
