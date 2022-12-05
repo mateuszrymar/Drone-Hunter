@@ -168,12 +168,12 @@ body {
 }
 
 .arrow-shaft {
-    position: absolute;
+    /* position: absolute;
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: 50%; */
     background-color: rgb(148, 131, 94);
-    transform: translate(-4px, -4px);
+    /* transform: translate(-4px, -4px); */
     z-index: 21;
 }
 

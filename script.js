@@ -44,6 +44,10 @@
     const arrowEndPoints = document.getElementById('arrow-end-points'); 
     const score = document.getElementById('score'); 
     const currentHit = document.getElementById('current-hit'); 
+    const arrowHeadAnimation = document.getElementById('arrow-head-animation'); 
+    const arrowShaftAnimation = document.getElementById('arrow-shaft-animation'); 
+    const arrowEndAnimation = document.getElementById('arrow-end-animation'); 
+    const stationaryArrows = document.getElementById('stationary-arrows'); 
 
     let totalScore = 0;
     let targetSize = 1*1.22;
@@ -108,11 +112,15 @@
     let arwVec; // for storing current arrow vector
     let arwHead;
     let arwEnd;
+    let hitTime;
     
     // Bow parameters            
     let v0 = 30; // this will be a complex equation later.
     let shotPreviewSteps = 128;
     let arrowShaftPointsCount = 64;
+
+    // Animation parameters
+    let animation_fps = 30;
 
 
 
@@ -192,6 +200,19 @@
         };
         return result;
     };
+
+    function setVectorMagnitude (input_vector, num) {
+        let result;
+        let multiplier = num / vectorLength(input_vector);
+        if (input_vector.length === 2 && input_vector.length === 2) {
+            result = [input_vector[0] * multiplier, input_vector[1] * multiplier]; 
+        } else if (input_vector.length === 3 && input_vector.length === 3) {
+            result = [input_vector[0] * multiplier, input_vector[1] * multiplier, input_vector[2] * multiplier];
+        } else {
+            result = 'Invalid input.'
+        };
+        return result;
+    }
 
     function distance (point1, point2) {
         let result;
@@ -348,9 +369,7 @@
     function vectorAngle (vec1, vec2) {
         let result;
         if ((vec1.length === 2 && vec2.length === 2) || (vec1.length === 3 && vec2.length === 3)) {
-            // console.log('passed');
             result = Math.acos( dotProduct(vec1,vec2) / ((vectorLength(vec1) * vectorLength(vec2))) )
-            // console.log(dotProduct(vec1,vec2));
         } else {
             result = 'Invalid input.'
         };
@@ -406,18 +425,45 @@
         return result; 
     };
 
-
-    // let testPlane = planeVecVecPt ([1, 0, 0], [0, 1, 0], [0, 0, 0]);
-    // console.log(testPlane);
-    // let testOrigin = [1,1];
-    // console.log(changeOrigin(testPlane, testOrigin));
-
-
-
-
 //
 
+// General graphic functions
 
+    function line (point1_xy, point2_xy, width, target_div, _class) {
+        let result;
+        let center;
+        let style;
+        let length;
+        let angle;
+        let correctionX = 0;
+        let correctionY = 0;
+        length = distance(point1_xy, point2_xy);
+        
+        if (point1_xy[1] < point2_xy[1]) {
+            angle = vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
+        } else {
+            angle = -vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
+        }
+
+        let correctionVec;
+        correctionVec = vectorFromPoints(point1_xy, point2_xy);
+        correctionVec = [-correctionVec[1], correctionVec[0]];
+        correctionVec = setVectorMagnitude(correctionVec, width/2);
+
+        result = `
+            <div class="${_class}" style="
+                position: absolute;
+                top: ${point1_xy[1]}px;
+                left: ${point1_xy[0]}px;
+                height: ${width}px;
+                width: ${length}px;
+                transform-origin: 0px 0px;
+                transform: translate(${-correctionVec[0]}px, ${-correctionVec[1]}px) rotate(${angle}rad);
+                "></div>
+                `;
+        target_div.innerHTML = result;
+        return result;
+    };
 
 //
     
@@ -488,10 +534,20 @@
                 y: 0,
                 z: 0
             }
+            let input_u;
+            let input_v;
+            let input_w;
+
             // console.log(input_uvw);
-            let input_u = input_uvw.u;
-            let input_v = input_uvw.v;
-            let input_w = input_uvw.w;
+            if (Array.isArray(input_uvw)) {
+                input_u = input_uvw[0];
+                input_v = input_uvw[1];
+                input_w = input_uvw[2];
+            } else {
+                input_u = input_uvw.u;
+                input_v = input_uvw.v;
+                input_w = input_uvw.w;
+            }
             // console.log(input_u);
                         
             pointOnImagePlane.x = input_u * depth / input_w;
@@ -897,12 +953,17 @@
     // Transform perspective (uvw) to arrowPlane (dh) [d - distance on horizontal plane, h - height]
         function perspectiveToArwPln (input_uvw) {
             let result = {d:0, h:0};
-            result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw.u), 2) + Math.pow( (rightHand_uvw.w-input_uvw.w), 2) );
-             
-            result.h = input_uvw.v - rightHand_uvw.v;
+            if (Array.isArray(input_uvw)) {
+                // console.log('array')
+                result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw[0]), 2) + Math.pow( (rightHand_uvw.w-input_uvw[2]), 2) );
+                result.h = input_uvw[1] - rightHand_uvw.v;
+            } else {
+                // console.log('object')
+                result.d = Math.sqrt( Math.pow( (rightHand_uvw.u - input_uvw.u), 2) + Math.pow( (rightHand_uvw.w-input_uvw.w), 2) );
+                result.h = input_uvw.v - rightHand_uvw.v;
+            }
             return result;
         };
-        // console.log(perspectiveToArwPln(leftHand_uvw));
 
     //
     
@@ -1050,8 +1111,8 @@
             return result;
         };
 
-        test = timeAtHeight(68, (67/180)*Math.PI, 29);
-        console.log(test);
+        // test = timeAtHeight(68, (67/180)*Math.PI, 29);
+        // console.log(test);
 
         
     //
@@ -1105,20 +1166,23 @@
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
                 i++;
             }
-            arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );
-            
+            // console.log(shotTrajectory)
+                       
+            arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );            
             // Now we'll calculate arrow end position.
             arwEndAtRel_uvw = Object.values (rightHand_uvw);
 
             // We'll calculate arrowshaft here.
             let arrowShaftAtRel;
-
             arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
             
             display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head');
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end');
-            display(arrowShaftAtRel.flat(), arrowShaftPoints, 'arrow-shaft');
+            line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
+                 Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
+                 6, arrowShaftPoints, 'arrow-shaft');
+            // display(arrowShaftAtRel.flat(), arrowShaftPoints, 'arrow-shaft');
 
 
             
@@ -1142,6 +1206,7 @@
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
         evalHit();
+        animateArrow(arwHeadAtRel_dh, hitTime);
         //animFlight();
     };
 
@@ -1210,7 +1275,7 @@
         let pointResult;
 
         offTarget = distance (targetPosition, intersectionPoint_uvw);
-        console.log(offTarget);
+        // console.log(offTarget);
 
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
@@ -1224,22 +1289,77 @@
             let distToGroundAtRel;
             
             distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
-            time = timeAtHeight(distToGroundAtRel, arwAngAtRel_dh, v0);
-            groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time[0]]);
+            time = timeAtHeight(distToGroundAtRel, arwAngAtRel_dh, v0)[0];
+            groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
             groundHit_dh = groundHit_dh[0];
             groundHit_uvw = arwPlnToPerspective(groundHit_dh);
             arwHeadHit = groundHit_uvw;
         }
+        hitTime = time;
         score.innerHTML = `Score: ${totalScore}`
         currentHit.innerHTML = `${pointResult}`    
-        console.log(arwHeadHit);
+        // console.log(arwHeadHit);
     };
 //
 
 // Calculation of arrowHead and arrowEnd positions at a given time
 
     let startTime;
-    time; // passed from hit evaluation function
+    
+    
+    function animateArrow (startPoint, hitTime) {
+        let timeStep = (1 / animation_fps);
+        let animFrameCount = Math.ceil(hitTime/timeStep);
+        let timeArray = series(0, hitTime, animFrameCount);
+        let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, timeArray);
+
+        shotTrajectory = [];
+            for (i = 0; i < shotTrajectory_dh.length;) {
+                shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
+                i++;
+            }
+        
+        // console.log(shotTrajectory);
+        // display(shotTrajectory.flat(), arrowHeadAnimation, 'arrow-head');
+
+        if (sceneState = 'arwFlight') {
+            console.log('Animation initiated.');
+            let start = Date.now();
+    
+            let timer = setInterval(function() {
+                let timePassed = Date.now() - start;
+                i = Math.ceil( timePassed / (timeStep * 1000) );
+    
+                if (timePassed >= (hitTime*1000)) {
+                    clearInterval(timer);
+                    console.log('return');
+                    return;
+                }
+    
+                // console.log(timePassed);
+                console.log(i);
+                display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
+                // draw(i);
+    
+            }, (timeStep * 1000));
+    
+            function draw (i) {
+                display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
+            }
+        }
+
+
+        // for (i = 0; i < shotTrajectory_dh.length;) {
+        //     const myInterval = setInterval(displayTrajectory, 1000);
+        //     function displayTrajectory(i) {
+        //         display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
+        //     }
+        //     i++;
+        //     clearInterval(myInterval);
+        // }
+
+
+    }
 
 //
 
