@@ -116,7 +116,7 @@
     
     // Bow parameters            
     let v0 = 30; // this will be a complex equation later.
-    let shotPreviewSteps = 128;
+    let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
     // Animation parameters
@@ -651,6 +651,38 @@
 
     function clearDisplay (targetDiv) {
         targetDiv.innerHTML = null;
+    }
+
+    function displayTrajectory (pointArray, targetDiv, divClass) {
+        let pointCollection = '';
+        for (let i = 0; i < (pointArray.length / 3); i++) {
+            // I have coordinates of a point in perspective coordinates:
+            let pointInPerspective = pointArrayToObjects(pointArray)[i];
+            
+            let pointOnScreen;
+            let pointOnImagePlane;
+            // Now I need to find its position on the screen:
+            // console.log(pointInPerspective);
+            pointOnImagePlane = perspectiveToImagePlane(pointInPerspective, imagePlaneDepth);
+            // console.log(pointOnImagePlane);
+            pointOnScreen = imagePlaneToScreen(pointOnImagePlane);
+            // console.log(pointOnScreen);
+    
+            let pointDiv = `
+            <div class="${divClass}" style="
+            top: ${pointOnScreen.Ys}px;
+            left: ${pointOnScreen.Xs}px;">
+            </div>
+            `;
+            
+            pointCollection = `${pointCollection} ${pointDiv}`;
+            // console.log(pointCollection);
+
+            
+            // return pointCollection;
+        }
+        // console.log(pointCollection);
+        targetDiv.innerHTML = pointCollection;        
     }
 
 //
@@ -1195,7 +1227,8 @@
             let arrowShaftAtRel;
             arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
             
-            display(shotTrajectory.flat(), trajectoryPoints, 'trajectory', 1);
+            displayTrajectory(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
+            // console.log(shotTrajectory.flat());
             display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 400);
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 400);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
@@ -1220,7 +1253,7 @@
     function bowReleased () {
         sceneState = 'arwFlight';
         console.log(sceneState);
-        clearDisplay(trajectoryPoints);
+        // clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
@@ -1344,10 +1377,10 @@
             arwHeadTrajectory.push ( arwHead );
             // Here we'll calculate arrow vector at a given frame.
             let arwVec = setVectorMagnitude( velocityVec(v0, arwAngAtRel_dh, timeArray[i]), (arwLng * (-1)) ) ;
-            console.log(arwVec);
+            // console.log(arwVec);
             arwEnd = move (Object.values(arwHeadTrajectory_dh [i]), arwVec);
             arwEnd = Object.values ( arwPlnToPerspective ( {d: arwEnd[0], h: arwEnd[1]} ) );
-            console.log( arwEnd );
+            // console.log( arwEnd );
             arwEndTrajectory.push ( arwEnd );
             i++;
         };        
