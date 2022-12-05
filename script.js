@@ -1292,6 +1292,8 @@
 // Hit evaluation function
     let arwHeadHit;
     let arwEndHit;
+    let pointResult;
+
 
     function evalHit () {
         arwVecAtRel_dh;
@@ -1324,7 +1326,6 @@
 
         // Let's check how far off it was.
         let offTarget;
-        let pointResult;
 
         offTarget = distance (targetPosition, intersectionPoint_uvw);
         // console.log(offTarget);
@@ -1348,8 +1349,9 @@
             arwHeadHit = groundHit_uvw;
         }
         hitTime = time;
-        score.innerHTML = `Score: ${totalScore}`
-        currentHit.innerHTML = `${pointResult}`    
+
+        // score.innerHTML = `Score: ${totalScore}`
+        // currentHit.innerHTML = `${pointResult}`
         // console.log(arwHeadHit);
     };
 //
@@ -1397,6 +1399,7 @@
     
                 if (i >= animFrameCount) {
                     clearInterval(timer);
+                    arrowHit ();
                     return;
                 }
     
@@ -1413,6 +1416,8 @@
 
     function arrowHit () {
         sceneState = 'arwStopped';
+        score.innerHTML = `Score: ${totalScore}`
+        currentHit.innerHTML = `${pointResult}`    
         console.log(sceneState);
     };
 
