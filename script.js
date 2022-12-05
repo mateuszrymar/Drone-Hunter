@@ -104,7 +104,7 @@
     // Physics variables
     const g = 9.8; // m/s
     let time = 0;  // time will start at arrow release.
-    let timeSlowMo = 1.0; // this variable will be used to slow time for debug or fun.
+    let slowMoFactor = 1.0; // this variable will be used to slow time for debug or fun.
     const arwLng = 0.85; // arrow length
     let arwSpdAtRel; // Arrow speed at release
     let arwSpd; // for storing current arrow speed
@@ -120,7 +120,7 @@
     let arrowShaftPointsCount = 64;
 
     // Animation parameters
-    let animation_fps = 30;
+    let animation_fps = 60;
 
 
 
@@ -420,6 +420,14 @@
         } else {
             pt = Object.values(point);
         };
+
+        if (vector.length === 2) {
+            result = [pt[0] + vector [0], pt[1] + vector [1]];
+        } else if (vector.length === 3) {
+            result = [pt[0] + vector [0], pt[1] + vector [1], pt[2] + vector [2]];
+        } else {
+            result = 'Invalid input.'
+        }
  
 
         return result; 
@@ -600,7 +608,7 @@
     // it projects these points onto browser screen,
     // and assigns divs of a given class to them.
    
-    function display (pointArray, targetDiv, divClass) {
+    function display (pointArray, targetDiv, divClass, size) {
         let pointCollection = '';
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
@@ -609,17 +617,26 @@
             let pointOnScreen;
             let pointOnImagePlane;
             // Now I need to find its position on the screen:
-            // console.log(pointInPerspective);
             pointOnImagePlane = perspectiveToImagePlane(pointInPerspective, imagePlaneDepth);
-            // console.log(pointOnImagePlane);
             pointOnScreen = imagePlaneToScreen(pointOnImagePlane);
-            // console.log(pointOnScreen);
+            
+            // console.log(pointInPerspective);
+            let sizeRefPt = [pointInPerspective.u + size, pointInPerspective.v, pointInPerspective.w];
+            // console.log(sizeRefPt);
+
+            let sizeRefPtOnImagePlane = perspectiveToImagePlane(sizeRefPt, imagePlaneDepth);
+            let sizeScale = distance(pointOnImagePlane, sizeRefPtOnImagePlane) / size;
+            // let initialSize = distance(perspectiveToImagePlane([0,0,imagePlaneDepth], imagePlaneDepth), perspectiveToImagePlane( [size, 0, imagePlaneDepth] , imagePlaneDepth));
+            let currentSize = Math.ceil(sizeScale * size);
     
             let pointDiv = `
             <div class="${divClass}" style="
             top: ${pointOnScreen.Ys}px;
-            left: ${pointOnScreen.Xs}px;">
-            </div>
+            left: ${pointOnScreen.Xs}px;
+            width: ${currentSize}px;
+            height: ${currentSize}px;            
+            transform: translate(-${currentSize/2}px, -${currentSize/2}px);
+            "</div>
             `;
             
             pointCollection = `${pointCollection} ${pointDiv}`;
@@ -1126,6 +1143,8 @@
         let arwHeadAtRel_uvw;
         let arwEndAtRel_dh;
         let arwEndAtRel_uvw;
+        let rightHand_dh;
+        let leftHand_dh
         
         function shotPreview () {
             // First, we need to create the | rH -> lH | vector in uvw space.
@@ -1133,8 +1152,8 @@
 
                         
             // Now, we need the vector of the arrow at release in dh coordinates
-            let rightHand_dh = perspectiveToArwPln(rightHand_uvw);
-            let leftHand_dh = perspectiveToArwPln(leftHand_uvw);
+            rightHand_dh = perspectiveToArwPln(rightHand_uvw);
+            leftHand_dh = perspectiveToArwPln(leftHand_uvw);
             
             arwVecAtRel_dh = vectorFromPoints(rightHand_dh, leftHand_dh);
             arwVecAtRel_dh =  multiplyVector( arwVecAtRel_dh, ( arwLng / vectorLength (vectorFromPoints(rightHand_dh, leftHand_dh) ) ) ); // Now we need to change the magnitude of the vector to arwLength
@@ -1176,9 +1195,9 @@
             let arrowShaftAtRel;
             arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
             
-            display(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
-            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head');
-            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end');
+            display(shotTrajectory.flat(), trajectoryPoints, 'trajectory', 1);
+            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 400);
+            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 400);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
                  6, arrowShaftPoints, 'arrow-shaft');
@@ -1311,53 +1330,47 @@
         let timeStep = (1 / animation_fps);
         let animFrameCount = Math.ceil(hitTime/timeStep);
         let timeArray = series(0, hitTime, animFrameCount);
-        let shotTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, timeArray);
-
-        shotTrajectory = [];
-            for (i = 0; i < shotTrajectory_dh.length;) {
-                shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
-                i++;
-            }
+        let arwHeadTrajectory_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, timeArray);
+        // console.log(timeArray);
         
-        // console.log(shotTrajectory);
-        // display(shotTrajectory.flat(), arrowHeadAnimation, 'arrow-head');
+        // let arwEndTrajectory_dh = arrowMotion(rightHand_dh, arwAngAtRel_dh, v0, timeArray);
+        let arwHead;
+        let arwEnd;
+        
+        let arwHeadTrajectory = [];
+        let arwEndTrajectory = [];
+        for (i = 0; i < arwHeadTrajectory_dh.length;) {
+            arwHead = Object.values ( arwPlnToPerspective ( arwHeadTrajectory_dh [i] ) );
+            arwHeadTrajectory.push ( arwHead );
+            // Here we'll calculate arrow vector at a given frame.
+            let arwVec = setVectorMagnitude( velocityVec(v0, arwAngAtRel_dh, timeArray[i]), (arwLng * (-1)) ) ;
+            console.log(arwVec);
+            arwEnd = move (Object.values(arwHeadTrajectory_dh [i]), arwVec);
+            arwEnd = Object.values ( arwPlnToPerspective ( {d: arwEnd[0], h: arwEnd[1]} ) );
+            console.log( arwEnd );
+            arwEndTrajectory.push ( arwEnd );
+            i++;
+        };        
+        
+        // for (i = 0; i < arwEndTrajectory_dh.length;) {
+        //     i++;
+        // };
 
         if (sceneState = 'arwFlight') {
-            console.log('Animation initiated.');
-            let start = Date.now();
-    
+            let i=0;
+
             let timer = setInterval(function() {
-                let timePassed = Date.now() - start;
-                i = Math.ceil( timePassed / (timeStep * 1000) );
+                i = i+1;
     
-                if (timePassed >= (hitTime*1000)) {
+                if (i >= animFrameCount) {
                     clearInterval(timer);
-                    console.log('return');
                     return;
                 }
     
-                // console.log(timePassed);
-                console.log(i);
-                display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
-                // draw(i);
-    
-            }, (timeStep * 1000));
-    
-            function draw (i) {
-                display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
-            }
+                display(arwHeadTrajectory[i], arrowHeadAnimation, 'arrow-head', 400);
+                display(arwEndTrajectory[i], arrowEndAnimation, 'arrow-end', 400);
+            }, (timeStep * slowMoFactor * 1000));
         }
-
-
-        // for (i = 0; i < shotTrajectory_dh.length;) {
-        //     const myInterval = setInterval(displayTrajectory, 1000);
-        //     function displayTrajectory(i) {
-        //         display(shotTrajectory[i], arrowHeadAnimation, 'arrow-head');
-        //     }
-        //     i++;
-        //     clearInterval(myInterval);
-        // }
-
 
     }
 

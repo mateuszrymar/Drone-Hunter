@@ -152,17 +152,17 @@ body {
     height: 4px;
     border-radius: 50%;
     background-color: black;
-    opacity: 10%;
+    opacity: 50%;
     transform: translate(-2px, -2px);
     z-index: 20;
 }
 
 .arrow-head {
     position: absolute;
-    width: 16px;
-    height: 16px;
+    /* width: 16px;
+    height: 16px; */
     background-color: grey;
-    transform: translate(-8px, -8px);
+    /* transform: translate(-8px, -8px); */
     /* transform: scaleX(75%) rotate(45deg); */
     z-index: 20;
 }
