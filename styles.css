@@ -111,18 +111,33 @@ body {
     right: 1em;
 }
 
-#current-hit {
+.hit-score {
     position: absolute;
-    top: calc(var(--target-position-Y) - 2em);
-    left: var(--target-position-X);
     font-size: 2em;
     font-weight: 800;
     color: rgba(25,180,255,1);
-    opacity: 100%;
-    animation: wipe-enter 1s 1;    
-    transition: opacity .2s ease-in-out,
-                transform .2s ease-in-out;
+    opacity: 0;
+    animation: opacityOn 2.5s normal forwards;
+    animation-timing-function: ease-out;
+    z-index: 11;
+}
 
+@keyframes opacityOn {
+    0% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    5% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    70% {
+        opacity: 1;
+    }    
+    100% {
+        opacity: 0;
+        transform: translateY(-60px);
+    }
 }
 
 /* .hit-animation {

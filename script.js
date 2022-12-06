@@ -25,7 +25,6 @@
         depth: imagePlaneDepth,
     }
     const imagePlaneScale = imagePlane.width / window.innerWidth;
-    // console.log(window.innerWidth);
     const perspective = {
         name: 'perspective',
     }
@@ -45,9 +44,6 @@
     const score = document.getElementById('score'); 
     const currentHit = document.getElementById('current-hit'); 
     const arrowAnimations = document.getElementById('released-arrows');
-    // const arrowHeadAnimation = document.getElementById('arrow-head-animation'); 
-    // const arrowShaftAnimation = document.getElementById('arrow-shaft-animation'); 
-    // const arrowEndAnimation = document.getElementById('arrow-end-animation'); 
     const stationaryArrows = document.getElementById('stationary-arrows'); 
 
     let totalScore = 0;
@@ -124,7 +120,12 @@
     // Animation parameters
     let animation_fps = 30;
 
+//
 
+// Known bugs to fix
+    // 1. Arrows should have a variable z-index applied, based on w coordinate, so that they vanish behind the target.
+    
+//
 
 
 
@@ -863,7 +864,6 @@
 
 
 
-
 // USER INPUT SECTION ////////////////////////////////////////////////////////
 // This section contains all objects the player interacts with, excluding UI.
 
@@ -1371,13 +1371,13 @@
 // Hit evaluation function
     let arwHeadHit;
     let arwEndHit;
-    let pointResult;
-
-
+    let pointResults = [];
+    
     function evalHit (arrowId) {
         arwVecAtRel_dh;
         horizRelAng_uvw;
-
+        
+        let pointResult = {id: 0, result: 0};
         let delta_u;
         let delta_v;
         let delta_w;
@@ -1387,6 +1387,9 @@
         let intersectionPoint_uvw;
         let groundHit_dh;
         let groundHit_uvw;
+        let uniqueArrowId = arrowId;
+        pointResult.id = uniqueArrowId;
+
 
 
         // Tis value is the distance the arrow travels along wAxis, until it reaches target plane:
@@ -1411,13 +1414,13 @@
 
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
-            pointResult = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
-            totalScore = totalScore + pointResult;
+            pointResult.result = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
+            totalScore = totalScore + pointResult.result;
             arwHeadHit = intersectionPoint_uvw;
-            console.log('Target hit. Result: ', pointResult, ' points.');
+            console.log('Target hit. Result: ', pointResult.result, ' points.');
         } else {
             console.log('Ground hit.');
-            pointResult = 0;
+            pointResult.result = 0;
             let distToGroundAtRel;
             
             distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
@@ -1428,10 +1431,8 @@
             arwHeadHit = groundHit_uvw;
         }
         hitTime = time;
+        pointResults.push(pointResult);
 
-        // score.innerHTML = `Score: ${totalScore}`
-        // currentHit.innerHTML = `${pointResult}`
-        // console.log(arwHeadHit);
     };
 //
 
@@ -1439,12 +1440,7 @@
 
     let startTime;
     let arwHeadDiv;
-    let arwEndDiv;
-
-
-
-
-    
+    let arwEndDiv;    
     
     function animateArrow (startPoint, hitTime, arrowId) {
         let timeStep = (1 / animation_fps);
@@ -1462,6 +1458,7 @@
         let arwHeadTrajectory = [];
         let arwEndTrajectory = [];
         let arwShaftTrajectory = [];
+
         for (i = 0; i < arwHeadTrajectory_dh.length;) {
             arwHead = Object.values ( arwPlnToPerspective ( arwHeadTrajectory_dh [i] ) );
             arwHeadTrajectory.push ( arwHead );
@@ -1472,15 +1469,8 @@
             arwEnd = Object.values ( arwPlnToPerspective ( {d: arwEnd[0], h: arwEnd[1]} ) );
             arwEndTrajectory.push ( arwEnd );
 
-            // Next, let's get screen 
-
-
             i++;
         };        
-        
-        // for (i = 0; i < arwEndTrajectory_dh.length;) {
-        //     i++;
-        // };
 
         if (sceneState = 'arwFlight') {
             let i=0;
@@ -1491,26 +1481,24 @@
                     </div>`);
                 arrowAnimations.append(arrowDiv);                
                 let currentArrowDiv = document.getElementById(`arrow-${uniqueArrowId}`);
+                let scorePosition = imagePlaneToScreen ( perspectiveToImagePlane (arwEnd, imagePlaneDepth) );
                 currentArrowDiv.append(
                     createElementFromHTML(`<div id="arrow-head-${uniqueArrowId}"></div>`) ,
                     createElementFromHTML(`<div id="arrow-end-${uniqueArrowId}"></div>`) ,
                     createElementFromHTML(`<div id="arrow-shaft-${uniqueArrowId}"></div>`) ,
+                    createElementFromHTML(`<div id="arrow-points-${uniqueArrowId}" class="hit-score" style="top: ${scorePosition.Ys-16}px; left: ${scorePosition.Xs-13}px"></div>`) ,
                 );
             //
 
-            let animation = setInterval(function() {
-                i = i+1;
-
-                
-
+            let animation = setInterval ( function () {
+                i = i+1;           
                 
                 if (i >= animFrameCount) {
                     clearInterval(animation);
+                    displayScore (uniqueArrowId);
                     arrowHit (uniqueArrowId);
                     return;
-                }
-
-                
+                }              
                 
                 let arrowHeads = document.getElementById(`arrow-head-${uniqueArrowId}`);
                 let arrowEnds = document.getElementById(`arrow-end-${uniqueArrowId}`);
@@ -1524,31 +1512,26 @@
                 display(arwEndTrajectory[i], arrowEnds, 'arrow-end', 250 , false);
                 arwEnd = pointOnScreen;
                 arwEndDiv = pointOnScreenDiv;
+
                 line (arwEnd, arwHead, 2, arrowShafts, 'arrow-shaft' );
+
                 
                 
             }, (timeStep * slowMoFactor * 1000));
         }
+
         
-        // if (i = animFrameCount) {
-        //     // console.log(arwHeadDiv); - we don't show arrowhead after the hit, it's stuck in sth.
-        //     console.log(arwEndDiv);
-        //     console.log(arrowLine);
+        
+    }
 
-        //     // let arrowDiv = createElementFromHTML(
-        //     //     `<div id="arrow-${arrowId}">
-        //     //         ${arrowLine}
-        //     //     </div>`);
-        //     // stationaryArrows.appendChild(arrowDiv);
+//
 
-            
+// Display score at the point where arrow hit
 
-        //     // stationaryArrows.appendChild(`${arwEndDiv}`);
-        //     // let currentArwDiv = document.getElementById("arrow-${arrowId}");
-        //     // currentArwDiv.append(arrowLine, arwEndDiv);
-
-        //     // return;
-        // }
+    function displayScore (arrowId) {
+        let i = arrowId;
+        let div = document.getElementById(`arrow-points-${arrowId}`);
+        div.innerHTML = pointResults[i].result;
     }
 
 //
@@ -1557,11 +1540,13 @@
 
     function arrowHit (uniqueArrowId) {
         sceneState = 'arwStopped';
-        score.innerHTML = `Score: ${totalScore}`
-        currentHit.innerHTML = `${pointResult}`
+        score.innerHTML = `Score: ${totalScore}`;
+        displayScore (uniqueArrowId);
+        // console.log(pointResults)
+        // currentHit.innerHTML = `${pointResult}`
 
-        // let arrowDiv = createElementFromHTML(
-        //     `<div id="stationary-arrow-${uniqueArrowId}">
+        // let scoreDiv = createElementFromHTML(
+        //     `<div id="arrow-score-${uniqueArrowId}" class="hit-score" style="">
         //     </div>`);
         // stationaryArrows.appendChild(arrowDiv);
         // let currentArrowDiv = document.getElementById(`stationary-arrow-${uniqueArrowId}`);
