@@ -44,9 +44,10 @@
     const arrowEndPoints = document.getElementById('arrow-end-points'); 
     const score = document.getElementById('score'); 
     const currentHit = document.getElementById('current-hit'); 
-    const arrowHeadAnimation = document.getElementById('arrow-head-animation'); 
-    const arrowShaftAnimation = document.getElementById('arrow-shaft-animation'); 
-    const arrowEndAnimation = document.getElementById('arrow-end-animation'); 
+    const arrowAnimations = document.getElementById('arrow-animations');
+    // const arrowHeadAnimation = document.getElementById('arrow-head-animation'); 
+    // const arrowShaftAnimation = document.getElementById('arrow-shaft-animation'); 
+    // const arrowEndAnimation = document.getElementById('arrow-end-animation'); 
     const stationaryArrows = document.getElementById('stationary-arrows'); 
 
     let totalScore = 0;
@@ -688,7 +689,7 @@
     let pointOnScreen;
     let pointOnScreenDiv;
 
-    function display (pointArray, targetDiv, divClass, size) {
+    function display (pointArray, targetDiv, divClass, size, append) {
         let pointCollection = '';
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
@@ -723,9 +724,13 @@
 
             pointOnScreenDiv = pointDiv;
         }
-        // console.log(pointCollection);
-        // console.log(pointOnScreenDiv);
-        targetDiv.innerHTML = pointCollection;        
+
+        if (append === true) {
+            let toAppend = createElementFromHTML(pointCollection);
+            targetDiv.append(toAppend);       
+        } else {
+            targetDiv.innerHTML = pointCollection;        
+        }
     }
 
     function clearDisplay (targetDiv) {
@@ -783,7 +788,7 @@
         if (debugMode === true) {
             debugStateLabel.innerHTML = `Debug: ON`;
             console.log('Debug: ON');
-            display(testValues, debugPoints, 'test-point');
+            display(testValues, debugPoints, 'test-point', 1, false);
         } else {
             debugStateLabel.innerHTML = `Debug: OFF`;
             console.log('Debug: OFF');
@@ -1308,12 +1313,11 @@
             
             displayTrajectory(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             // console.log(shotTrajectory.flat());
-            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 250);
-            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 250);
+            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 250, false);
+            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 250, false);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
                  8, arrowShaftPoints, 'arrow-shaft');
-            // display(arrowShaftAtRel.flat(), arrowShaftPoints, 'arrow-shaft');
 
 
             
@@ -1332,14 +1336,14 @@
     function bowReleased () {
         sceneState = 'arwFlight';
         console.log(sceneState);
-        arrowId++;
         console.log(`Arrow no:${arrowId}`);
         clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
-        evalHit();
-        animateArrow(arwHeadAtRel_dh, hitTime);
+        evalHit(arrowId);
+        animateArrow(arwHeadAtRel_dh, hitTime, arrowId);
+        arrowId++;
         //animFlight();
     };
 
@@ -1376,7 +1380,7 @@
     let pointResult;
 
 
-    function evalHit () {
+    function evalHit (arrowId) {
         arwVecAtRel_dh;
         horizRelAng_uvw;
 
@@ -1448,7 +1452,7 @@
 
     
     
-    function animateArrow (startPoint, hitTime) {
+    function animateArrow (startPoint, hitTime, arrowId) {
         let timeStep = (1 / animation_fps);
         let animFrameCount = Math.ceil(hitTime/timeStep);
         let timeArray = series(0, hitTime, animFrameCount);
@@ -1459,6 +1463,7 @@
         let arwHead;
         let arwEnd;
         let arwShaft;
+        let uniqueArrowId = arrowId;
         
         let arwHeadTrajectory = [];
         let arwEndTrajectory = [];
@@ -1492,17 +1497,36 @@
                 
                 if (i >= animFrameCount) {
                     clearInterval(animation);
-                    arrowHit ();
+                    arrowHit (uniqueArrowId);
                     return;
                 }
-                display(arwHeadTrajectory[i], arrowHeadAnimation, 'arrow-head', 250);
+
+                // We need to create AH, AE, L inside a unique div:
+
+                let arrowDiv = createElementFromHTML(
+                    `<div id="arrow-${uniqueArrowId}">
+                    </div>`);
+                arrowAnimations.append(arrowDiv);                
+                let currentArrowDiv = document.getElementById(`arrow-${uniqueArrowId}`);
+                currentArrowDiv.append(
+                    createElementFromHTML(`<div id="arrow-head-${uniqueArrowId}"></div>`) ,
+                    createElementFromHTML(`<div id="arrow-end-${uniqueArrowId}"></div>`) ,
+                    createElementFromHTML(`<div id="arrow-shaft-${uniqueArrowId}"></div>`) ,
+                );
+                
+                let arrowHeads = document.getElementById(`arrow-head-${uniqueArrowId}`);
+                let arrowEnds = document.getElementById(`arrow-end-${uniqueArrowId}`);
+                let arrowShafts = document.getElementById(`arrow-shaft-${uniqueArrowId}`);
+                    
+
+                display(arwHeadTrajectory[i], arrowHeads, 'arrow-head', 250 , false);
                 arwHead = pointOnScreen;
                 arwHeadDiv = pointOnScreenDiv;
                 
-                display(arwEndTrajectory[i], arrowEndAnimation, 'arrow-end', 250);
+                display(arwEndTrajectory[i], arrowEnds, 'arrow-end', 250 , false);
                 arwEnd = pointOnScreen;
                 arwEndDiv = pointOnScreenDiv;
-                line (arwEnd, arwHead, 2, arrowShaftAnimation, 'arrow-shaft');
+                line (arwEnd, arwHead, 2, arrowShafts, 'arrow-shaft' );
                 
                 
             }, (timeStep * slowMoFactor * 1000));
@@ -1533,17 +1557,17 @@
 
 // TRIGGER EVENT //////////////////////////////
 
-    function arrowHit () {
+    function arrowHit (uniqueArrowId) {
         sceneState = 'arwStopped';
         score.innerHTML = `Score: ${totalScore}`
         currentHit.innerHTML = `${pointResult}`
 
-        let arrowDiv = createElementFromHTML(
-            `<div id="arrow-${arrowId}">
-            </div>`);
-        stationaryArrows.appendChild(arrowDiv);
-        let currentArrowDiv = document.getElementById(`arrow-${arrowId}`);
-        currentArrowDiv.append(createElementFromHTML(arwEndDiv) , createElementFromHTML(arrowLine) );
+        // let arrowDiv = createElementFromHTML(
+        //     `<div id="stationary-arrow-${uniqueArrowId}">
+        //     </div>`);
+        // stationaryArrows.appendChild(arrowDiv);
+        // let currentArrowDiv = document.getElementById(`stationary-arrow-${uniqueArrowId}`);
+        // currentArrowDiv.append(createElementFromHTML(arwEndDiv) , createElementFromHTML(arrowLine) );
 
 
         console.log(sceneState);
