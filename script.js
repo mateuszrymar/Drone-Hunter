@@ -115,12 +115,12 @@
     let hitTime;
     
     // Bow parameters            
-    let v0 = 30; // this will be a complex equation later.
+    let v0 = 50; // this will be a complex equation later.
     let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
     // Animation parameters
-    let animation_fps = 60;
+    let animation_fps = 30;
 
 
 
@@ -445,6 +445,10 @@
         let angle;
         let correctionX = 0;
         let correctionY = 0;
+        // We have an endpoint in screen coordinates. To calculate relative width of the arrow, we need to calculate its position to uvw space.
+        point1_xy = Object.values(point1_xy);
+        point2_xy = Object.values(point2_xy);
+
         length = distance(point1_xy, point2_xy);
         
         if (point1_xy[1] < point2_xy[1]) {
@@ -456,7 +460,7 @@
         let correctionVec;
         correctionVec = vectorFromPoints(point1_xy, point2_xy);
         correctionVec = [-correctionVec[1], correctionVec[0]];
-        correctionVec = setVectorMagnitude(correctionVec, width/2);
+        correctionVec = setVectorMagnitude(correctionVec, (width)/2);
 
         result = `
             <div class="${_class}" style="
@@ -470,8 +474,66 @@
                 "></div>
                 `;
         target_div.innerHTML = result;
-        return result;
+        // return result;
     };
+
+    // function line_uvw (point1_xy, point2_xy, width, target_div, _class) {
+    //     let result;
+    //     let center;
+    //     let style;
+    //     let length;
+    //     let angle;
+    //     let correctionX = 0;
+    //     let correctionY = 0;
+    //     // We have an endpoint in screen coordinates. To calculate relative width of the arrow, we need to calculate its position to uvw space.
+    //     let endPt_xy = screenToImagePlane (point2_xy); 
+    //     let endPt_uvw = imagePlaneToPerspective( endPt_xy, imagePlaneDepth) 
+    //     let sizeRefPt = [endPt_uvw.u + width, endPt_uvw.v, endPt_uvw.w];
+    //     point1_xy = Object.values(point1_xy);
+    //     point2_xy = Object.values(point2_xy);
+
+    //     length = distance(point1_xy, point2_xy);
+        
+    //     if (point1_xy[1] < point2_xy[1]) {
+    //         angle = vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
+    //     } else {
+    //         angle = -vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
+    //     }
+
+
+    //     // Relative width calculation
+        
+        
+    //     // console.log(sizeRefPt);
+
+    //     console.log(endPt_uvw, sizeRefPt)
+        
+    //     let sizeRefPtOnImagePlane = perspectiveToImagePlane(sizeRefPt, imagePlaneDepth);
+    //     console.log(endPt_xy, sizeRefPtOnImagePlane);
+    //     let sizeScale = distance(endPt_xy, sizeRefPtOnImagePlane);
+    //     console.log(sizeScale);
+    //     // let initialSize = distance(perspectiveToImagePlane([0,0,imagePlaneDepth], imagePlaneDepth), perspectiveToImagePlane( [size, 0, imagePlaneDepth] , imagePlaneDepth));
+    //     let currentSize = Math.ceil(sizeScale * width);
+
+    //     let correctionVec;
+    //     correctionVec = vectorFromPoints(point1_xy, point2_xy);
+    //     correctionVec = [-correctionVec[1], correctionVec[0]];
+    //     correctionVec = setVectorMagnitude(correctionVec, ((width)/2)*currentSize);
+
+    //     result = `
+    //         <div class="${_class}" style="
+    //             position: absolute;
+    //             top: ${point1_xy[1]}px;
+    //             left: ${point1_xy[0]}px;
+    //             height: ${width * currentSize}px;
+    //             width: ${length}px;
+    //             transform-origin: 0px 0px;
+    //             transform: translate(${-correctionVec[0]}px, ${-correctionVec[1]}px) rotate(${angle}rad);
+    //             "></div>
+    //             `;
+    //     target_div.innerHTML = result;
+    //     // return result;
+    // };
 
 //
     
@@ -607,14 +669,15 @@
     // This function takes as an input an array of perspective points,
     // it projects these points onto browser screen,
     // and assigns divs of a given class to them.
-   
+
+    let pointOnScreen;
+
     function display (pointArray, targetDiv, divClass, size) {
         let pointCollection = '';
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
             let pointInPerspective = pointArrayToObjects(pointArray)[i];
             
-            let pointOnScreen;
             let pointOnImagePlane;
             // Now I need to find its position on the screen:
             pointOnImagePlane = perspectiveToImagePlane(pointInPerspective, imagePlaneDepth);
@@ -643,7 +706,7 @@
             // console.log(pointCollection);
 
             
-            // return pointCollection;
+            // return pointOnScreen, pointCollection;
         }
         // console.log(pointCollection);
         targetDiv.innerHTML = pointCollection;        
@@ -1229,11 +1292,11 @@
             
             displayTrajectory(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             // console.log(shotTrajectory.flat());
-            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 400);
-            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 400);
+            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 250);
+            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 250);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
-                 6, arrowShaftPoints, 'arrow-shaft');
+                 8, arrowShaftPoints, 'arrow-shaft');
             // display(arrowShaftAtRel.flat(), arrowShaftPoints, 'arrow-shaft');
 
 
@@ -1371,19 +1434,24 @@
         // let arwEndTrajectory_dh = arrowMotion(rightHand_dh, arwAngAtRel_dh, v0, timeArray);
         let arwHead;
         let arwEnd;
+        let arwShaft;
         
         let arwHeadTrajectory = [];
         let arwEndTrajectory = [];
+        let arwShaftTrajectory = [];
         for (i = 0; i < arwHeadTrajectory_dh.length;) {
             arwHead = Object.values ( arwPlnToPerspective ( arwHeadTrajectory_dh [i] ) );
             arwHeadTrajectory.push ( arwHead );
+
             // Here we'll calculate arrow vector at a given frame.
             let arwVec = setVectorMagnitude( velocityVec(v0, arwAngAtRel_dh, timeArray[i]), (arwLng * (-1)) ) ;
-            // console.log(arwVec);
             arwEnd = move (Object.values(arwHeadTrajectory_dh [i]), arwVec);
             arwEnd = Object.values ( arwPlnToPerspective ( {d: arwEnd[0], h: arwEnd[1]} ) );
-            // console.log( arwEnd );
             arwEndTrajectory.push ( arwEnd );
+
+            // Next, let's get screen 
+
+
             i++;
         };        
         
@@ -1394,17 +1462,20 @@
         if (sceneState = 'arwFlight') {
             let i=0;
 
-            let timer = setInterval(function() {
+            let animation = setInterval(function() {
                 i = i+1;
     
                 if (i >= animFrameCount) {
-                    clearInterval(timer);
+                    clearInterval(animation);
                     arrowHit ();
                     return;
                 }
+                display(arwHeadTrajectory[i], arrowHeadAnimation, 'arrow-head', 250);
+                arwHead = pointOnScreen;
+                display(arwEndTrajectory[i], arrowEndAnimation, 'arrow-end', 250);
+                arwEnd = pointOnScreen;
+                line (arwEnd, arwHead, 2, arrowShaftAnimation, 'arrow-shaft');
     
-                display(arwHeadTrajectory[i], arrowHeadAnimation, 'arrow-head', 400);
-                display(arwEndTrajectory[i], arrowEndAnimation, 'arrow-end', 400);
             }, (timeStep * slowMoFactor * 1000));
         }
 
