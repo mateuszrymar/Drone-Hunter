@@ -50,6 +50,7 @@
     const stationaryArrows = document.getElementById('stationary-arrows'); 
 
     let totalScore = 0;
+    let arrowId = 0;
     let targetSize = 1*1.22;
     let targetSizePixels;
     let targetPosition = {u: 0, v:(1.5-cameraHeight), w:30};
@@ -185,6 +186,17 @@
         objectCollection = objectCollection.filter( Boolean );
         return objectCollection;
         }
+//
+
+// Create DOM element from string
+
+    function createElementFromHTML(htmlString) {
+        let div = document.createElement('div');
+        div.innerHTML = htmlString.trim();
+    
+        return div.firstElementChild;
+    }
+
 //
 
 // General math functions
@@ -437,6 +449,8 @@
 
 // General graphic functions
 
+    let arrowLine;
+
     function line (point1_xy, point2_xy, width, target_div, _class) {
         let result;
         let center;
@@ -474,6 +488,7 @@
                 "></div>
                 `;
         target_div.innerHTML = result;
+        arrowLine = result;
         // return result;
     };
 
@@ -671,6 +686,7 @@
     // and assigns divs of a given class to them.
 
     let pointOnScreen;
+    let pointOnScreenDiv;
 
     function display (pointArray, targetDiv, divClass, size) {
         let pointCollection = '';
@@ -705,10 +721,10 @@
             pointCollection = `${pointCollection} ${pointDiv}`;
             // console.log(pointCollection);
 
-            
-            // return pointOnScreen, pointCollection;
+            pointOnScreenDiv = pointDiv;
         }
         // console.log(pointCollection);
+        // console.log(pointOnScreenDiv);
         targetDiv.innerHTML = pointCollection;        
     }
 
@@ -1316,7 +1332,9 @@
     function bowReleased () {
         sceneState = 'arwFlight';
         console.log(sceneState);
-        // clearDisplay(trajectoryPoints);
+        arrowId++;
+        console.log(`Arrow no:${arrowId}`);
+        clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
@@ -1422,6 +1440,12 @@
 // Calculation of arrowHead and arrowEnd positions at a given time
 
     let startTime;
+    let arwHeadDiv;
+    let arwEndDiv;
+
+
+
+
     
     
     function animateArrow (startPoint, hitTime) {
@@ -1464,7 +1488,8 @@
 
             let animation = setInterval(function() {
                 i = i+1;
-    
+
+                
                 if (i >= animFrameCount) {
                     clearInterval(animation);
                     arrowHit ();
@@ -1472,13 +1497,36 @@
                 }
                 display(arwHeadTrajectory[i], arrowHeadAnimation, 'arrow-head', 250);
                 arwHead = pointOnScreen;
+                arwHeadDiv = pointOnScreenDiv;
+                
                 display(arwEndTrajectory[i], arrowEndAnimation, 'arrow-end', 250);
                 arwEnd = pointOnScreen;
+                arwEndDiv = pointOnScreenDiv;
                 line (arwEnd, arwHead, 2, arrowShaftAnimation, 'arrow-shaft');
-    
+                
+                
             }, (timeStep * slowMoFactor * 1000));
         }
+        
+        // if (i = animFrameCount) {
+        //     // console.log(arwHeadDiv); - we don't show arrowhead after the hit, it's stuck in sth.
+        //     console.log(arwEndDiv);
+        //     console.log(arrowLine);
 
+        //     // let arrowDiv = createElementFromHTML(
+        //     //     `<div id="arrow-${arrowId}">
+        //     //         ${arrowLine}
+        //     //     </div>`);
+        //     // stationaryArrows.appendChild(arrowDiv);
+
+            
+
+        //     // stationaryArrows.appendChild(`${arwEndDiv}`);
+        //     // let currentArwDiv = document.getElementById("arrow-${arrowId}");
+        //     // currentArwDiv.append(arrowLine, arwEndDiv);
+
+        //     // return;
+        // }
     }
 
 //
@@ -1488,7 +1536,16 @@
     function arrowHit () {
         sceneState = 'arwStopped';
         score.innerHTML = `Score: ${totalScore}`
-        currentHit.innerHTML = `${pointResult}`    
+        currentHit.innerHTML = `${pointResult}`
+
+        let arrowDiv = createElementFromHTML(
+            `<div id="arrow-${arrowId}">
+            </div>`);
+        stationaryArrows.appendChild(arrowDiv);
+        let currentArrowDiv = document.getElementById(`arrow-${arrowId}`);
+        currentArrowDiv.append(createElementFromHTML(arwEndDiv) , createElementFromHTML(arrowLine) );
+
+
         console.log(sceneState);
     };
 
