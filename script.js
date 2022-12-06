@@ -44,7 +44,7 @@
     const arrowEndPoints = document.getElementById('arrow-end-points'); 
     const score = document.getElementById('score'); 
     const currentHit = document.getElementById('current-hit'); 
-    const arrowAnimations = document.getElementById('arrow-animations');
+    const arrowAnimations = document.getElementById('released-arrows');
     // const arrowHeadAnimation = document.getElementById('arrow-head-animation'); 
     // const arrowShaftAnimation = document.getElementById('arrow-shaft-animation'); 
     // const arrowEndAnimation = document.getElementById('arrow-end-animation'); 
@@ -117,7 +117,7 @@
     let hitTime;
     
     // Bow parameters            
-    let v0 = 50; // this will be a complex equation later.
+    let v0 = 30; // this will be a complex equation later.
     let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
@@ -689,7 +689,7 @@
     let pointOnScreen;
     let pointOnScreenDiv;
 
-    function display (pointArray, targetDiv, divClass, size, append) {
+    function display (pointArray, targetDiv, divClass, size) {
         let pointCollection = '';
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
@@ -724,13 +724,7 @@
 
             pointOnScreenDiv = pointDiv;
         }
-
-        if (append === true) {
-            let toAppend = createElementFromHTML(pointCollection);
-            targetDiv.append(toAppend);       
-        } else {
-            targetDiv.innerHTML = pointCollection;        
-        }
+        targetDiv.innerHTML = pointCollection;        
     }
 
     function clearDisplay (targetDiv) {
@@ -1491,18 +1485,7 @@
         if (sceneState = 'arwFlight') {
             let i=0;
 
-            let animation = setInterval(function() {
-                i = i+1;
-
-                
-                if (i >= animFrameCount) {
-                    clearInterval(animation);
-                    arrowHit (uniqueArrowId);
-                    return;
-                }
-
-                // We need to create AH, AE, L inside a unique div:
-
+            // We need to create AH, AE, L inside a unique div:              
                 let arrowDiv = createElementFromHTML(
                     `<div id="arrow-${uniqueArrowId}">
                     </div>`);
@@ -1513,6 +1496,21 @@
                     createElementFromHTML(`<div id="arrow-end-${uniqueArrowId}"></div>`) ,
                     createElementFromHTML(`<div id="arrow-shaft-${uniqueArrowId}"></div>`) ,
                 );
+            //
+
+            let animation = setInterval(function() {
+                i = i+1;
+
+                
+
+                
+                if (i >= animFrameCount) {
+                    clearInterval(animation);
+                    arrowHit (uniqueArrowId);
+                    return;
+                }
+
+                
                 
                 let arrowHeads = document.getElementById(`arrow-head-${uniqueArrowId}`);
                 let arrowEnds = document.getElementById(`arrow-end-${uniqueArrowId}`);
