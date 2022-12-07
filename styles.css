@@ -269,7 +269,7 @@ body {
 
 .point-area {
     /* display: none; */
-    /* display: flex; */
+    display: flex;
     margin: var(--point-area-size) var(--point-area-size);
     align-items: center;
     border-radius: 50%;  
