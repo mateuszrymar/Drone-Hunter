@@ -115,7 +115,7 @@
     
     // Bow parameters            
     let v0 = 30; // this will be a complex equation later.
-    let shotPreviewSteps = 32;
+    let shotPreviewSteps = 16;
     let arrowShaftPointsCount = 64;
 
     // Animation parameters
@@ -136,6 +136,7 @@
     // 10. Target framerate is 60 fps. Should be achievable after optimizations.
     // 11. After turning the mobile screen to horizontal, the page needs a refresh. That can be super annoying if it happens mid-game!
     // 12. Hit scores sometimes display properly for 2.5s, but often (50% of the time) they just flash for a moment.
+    // 13. Performance issues while aiming. Reason unknown.
     
 //
 

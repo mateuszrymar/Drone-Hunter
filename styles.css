@@ -24,11 +24,16 @@
     
 }
 
-html, body {margin: 0; height: 100%; overflow: hidden}
+html, body {
+    margin: 0; 
+    height: 100%; 
+    overflow: hidden;
+    image-rendering: pixelated;
+}
 
 body {
     margin: 0;
-    font-family: 'Silkscreen', cursive;
+    font-family: 'Silkscreen', sans-serif;
     position: relative;
     user-select: none;
 }
@@ -239,7 +244,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('images/background.svg');
+    background-image: url('images/background.jpg');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
