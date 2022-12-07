@@ -8,8 +8,9 @@
     --target-cyan: rgb(102, 195, 223);
     --target-red: rgb(233, 92, 111);
     --target-yellow: rgb(247, 213, 129);
-    
+
     --sky-height: 40vh;
+    --sky-percentage: 40%;
     
     --target-size: ; /* Calculated in JS */
     /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
@@ -231,6 +232,24 @@ body {
     z-index: -1;
 }
 
+#background {
+    /* display: none; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background-image: url('images/background.jpg');
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+}
+
+#background-img{
+}
+
 /* Target settings */
 
 #point-area-1 {
@@ -244,6 +263,7 @@ body {
     border-radius: 50%;
     border: var(--target-border) solid black;
     margin: 0;
+    z-index: 10;
 }
 
 .point-area {
