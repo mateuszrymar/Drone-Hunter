@@ -166,9 +166,9 @@ body {
     position: absolute;
     width: 2px;
     height: 2px;
-    border-radius: 00%;
-    background-color: black;
-    opacity: 15%;
+    /* border-radius: 50%; */
+    background-color: white;
+    opacity: 100%;
     transform: translate(-1px, -1px);
     z-index: 20;
 }
@@ -197,7 +197,7 @@ body {
     position: absolute;
     width: 16px;
     height: 16px;
-    background-color: red;
+    background-color: rgb(156, 26, 26);
     transform: translate(-8px, -8px);
     /* transform: scaleX(75%) rotate(45deg); */
     z-index: 22;
@@ -253,10 +253,11 @@ body {
 /* Target settings */
 
 #point-area-1 {
+    display: none;
+    /* display: flex; */
     position: absolute;
     top: var(--target-position-Y);
     left: var(--target-position-X);
-    display: flex;
     width: var(--target-size);
     height: var(--target-size);
     background-color: var(--target-white);
@@ -267,7 +268,8 @@ body {
 }
 
 .point-area {
-    display: flex;
+    display: none;
+    /* display: flex; */
     margin: var(--point-area-size) var(--point-area-size);
     align-items: center;
     border-radius: 50%;  

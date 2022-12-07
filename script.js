@@ -135,6 +135,7 @@
     // 9. On mobile devices, unwanted arrow releases occur with double-tap or with very short swipes. Exact reason needs to be found.
     // 10. Target framerate is 60 fps. Should be achievable after optimizations.
     // 11. After turning the mobile screen to horizontal, the page needs a refresh. That can be super annoying if it happens mid-game!
+    // 12. Hit scores sometimes display properly for 2.5s, but often (50% of the time) they just flash for a moment.
     
 //
 
