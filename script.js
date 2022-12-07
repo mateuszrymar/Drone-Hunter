@@ -122,9 +122,28 @@
 
 //
 
-// Known bugs to fix
+// Known bugs to fix:
     // 1. Arrows should have a variable z-index applied, based on w coordinate, so that they vanish behind the target.
+    // 2. Desktop-specific event listeners to enable desktop browser support.
+    // 3. Zooming in on mobile doesn't work as intended.
+    // 4. Performance issues with 4+ arrows in the air simultaneously.
+    // 5. Arrow spine doesn't have its spine width animated.
+    // 6. All width variables should be parametrized, not specified locally.
+    // 7. All variable declarations should be moved to the top.
+    // 8. General code clean-up is needed.
+    // 9. On mobile devices, unwanted arrow releases occur with double-tap or with very short swipes. Exact reason needs to be found.
+    // 10. Target framerate is 60 fps. Should be achievable after optimizations.
     
+//
+
+// Possible optimizations:
+    // 1. All depth calculations can be made beforehand. We just need an array with width percentages at certain depths.
+    // 2. Arrowheads should vanish after hitting the target / ground.
+    // 3. Arrow animation function can be rewritten so that it skips some frames when overloaded.
+    // 4. There are multiple points in the code, where a certain thing is calculated despite being calculated before.
+    // 5. Suspect performance killers: display and loop functions. Some are calculating dozens of arrays, but could calculate just one,
+    //    or have data passed from another function, that calculated sth earlier.
+
 //
 
 
