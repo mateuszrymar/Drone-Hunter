@@ -219,7 +219,7 @@ body {
     height: var(--sky-height);
     background: rgb(25,180,255);
     background: linear-gradient(180deg, rgba(25,180,255,1) 0%, rgba(156,221,255,1) 60%, rgba(234,248,255,1) 100%);
-    z-index: -1;
+    z-index: -2;
 }
 
 #ground {
@@ -229,7 +229,7 @@ body {
     height: calc(100vh - var(--sky-height));
     background: rgb(104,150,37);
     background: linear-gradient(0deg, rgba(104,150,37,1) 0%, rgba(165,205,116,1) 75%, rgba(208,232,173,1) 100%);
-    z-index: -1;
+    z-index: -2;
 }
 
 #background {
@@ -239,12 +239,12 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0;
-    background-image: url('images/background.jpg');
+    background-image: url('images/background.svg');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 100%;
+    z-index: -1;
 }
 
 #background-img{
