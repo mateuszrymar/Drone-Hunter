@@ -170,7 +170,7 @@ body {
     background-color: white;
     opacity: 100%;
     transform: translate(-1px, -1px);
-    z-index: 20;
+    z-index: 30;
 }
 
 .arrow-head {
@@ -253,8 +253,8 @@ body {
 /* Target settings */
 
 #point-area-1 {
-    display: none;
-    /* display: flex; */
+    /* display: none; */
+    display: flex;
     position: absolute;
     top: var(--target-position-Y);
     left: var(--target-position-X);
@@ -268,7 +268,7 @@ body {
 }
 
 .point-area {
-    display: none;
+    /* display: none; */
     /* display: flex; */
     margin: var(--point-area-size) var(--point-area-size);
     align-items: center;
