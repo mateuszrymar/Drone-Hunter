@@ -277,7 +277,7 @@ input:focus + .slider {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('images/target.png');
+    background-image: url('images/target.gif');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
