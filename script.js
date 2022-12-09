@@ -136,7 +136,13 @@
     // 10. Target framerate is 60 fps. Should be achievable after optimizations.
     // 11. After turning the mobile screen to horizontal, the page needs a refresh. That can be super annoying if it happens mid-game!
     // 12. Hit scores sometimes display properly for 2.5s, but often (50% of the time) they just flash for a moment.
-    // 13. Performance issues while aiming. Reason unknown.
+    // 13. DONE. Performance issues while aiming. Reason unknown. // Reason: SVG background melts the GPU.
+    // 14. The target feels a few centimeters off to the top in relation to trajectory hint. Possible reasons:
+    //      a) player's finger can move a little on release -> no fix needed.
+    //      b) trajectory hint is wrong. -> fix
+    //      c) displayed target position is wrong -> fix
+    // 15. Target PNG's position should be paramatrized to scale and move according to target distance parameter.
+    
     
 //
 

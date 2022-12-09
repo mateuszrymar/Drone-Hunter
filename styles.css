@@ -252,14 +252,25 @@ body {
     z-index: -1;
 }
 
-#background-img{
+#target {
+    /* display: none; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('images/target.png');
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+    z-index: -1;
 }
 
-/* Target settings */
 
 #point-area-1 {
-    /* display: none; */
-    display: flex;
+    display: none;
+    /* display: flex; */
     position: absolute;
     top: var(--target-position-Y);
     left: var(--target-position-X);
@@ -273,8 +284,8 @@ body {
 }
 
 .point-area {
-    /* display: none; */
-    display: flex;
+    display: none;
+    /* display: flex; */
     margin: var(--point-area-size) var(--point-area-size);
     align-items: center;
     border-radius: 50%;  
