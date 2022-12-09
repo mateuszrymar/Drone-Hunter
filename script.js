@@ -167,7 +167,7 @@
     // 6. DONE - Custom number colors after hits.
     // 7. Static background animation.
     // 8. Special FX after hitting the target / ground.
-    // 9. After getting new points, score counter should light up a little.
+    // 9. DONE - After getting new points, score counter should light up a little.
     // 10. Animate 10 explosion and scene lighting.
 //
 
@@ -1613,25 +1613,33 @@
             let pointText = document.getElementById(`arrow-points-${arrowId}`);
             pointText.style.color = 'var(--score-text-10)';           
             pointText.style.textShadow = '0px 1px var(--score-text-shadow-10)';           
+            score.style.animation = 'scoreAdd 1.9s normal forwards';           
             setTimeout(() => {
                 explosion_10.style.opacity = `0%`;
             }, "400");
             setTimeout(() => {
+                score.style.animation = '';           
                 target.style.backgroundImage = `url('images/target.gif')`;            
             }, "1900");
         } else if (pointResults[i].result < 10 && pointResults[i].result >= 8) {
+            score.style.animation = 'scoreAdd 1.9s normal forwards';           
             target.style.backgroundImage = `url('images/yellow_hit.gif')`;            
             setTimeout(() => {
+                score.style.animation = '';           
                 target.style.backgroundImage = `url('images/target.gif')`;            
             }, "1900");
         } else if (pointResults[i].result < 8 && pointResults[i].result >= 5) {
+            score.style.animation = 'scoreAdd 1.3s normal forwards';           
             target.style.backgroundImage = `url('images/red_hit.gif')`;            
             setTimeout(() => {
+                score.style.animation = '';           
                 target.style.backgroundImage = `url('images/target.gif')`;            
             }, "1300");
         } else if (pointResults[i].result < 5 && pointResults[i].result >= 1) {
+            score.style.animation = 'scoreAdd 0.7s normal forwards';           
             target.style.backgroundImage = `url('images/cyan_hit.gif')`;            
             setTimeout(() => {
+                score.style.animation = '';           
                 target.style.backgroundImage = `url('images/target.gif')`;            
             }, "700");
         } else {

@@ -6,6 +6,7 @@
     --ui-shadow: rgba(8, 36, 48, 1);
     
     --score-text: rgba(64, 137, 152, 1);
+    --score-text-add: rgba(98, 177, 2070, 1);
     --score-text-10:  rgba(212, 181, 117, 1);
     --score-text-shadow: rgba(74, 255, 232, 1);
     --score-text-shadow-10: rgba(152, 103, 83, 1);
@@ -129,6 +130,24 @@ input:focus + .slider {
     display: block;
     top: 1em;
     right: 1em;
+    /* animation: scoreAdd 1.9s normal forwards; */
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-out;
+}
+
+@keyframes scoreAdd {
+    0% {
+        color: var(--score-text);
+    }
+    5% {
+        color: var(--score-text-add);
+    }
+    70% {
+        color: var(--score-text-add);
+    }    
+    100% {
+        color: var(--score-text);
+    }
 }
 
 .hit-score {
@@ -273,14 +292,13 @@ input:focus + .slider {
     z-index: 1;
 }
 
-#target {
+#target, #target-fallback {
     /* display: none; */
     position: absolute;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('images/target.gif');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
@@ -288,6 +306,14 @@ input:focus + .slider {
     z-index: 0;
 }
 
+#target{
+    background-image: url('images/target.gif');
+}
+
+#target-fallback{
+    background-image: url('images/target-fallback.png');
+    z-index: -1;
+}
 
 #point-area-1 {
     display: none;
