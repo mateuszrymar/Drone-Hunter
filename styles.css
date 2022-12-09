@@ -1,6 +1,10 @@
 /* variable library */
 :root {
     --ui-grey: rgba(100, 100, 100, 0.5);
+    --ui-text: rgba(48, 119, 144, 1);
+    --ui-switch: rgba(16, 54, 66, 1);
+    --ui-shadow: rgba(8, 36, 48, 1);
+
     --score-gold: rgb(235, 77, 29);
     --target-color: rgb(150, 144, 125);
     --target-white: rgb(238, 236, 231);
@@ -8,6 +12,11 @@
     --target-cyan: rgb(102, 195, 223);
     --target-red: rgb(233, 92, 111);
     --target-yellow: rgb(247, 213, 129);
+
+    --hand: rgba(48, 119, 144, 0.5);
+    --arw-head: rgba(48, 96, 118, 1);
+    --arw-shaft: rgba(54, 58, 62, 1);
+    --arw-end: rgba(111, 62, 64, 1);
 
     --sky-height: 40vh;
     --sky-percentage: 40%;
@@ -66,17 +75,17 @@ body {
     width: 13px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: var(--ui-text);
     -webkit-transition: .4s;
     transition: .4s;
 }
   
-  input:checked + .slider {
-    background-color: #2196F3;
+input:checked + .slider {
+    background-color: var(--ui-switch);
 }
   
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--ui-text);
 }
   
   input:checked + .slider:before {
@@ -92,7 +101,9 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: var(--ui-switch);
+    box-shadow: 1px 1px var(--ui-shadow);
+    border: 1px black;
     transition: .4s;
 }
 
@@ -103,11 +114,12 @@ body {
 #debug-state-label {
     position: absolute;
     width: max-content;
-    left: 2em;    
+    left: 2em;
 }
 
 .ui {
-    color: white;
+    color: var(--ui-text);
+    text-shadow: 1px 1px var(--ui-shadow);
 }
 
 #score {
@@ -180,21 +192,12 @@ body {
 
 .arrow-head {
     position: absolute;
-    /* width: 16px;
-    height: 16px; */
-    background-color: grey;
-    /* transform: translate(-8px, -8px); */
-    /* transform: scaleX(75%) rotate(45deg); */
+    background-color: var(--arw-head);
     z-index: 20;
 }
 
 .arrow-shaft {
-    /* position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%; */
-    background-color: rgb(148, 131, 94);
-    /* transform: translate(-4px, -4px); */
+    background-color: var(--arw-shaft);
     z-index: 21;
 }
 
@@ -202,7 +205,7 @@ body {
     position: absolute;
     width: 16px;
     height: 16px;
-    background-color: rgb(156, 26, 26);
+    background-color: var(--arw-end);
     transform: translate(-8px, -8px);
     /* transform: scaleX(75%) rotate(45deg); */
     z-index: 22;
@@ -252,6 +255,21 @@ body {
     z-index: -1;
 }
 
+#explosion-10 {
+    /* display: none; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('images/10FX.png');
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0%;
+    z-index: 1;
+}
+
 #target {
     /* display: none; */
     position: absolute;
@@ -264,7 +282,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 100%;
-    z-index: -1;
+    z-index: 0;
 }
 
 
@@ -313,10 +331,10 @@ body {
     width: var(--left-hand-size);
     height: var(--left-hand-size);
     background-color: none;
-    border: 4px solid var(--ui-grey);
+    border: 4px solid var(--hand);
     border-radius: 50%;
     position: absolute;       
-    z-index: 20;
+    z-index: 30;
     left: calc((100vw - (var(--target-size) * -2 + var(--target-border)*2))/2); 
     top: calc(var(--sky-height) - var(--target-size) * -2); 
 
@@ -327,12 +345,12 @@ body {
     width: 4em;
     height: 4em;
     background-color: none;
-    border: 6px solid var(--ui-grey);
+    border: 6px solid var(--hand);
     border-radius: 50%;
     position: absolute;
     top: 50px;
     left: 50px;
-    z-index: 20;
+    z-index: 30;
     /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
     --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));  */
 }

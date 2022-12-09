@@ -46,6 +46,7 @@
     const currentHit = document.getElementById('current-hit'); 
     const arrowAnimations = document.getElementById('released-arrows');
     const stationaryArrows = document.getElementById('stationary-arrows'); 
+    const explosion_10 = document.getElementById('explosion-10'); 
 
     let totalScore = 0;
     let arrowId = 0;
@@ -158,7 +159,7 @@
 //
 
 // Graphics features wishlist:
-    // 1. UI, arrow & hands recoloring to match new art direction.
+    // 1. DONE - UI, arrow & hands recoloring to match new art direction.
     // 2. Simple light FX after hitting "10".
     // 3. Target startup animation.
     // 4. Target after hit animation.
@@ -166,6 +167,7 @@
     // 6. Custom numbers after hits - images, not font.
     // 7. Static background animation.
     // 8. Special FX after hitting the target / ground.
+    // 9. After getting new points, score counter should light up a little.
 //
 
 // Gameplay features wishlist:
@@ -1600,12 +1602,29 @@
 
 //
 
+// Display a special effect when 10 is hit
+
+    function displayExplosion_10 (arrowId) {
+        let i = arrowId;
+        if (pointResults[i].result >= 10) {
+            explosion_10.style.opacity = `100%`;
+            setTimeout(() => {
+                explosion_10.style.opacity = `0%`;
+            }, "400")
+        } else {
+            return;
+        };
+    }
+
+//
+
 // TRIGGER EVENT //////////////////////////////
 
     function arrowHit (uniqueArrowId) {
         sceneState = 'arwStopped';
         score.innerHTML = `Score: ${totalScore}`;
         displayScore (uniqueArrowId);
+        displayExplosion_10(uniqueArrowId);
         // console.log(pointResults)
         // currentHit.innerHTML = `${pointResult}`
 
