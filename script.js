@@ -34,7 +34,7 @@
     const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
     const debugPoints = document.getElementById('debug-points');
-    const target = document.getElementById('point-area-1');
+    const target = document.getElementById('target');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
@@ -161,10 +161,10 @@
 // Graphics features wishlist:
     // 1. DONE - UI, arrow & hands recoloring to match new art direction.
     // 2. DONE - Simple light FX after hitting "10".
-    // 3. Target startup animation.
-    // 4. Target after hit animation.
+    // 3. DONE - Target startup animation.
+    // 4. DONE - Target after hit animation.
     // 5. Polish midground of the background image.
-    // 6. Custom numbers after hits - images, not font.
+    // 6. DONE - Custom number colors after hits.
     // 7. Static background animation.
     // 8. Special FX after hitting the target / ground.
     // 9. After getting new points, score counter should light up a little.
@@ -1603,18 +1603,41 @@
 
 //
 
-// Display a special effect when 10 is hit
+// Display a special effect when a particular score is hit
 
     function displayExplosion_10 (arrowId) {
         let i = arrowId;
         if (pointResults[i].result >= 10) {
             explosion_10.style.opacity = `100%`;
+            target.style.backgroundImage = `url('images/yellow_hit.gif')`; 
+            let pointText = document.getElementById(`arrow-points-${arrowId}`);
+            pointText.style.color = 'var(--score-text-10)';           
+            pointText.style.textShadow = '0px 1px var(--score-text-shadow-10)';           
             setTimeout(() => {
                 explosion_10.style.opacity = `0%`;
-            }, "400")
+            }, "400");
+            setTimeout(() => {
+                target.style.backgroundImage = `url('images/target.gif')`;            
+            }, "1900");
+        } else if (pointResults[i].result < 10 && pointResults[i].result >= 8) {
+            target.style.backgroundImage = `url('images/yellow_hit.gif')`;            
+            setTimeout(() => {
+                target.style.backgroundImage = `url('images/target.gif')`;            
+            }, "1900");
+        } else if (pointResults[i].result < 8 && pointResults[i].result >= 5) {
+            target.style.backgroundImage = `url('images/red_hit.gif')`;            
+            setTimeout(() => {
+                target.style.backgroundImage = `url('images/target.gif')`;            
+            }, "1300");
+        } else if (pointResults[i].result < 5 && pointResults[i].result >= 1) {
+            target.style.backgroundImage = `url('images/cyan_hit.gif')`;            
+            setTimeout(() => {
+                target.style.backgroundImage = `url('images/target.gif')`;            
+            }, "700");
         } else {
             return;
         };
+
     }
 
 //

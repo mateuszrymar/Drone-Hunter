@@ -4,7 +4,11 @@
     --ui-text: rgba(48, 119, 144, 1);
     --ui-switch: rgba(16, 54, 66, 1);
     --ui-shadow: rgba(8, 36, 48, 1);
-
+    
+    --score-text: rgba(64, 137, 152, 1);
+    --score-text-10:  rgba(212, 181, 117, 1);
+    --score-text-shadow: rgba(74, 255, 232, 1);
+    --score-text-shadow-10: rgba(152, 103, 83, 1);
     --score-gold: rgb(235, 77, 29);
     --target-color: rgb(150, 144, 125);
     --target-white: rgb(238, 236, 231);
@@ -28,9 +32,7 @@
     --point-area-size: calc(var(--target-size)/20);
 
     --left-hand-size: 48px;
-    --right-hand-size: 64px;
-
-    
+    --right-hand-size: 64px;    
 }
 
 html, body {
@@ -133,7 +135,8 @@ input:focus + .slider {
     position: absolute;
     font-size: 2em;
     font-weight: 800;
-    color: rgba(25,180,255,1);
+    color: var(--score-text);
+    text-shadow: 0px 1px var(--score-text-shadow);
     opacity: 0;
     animation: opacityOn 2.5s normal forwards;
     animation-timing-function: ease-out;
