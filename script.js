@@ -160,7 +160,7 @@
 
 // Graphics features wishlist:
     // 1. DONE - UI, arrow & hands recoloring to match new art direction.
-    // 2. Simple light FX after hitting "10".
+    // 2. DONE - Simple light FX after hitting "10".
     // 3. Target startup animation.
     // 4. Target after hit animation.
     // 5. Polish midground of the background image.
@@ -168,6 +168,7 @@
     // 7. Static background animation.
     // 8. Special FX after hitting the target / ground.
     // 9. After getting new points, score counter should light up a little.
+    // 10. Animate 10 explosion and scene lighting.
 //
 
 // Gameplay features wishlist:
