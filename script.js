@@ -142,6 +142,7 @@
     //      b) trajectory hint is wrong. -> fix
     //      c) displayed target position is wrong -> fix
     // 15. Target PNG's position should be paramatrized to scale and move according to target distance parameter.
+    // 16. Make hitbox of the target bigger, so that the arrow gets stuck in the spaceship properly.
     
     
 //
@@ -154,6 +155,40 @@
     // 5. Suspect performance killers: display and loop functions. Some are calculating dozens of arrays, but could calculate just one,
     //    or have data passed from another function, that calculated sth earlier.
 
+//
+
+// Graphics features wishlist:
+    // 1. UI, arrow & hands recoloring to match new art direction.
+    // 2. Simple light FX after hitting "10".
+    // 3. Target startup animation.
+    // 4. Target after hit animation.
+    // 5. Polish midground of the background image.
+    // 6. Custom numbers after hits - images, not font.
+    // 7. Static background animation.
+    // 8. Special FX after hitting the target / ground.
+//
+
+// Gameplay features wishlist:
+    // 1. Start screen.
+    // 2. End screen.
+    // 3. Instructions on start screen.
+    // 4. Name of the game.
+    // 5. 2-3 different game modes.
+    // 6. Add shop screen with bow and arrow upgrades.
+    // 7. Equipment screen.
+    // 8. Leaderboard.
+    // 9. Streak mechanics after hitting 2+ "10s" in a row.
+    // 10. Options screen.
+    // 11. Credits screen.
+    // 12. Move Debug switch to options.
+//
+
+// Sound features wishlist:
+    // 0. Add sound switch.
+    // 1. Sound FX on: bow draw, release, target hit, ground hit, 10 hit.
+    // 2. Soundscape for the scene.
+    // 3. Try if music works well or not.
+    // 4. Add sound options.
 //
 
 
