@@ -163,7 +163,7 @@
     // 2. DONE - Simple light FX after hitting "10".
     // 3. DONE - Target startup animation.
     // 4. DONE - Target after hit animation.
-    // 5. Polish midground of the background image.
+    // 5. DONE - Polish midground of the background image.
     // 6. DONE - Custom number colors after hits.
     // 7. Static background animation.
     // 8. Special FX after hitting the target / ground.
