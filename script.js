@@ -1485,6 +1485,10 @@
             totalScore = totalScore + pointResult.result;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Target hit. Result: ', pointResult.result, ' points.');
+        } else  if (offTarget > targetSize/2 && offTarget <= targetSize*1.5) {
+            pointResult.result = 0;
+            arwHeadHit = intersectionPoint_uvw;
+            console.log('Droid hit.');        
         } else {
             console.log('Ground hit.');
             pointResult.result = 0;
