@@ -54,6 +54,7 @@
     let targetSizePixels;
     let targetPosition = {u: 0, v:(1.5-cameraHeight), w:30};
     let targetPositionPixels;
+    let arrowSize = 150;
     let leftHandPosition;
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
     leftHandSize = leftHandSize.slice(0, -2);
@@ -125,7 +126,7 @@
 //
 
 // Known bugs to fix:
-    // 1. Arrows should have a variable z-index applied, based on w coordinate, so that they vanish behind the target.
+    // 1. DONE - Arrows should have a variable z-index applied, based on w coordinate, so that they vanish behind the target.
     // 2. Desktop-specific event listeners to enable desktop browser support.
     // 3. Zooming in on mobile doesn't work as intended.
     // 4. Performance issues with 4+ arrows in the air simultaneously.
@@ -762,6 +763,7 @@
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
             let pointInPerspective = pointArrayToObjects(pointArray)[i];
+            // console.log(pointInPerspective);
             
             let pointOnImagePlane;
             // Now I need to find its position on the screen:
@@ -784,6 +786,7 @@
             width: ${currentSize}px;
             height: ${currentSize}px;            
             transform: translate(-${currentSize/2}px, -${currentSize/2}px);
+            z-index: ${-1 * Math.ceil(pointInPerspective.w) }
             "</div>
             `;
             
@@ -1374,8 +1377,8 @@
             
             displayTrajectory(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
             // console.log(shotTrajectory.flat());
-            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', 250, false);
-            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', 250, false);
+            display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', arrowSize, false);
+            display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', arrowSize, false);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
                  8, arrowShaftPoints, 'arrow-shaft');
@@ -1485,7 +1488,7 @@
             totalScore = totalScore + pointResult.result;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Target hit. Result: ', pointResult.result, ' points.');
-        } else  if (offTarget > targetSize/2 && offTarget <= targetSize*1.5) {
+        } else  if (offTarget > targetSize/2 && offTarget <= targetSize*1.6) {
             pointResult.result = 0;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Droid hit.');        
@@ -1576,15 +1579,15 @@
                 let arrowShafts = document.getElementById(`arrow-shaft-${uniqueArrowId}`);
                     
 
-                display(arwHeadTrajectory[i], arrowHeads, 'arrow-head', 250 , false);
+                display(arwHeadTrajectory[i], arrowHeads, 'arrow-head', arrowSize , false);
                 arwHead = pointOnScreen;
                 arwHeadDiv = pointOnScreenDiv;
                 
-                display(arwEndTrajectory[i], arrowEnds, 'arrow-end', 250 , false);
+                display(arwEndTrajectory[i], arrowEnds, 'arrow-end', arrowSize , false);
                 arwEnd = pointOnScreen;
                 arwEndDiv = pointOnScreenDiv;
 
-                line (arwEnd, arwHead, 2, arrowShafts, 'arrow-shaft' );
+                // line (arwEnd, arwHead, 2, arrowShafts, 'arrow-shaft' );
 
                 
                 
