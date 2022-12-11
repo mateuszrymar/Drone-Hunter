@@ -388,6 +388,8 @@
         return result;
     }
 
+    // console.log(series(0, 10, 10));
+
     function interpolatePts (point1, point2, count) {
         let result = [];
         let stepX = ( point2[0] - point1[0] ) / ( count - 1 );
@@ -804,9 +806,10 @@
 
     function displayTrajectory (pointArray, targetDiv, divClass) {
         let pointCollection = '';
+        let pointInPerspective;
         for (let i = 0; i < (pointArray.length / 3); i++) {
             // I have coordinates of a point in perspective coordinates:
-            let pointInPerspective = pointArrayToObjects(pointArray)[i];
+            pointInPerspective = pointArrayToObjects(pointArray)[i];
             
             let pointOnScreen;
             let pointOnImagePlane;
@@ -825,12 +828,11 @@
             `;
             
             pointCollection = `${pointCollection} ${pointDiv}`;
-            // console.log(pointCollection);
-
+            
             
             // return pointCollection;
         }
-        // console.log(pointCollection);
+        console.log(`Last point in trajectory: `, pointInPerspective);
         targetDiv.innerHTML = pointCollection;        
     }
 
@@ -1277,6 +1279,7 @@
             let timeAtTargetDistance;
             let v0x = v0 * Math.cos(angle);
             timeAtTargetDistance = (distance - startPoint_dh.d) / v0x;
+            console.log(`distance to travel at timeAtDist function:`, distance - startPoint_dh.d);
             return timeAtTargetDistance;
         }; 
     //
@@ -1353,7 +1356,14 @@
             // console.log({d: 0, h: arwHeadAtRel_dh.h});
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
             // console.log(targetPosition_dh);
-            t = series(0, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh), shotPreviewSteps);
+            // console.log(horizRelAng_uvw);
+            let predictedHitDist = (targetPosition_dh.d / Math.cos(horizRelAng_uvw));
+            t = series(0, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh), shotPreviewSteps);
+            console.log(t);
+            // console.log(`Predicted hit time old: `, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh));
+            console.log(`Predicted hit time new: `, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh));
+            // console.log(`Distance to travel old: `, targetPosition_dh.d);
+            // console.log(`Distance to travel new: `, predictedHitDist);
             let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
             // console.log(shotTrajectory_dh);
             // Checked to this point. Should be ok up till now.
@@ -1376,7 +1386,6 @@
             arrowShaftAtRel = interpolatePts(arwEndAtRel_uvw, arwHeadAtRel_uvw, arrowShaftPointsCount);
             
             displayTrajectory(shotTrajectory.flat(), trajectoryPoints, 'trajectory');
-            // console.log(shotTrajectory.flat());
             display(arwHeadAtRel_uvw, arrowHeadPoints, 'arrow-head', arrowSize, false);
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', arrowSize, false);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
@@ -1664,7 +1673,8 @@
         score.innerHTML = `Score: ${totalScore}`;
         displayScore (uniqueArrowId);
         displayExplosion_10(uniqueArrowId);
-        // console.log(pointResults)
+        console.log(`Hit: `, arwHeadHit);
+        console.log(`Actual hit time: `, hitTime);
         // currentHit.innerHTML = `${pointResult}`
 
         // let scoreDiv = createElementFromHTML(
