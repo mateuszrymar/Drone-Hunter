@@ -1238,6 +1238,7 @@
                 currentPosition.d = v0x * t[i] + startPoint_dh.d;
                 // Height 
                 currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5) + startPoint_dh.h;
+                console.log(currentPosition);
                 i++;
 
                 result.push(currentPosition) ;
@@ -1363,12 +1364,8 @@
             // console.log(`Predicted hit time old: `, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh));
             console.log(`Predicted hit time new: `, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh));
             // console.log(`Distance to travel old: `, targetPosition_dh.d);
-            // console.log(`Distance to travel new: `, predictedHitDist);
+            console.log(`Distance to travel new: `, predictedHitDist);
             let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
-            // console.log(shotTrajectory_dh);
-            // Checked to this point. Should be ok up till now.
-            // Displayed trajectory seems correct, but values passed for hit evaluation look wrong.
-            // We need to check if we pass last point of preview trajectory as a hit Result for evaluation.
 
             shotTrajectory = [];
             for (i = 0; i < shotTrajectory_dh.length;) {
@@ -1474,22 +1471,19 @@
         // Tis value is the distance the arrow travels along wAxis, until it reaches target plane:
         delta_w = targetPosition.w - rightHand_uvw.w; // It doesn't compensate for arrow length.
         delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
-        d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2)) - vectorLength([arwVecAtRel_dh[0], 0]); // we compensate for arrow length here.
+        d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2)); // we don't compensate for arrow length here.
         time = timeAtDist(arwHeadAtRel_dh, d, arwAngAtRel_dh);
-
+        
         intersectionPoint_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
         intersectionPoint_dh = intersectionPoint_dh[0];
-        intersectionPoint_dh.d = (intersectionPoint_dh.d + vectorLength([arwVecAtRel_dh[0], 0]));
         
         // Now we have the intersectionPoint in uvw space!
         intersectionPoint_uvw = arwPlnToPerspective(intersectionPoint_dh);
-        // console.log(intersectionPoint_dh);
 
         // Let's check how far off it was.
         let offTarget;
 
         offTarget = distance (targetPosition, intersectionPoint_uvw);
-        // console.log(offTarget);
 
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
