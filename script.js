@@ -217,7 +217,7 @@
     // gameArea.addEventListener('mouseup', rightHandAim);
     gameArea.addEventListener('touchstart', touch);
     // gameArea.addEventListener('touchstart', gameStarted);
-    startBtn.addEventListener('touchstart', tutorialStarted);
+    startBtn.addEventListener('touchend', tutorialStarted);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 

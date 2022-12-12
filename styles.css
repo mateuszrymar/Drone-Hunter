@@ -19,7 +19,7 @@
     --target-yellow: rgb(247, 213, 129);
     
     --hand: rgba(48, 119, 144, 0.5);
-    --trajectory: rgba(255, 0, 0, 1); /* (74, 255, 232, 1) */
+    --trajectory: rgba(74, 255, 232, 1); /*  */
     --arw-head: rgba(48, 96, 118, 1);
     --arw-shaft: rgba(54, 58, 62, 1);
     --arw-end: rgba(111, 62, 64, 1);
@@ -189,15 +189,22 @@ input:focus + .slider {
     background-image: url('images/start-btn.png');    
     z-index: 1;
     position: absolute;
-    width: calc((100vw / 108) * 24);
-    height: calc((100vw / 108) * 24);
+    width: calc((100vw / 108) * 30);
+    height: calc((100vw / 108) * 30);
     top: 55vh;
-    left: calc(50vw - calc((100vw / 108) * 12));
+    left: calc(50vw - calc((100vw / 108) * 15));
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 100%;
+}
 
+#start-btn:hover, #start-btn:active {
+    top: calc(55vh -1);
+    left: calc(50vw - calc((100vw / 108) * 16));
+    width: calc((100vw / 108) * 32);
+    height: calc((100vw / 108) * 32);
+    background-image: url('images/start-btn-glow.png');    
 }
 
 /* GAME OBJECTS */
