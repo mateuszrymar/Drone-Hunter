@@ -2,7 +2,6 @@
     
 // Scene state variables
     let sceneState = 'start';
-    console.log(sceneState);
 
 // UI Elements
     const debugToggle = document.getElementById('debug-toggle');
@@ -33,6 +32,8 @@
     const backGround = document.getElementById(background);
     const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
+    const titleScreen = document.getElementById('title-screen');
+    const startBtn = document.getElementById('start-btn');
     const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('target');
     const ground = document.getElementById('ground');
@@ -209,14 +210,13 @@
 
 // Add event listeners
     debugToggle.addEventListener('click', toggle);
-    gameArea.addEventListener('mousedown', mouse);
-    gameArea.addEventListener('mousedown', gameStarted);
+    // gameArea.addEventListener('mousedown', mouse);
+    // gameArea.addEventListener('mousedown', gameStarted);
     // gameArea.addEventListener('mousemove', rightHandAim);
-    gameArea.addEventListener('mouseup', rightHandAim);
+    // gameArea.addEventListener('mouseup', rightHandAim);
     gameArea.addEventListener('touchstart', touch);
-    gameArea.addEventListener('touchstart', gameStarted);
-    gameArea.addEventListener('touchmove', rightHandAim);
-    gameArea.addEventListener('touchend', bowReleased);
+    // gameArea.addEventListener('touchstart', gameStarted);
+    startBtn.addEventListener('touchstart', tutorialStarted);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 
@@ -225,12 +225,14 @@
 // Device recognition           
     function mouse () {
         device = 'mouse';
-        // console.log(device);
+        gameArea.removeEventListener('mousedown', mouse);
+        console.log(device);
         return device;
     };
     function touch () {
         device = 'touch';
-        // console.log(device);
+        gameArea.removeEventListener('touchstart', touch);
+        console.log(device);
         return device;
     };
 //
@@ -939,6 +941,32 @@
 
 // USER INPUT SECTION ////////////////////////////////////////////////////////
 // This section contains all objects the player interacts with, excluding UI.
+
+// TRIGGER EVENT /////////////////////////////
+    (function titleScreen (){
+       console.log(sceneState);
+    })();
+//
+
+// TRIGGER EVENT /////////////////////////////
+    function tutorialStarted (e) {
+        sceneState = 'tutorial';
+        console.log(sceneState);
+        startBtn.removeEventListener('touchstart', tutorialStarted);
+        startBtn.style.display = 'none';
+        titleScreen.style.display = 'none';
+
+        console.log('now animation plays');
+        setTimeout(() => {
+            console.log('now animation stops');
+            gameArea.addEventListener('touchstart', gameStarted);
+            gameArea.addEventListener('touchmove', rightHandAim);
+            gameArea.addEventListener('touchend', bowReleased);
+            score.style.setProperty('display', 'block');
+        }, "2000");
+
+        };
+//
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
