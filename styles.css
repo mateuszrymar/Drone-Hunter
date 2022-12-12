@@ -19,6 +19,7 @@
     --target-yellow: rgb(247, 213, 129);
     
     --hand: rgba(48, 119, 144, 0.5);
+    --trajectory: rgba(74, 255, 232, 1);
     --arw-head: rgba(48, 96, 118, 1);
     --arw-shaft: rgba(54, 58, 62, 1);
     --arw-end: rgba(111, 62, 64, 1);
@@ -52,6 +53,12 @@ body {
     user-select: none;
 }
 
+.ui {
+    color: var(--ui-text);
+    text-shadow: 1px 1px var(--ui-shadow);
+    height: 3em;
+    z-index: 10;
+}
 /* Debug Toggle */
 .debug-switch {
     position: relative;
@@ -69,7 +76,8 @@ body {
 }
 
 .slider {
-  border-radius: 17px;
+    border-radius: 17px;
+    height: 17px;
 }
 
 .slider:before {
@@ -122,10 +130,6 @@ input:focus + .slider {
     left: 2em;
 }
 
-.ui {
-    color: var(--ui-text);
-    text-shadow: 1px 1px var(--ui-shadow);
-}
 
 #score {
     position: absolute;
@@ -192,6 +196,7 @@ input:focus + .slider {
     font-size: 0.75em;
     margin-left: 60px;
     margin-bottom: 10px;
+    color: var(--trajectory);
 }
 
 .test-point {
@@ -208,7 +213,7 @@ input:focus + .slider {
     width: 2px;
     height: 2px;
     /* border-radius: 50%; */
-    background-color: white;
+    background-color: var(--trajectory);
     opacity: 100%;
     transform: translate(-1px, -1px);
     z-index: 30;
@@ -236,7 +241,7 @@ input:focus + .slider {
 }
 
 #game-area {
-    height: 100vh;
+    height: calc(100vh - 3em) ;
     width: 100vw;
     top: 0;
     left: 0;
@@ -291,7 +296,7 @@ input:focus + .slider {
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 0%;
-    z-index: 1;
+    z-index: -1;
 }
 
 #target, #target-fallback {

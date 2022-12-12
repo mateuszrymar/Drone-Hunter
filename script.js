@@ -145,6 +145,8 @@
     //      c) displayed target position is wrong -> fix
     // 15. Target PNG's position should be paramatrized to scale and move according to target distance parameter.
     // 16. DONE - Make hitbox of the target bigger, so that the arrow gets stuck in the spaceship properly.
+    // 17. Debug button is inaccessible.
+    // 18. Double-tapping releases an arrow. This enables an exploit allowing to score 2000+ points / minute.
     
     
 //
@@ -181,7 +183,7 @@
     // 6. Add shop screen with bow and arrow upgrades.
     // 7. Equipment screen.
     // 8. Leaderboard.
-    // 9. Streak mechanics after hitting 2+ "10s" in a row.
+    // 9. DONE - Streak mechanics after hitting 2+ "10s" in a row.
     // 10. Options screen.
     // 11. Credits screen.
     // 12. Move Debug switch to options.
@@ -1426,12 +1428,15 @@
     let arwHeadHit;
     let arwEndHit;
     let pointResults = [];
+    let streakLength = 0;
+
     
     function evalHit (arrowId) {
         arwVecAtRel_dh;
         horizRelAng_uvw;
         
         let pointResult = {id: 0, result: 0};
+        let lastResult = {id: 0, result: 0};
         let delta_u;
         let delta_v;
         let delta_w;
@@ -1466,16 +1471,29 @@
         if (offTarget <= targetSize/2) {
             let pointAreaSize = targetSize / 20;
             pointResult.result = Math.ceil(( targetSize / 2 - offTarget) / pointAreaSize);
+            // console.log(pointResults.length);
+            if (pointResults.length > 0) {
+                lastResult = pointResults[pointResults.length - 1];
+            } else {}
+            if ((pointResult.result >= 10) && (lastResult.result >= 10)) {
+                streakLength++; 
+                console.log(`You're on a streak! Streak length: ${streakLength}`);
+                pointResult.result = 10 * streakLength;
+            } else {
+                streakLength = 1;
+            }
             totalScore = totalScore + pointResult.result;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Target hit. Result: ', pointResult.result, ' points.');
         } else  if (offTarget > targetSize/2 && offTarget <= targetSize*1.6) {
             pointResult.result = 0;
+            streakLength = 1;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Droid hit.');        
         } else {
             console.log('Ground hit.');
             pointResult.result = 0;
+            streakLength = 1;
             let distToGroundAtRel;
             
             distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
