@@ -138,13 +138,13 @@
     // 10. Target framerate is 60 fps. Should be achievable after optimizations.
     // 11. After turning the mobile screen to horizontal, the page needs a refresh. That can be super annoying if it happens mid-game!
     // 12. Hit scores sometimes display properly for 2.5s, but often (50% of the time) they just flash for a moment.
-    // 13. DONE. Performance issues while aiming. Reason unknown. // Reason: SVG background melts the GPU.
-    // 14. The target feels a few centimeters off to the top in relation to trajectory hint. Possible reasons:
-    //      a) player's finger can move a little on release -> no fix needed.
-    //      b) trajectory hint is wrong. -> fix
+    // 13. DONE - Performance issues while aiming. Reason unknown. // Reason: SVG background melts the GPU.
+    // 14. DONE - The target feels a few centimeters off to the top in relation to trajectory hint. Possible reasons:
+    //      a) player's finger can move a little on release -> no fix needed. NO
+    //      b) trajectory hint is wrong. -> fix YES, KINDA.
     //      c) displayed target position is wrong -> fix
     // 15. Target PNG's position should be paramatrized to scale and move according to target distance parameter.
-    // 16. Make hitbox of the target bigger, so that the arrow gets stuck in the spaceship properly.
+    // 16. DONE - Make hitbox of the target bigger, so that the arrow gets stuck in the spaceship properly.
     
     
 //
@@ -153,7 +153,7 @@
     // 1. All depth calculations can be made beforehand. We just need an array with width percentages at certain depths.
     // 2. Arrowheads should vanish after hitting the target / ground.
     // 3. Arrow animation function can be rewritten so that it skips some frames when overloaded.
-    // 4. There are multiple points in the code, where a certain thing is calculated despite being calculated before.
+    // 4. There are multiple points in the code, where a certain thing is calculated again, despite being calculated before.
     // 5. Suspect performance killers: display and loop functions. Some are calculating dozens of arrays, but could calculate just one,
     //    or have data passed from another function, that calculated sth earlier.
 
@@ -832,7 +832,6 @@
             
             // return pointCollection;
         }
-        console.log(`Last point in trajectory: `, pointInPerspective);
         targetDiv.innerHTML = pointCollection;        
     }
 
@@ -1238,7 +1237,6 @@
                 currentPosition.d = v0x * t[i] + startPoint_dh.d;
                 // Height 
                 currentPosition.h = v0y * t[i] - (g * Math.pow(t[i], 2) * 0.5) + startPoint_dh.h;
-                console.log(currentPosition);
                 i++;
 
                 result.push(currentPosition) ;
@@ -1280,7 +1278,6 @@
             let timeAtTargetDistance;
             let v0x = v0 * Math.cos(angle);
             timeAtTargetDistance = (distance - startPoint_dh.d) / v0x;
-            console.log(`distance to travel at timeAtDist function:`, distance - startPoint_dh.d);
             return timeAtTargetDistance;
         }; 
     //
@@ -1306,15 +1303,9 @@
             let b = v0y;
             let c = height;
 
-            // console.log(a,b,c);
             result = solveQuadraticEquation(a,b,c);
-            // console.log(result);
             return result;
         };
-
-        // test = timeAtHeight(68, (67/180)*Math.PI, 29);
-        // console.log(test);
-
         
     //
 
@@ -1345,26 +1336,14 @@
 
             // VERY IMPORTANT!
             // Now we shift coordinate system to the ARROWHEAD. From now on, all calculations regarding arrow flight will be calculated in "dhAtArwHead" coordinate system.
-            // console.log(arwHeadAtRel_dh);
             let dhPln = planeVecVecPt([arwVecAtRel_dh[0], 0], [0, 1], [0, 0]);
-            // console.log(dhPln);
             let dhPlnAtArwHead = changeOrigin(dhPln, Object.values(arwHeadAtRel_dh))
-            // console.log(dhPlnAtArwHead);
             
             // Now we calculate the trajectory of the HEAD of the arrow.
             arwAngAtRel_dh = vectorAngle([arwVecAtRel_dh[0], 0], arwVecAtRel_dh);
-            // console.log(arwAngAtRel_dh);
-            // console.log({d: 0, h: arwHeadAtRel_dh.h});
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
-            // console.log(targetPosition_dh);
-            // console.log(horizRelAng_uvw);
             let predictedHitDist = (targetPosition_dh.d / Math.cos(horizRelAng_uvw));
             t = series(0, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh), shotPreviewSteps);
-            console.log(t);
-            // console.log(`Predicted hit time old: `, timeAtDist(arwHeadAtRel_dh, targetPosition_dh.d, arwAngAtRel_dh));
-            console.log(`Predicted hit time new: `, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh));
-            // console.log(`Distance to travel old: `, targetPosition_dh.d);
-            console.log(`Distance to travel new: `, predictedHitDist);
             let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
 
             shotTrajectory = [];
@@ -1372,7 +1351,6 @@
                 shotTrajectory.push ( Object.values ( arwPlnToPerspective ( shotTrajectory_dh [i] ) ) ); 
                 i++;
             }
-            // console.log(shotTrajectory)
                        
             arwHeadAtRel_uvw = Object.values ( arwPlnToPerspective(arwHeadAtRel_dh) );            
             // Now we'll calculate arrow end position.
@@ -1668,7 +1646,6 @@
         displayScore (uniqueArrowId);
         displayExplosion_10(uniqueArrowId);
         console.log(`Hit: `, arwHeadHit);
-        console.log(`Actual hit time: `, hitTime);
         // currentHit.innerHTML = `${pointResult}`
 
         // let scoreDiv = createElementFromHTML(
