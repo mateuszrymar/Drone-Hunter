@@ -34,6 +34,7 @@
     const gameArea = document.getElementById('game-area');
     const titleScreen = document.getElementById('title-screen');
     const startBtn = document.getElementById('start-btn');
+    const tutorial = document.getElementById('tutorial');
     const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('target');
     const ground = document.getElementById('ground');
@@ -957,13 +958,16 @@
         titleScreen.style.display = 'none';
 
         console.log('now animation plays');
+        tutorial.style.display = 'block';
+        
         setTimeout(() => {
             console.log('now animation stops');
             gameArea.addEventListener('touchstart', gameStarted);
             gameArea.addEventListener('touchmove', rightHandAim);
             gameArea.addEventListener('touchend', bowReleased);
             score.style.setProperty('display', 'block');
-        }, "2000");
+            tutorial.style.display = 'none';
+        }, "6230");
 
         };
 //

@@ -179,6 +179,12 @@ input:focus + .slider {
     z-index: 1;
 }
 
+#tutorial {
+    display: none;    
+    background-image: url('images/tutorial.gif');    
+    z-index: 1;
+}
+
 #start-btn {
     background-image: url('images/start-btn.png');    
     z-index: 1;
