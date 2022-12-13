@@ -12,25 +12,28 @@
 </head>
 <body>
     
+    <section id="start">
+        <h1 id="title-screen" class="fullscreen"></h1>
+        <div id="start-btn"></div>
+        <div id="start-up"></div>
+        <div id="tutorial" class="fullscreen">
+            <span id="skip">skip tutorial</span>
+        </div>
+    </section>
+
     <section class="ui">
         <label class="debug-switch">
             <input type="checkbox" id="debug-toggle">
             <span class="slider ui"><span id ='debug-state-label'>Debug: OFF</span></span>
         </label>
         <span id="score" class="ui">score: 0</span>
-        <div id="title-screen" class="fullscreen"></div>
-        <div id="start-btn">
-            <!-- <button></button> -->
-        </div>
-    </section>
+    </section>    
     
     <section id="game-area">
         <div id="point-area-1" class="point-area"></div>
         <div id="ground"></div>
         <div id="sky"></div>
         <div id="fx">
-            <div id="tutorial" class="fullscreen"></div>
-            <div id="start-up"></div>
             <div id="target-hit"></div>
             <div id="explosion-10" class="fullscreen"></div>
             <div id="ground-hit"></div>
@@ -49,6 +52,30 @@
         <span id="current-hit" class="ui hit-animation"></span>
         <div id="released-arrows"></div>
         <div id="stationary-arrows"></div>
+    </section>
+
+    <section id="end" class="fullscreen"> 
+        <h3>You killed it!</h3>
+        <div id="play-again">
+            <p>
+                new game mode:<br>
+                <h3 id="game-mode">ᐊ killer ᐅ</h3>
+                hit the drone until it loses all hp
+            </p>
+            <div id="play-again-btn"></div>
+        </div>
+        <div id="stats">
+                stats:
+                <ul>
+                    <li>score: 102</li>
+                    <li>time: 0:45</li>
+                    <li>at ground: 10</li>
+                    <li>at target: 21</li>
+                    <li>accuracy: 65%</li>
+                    <li>longest streak: 3</li>
+                    <li>points per sec: 4.20</li>
+                </ul>
+            </div>
     </section>
     
 </body>

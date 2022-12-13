@@ -2,12 +2,38 @@
     
 // Scene state variables
     let sceneState = 'start';
+    let gameMode = 'killer';
 
-// UI Elements
+// UI & title screen elements
     const debugToggle = document.getElementById('debug-toggle');
-    const debugStateLabel = document.getElementById('debug-state-label');    
+    const debugStateLabel = document.getElementById('debug-state-label');  
+    const titleScreen = document.getElementById('title-screen');
+    const startBtn = document.getElementById('start-btn');
+    const tutorial = document.getElementById('tutorial');
+    const skip = document.getElementById('skip');
+    const endScreen = document.getElementById('end');
+    const playAgainBtn = document.getElementById('play-again-btn');
+    
+// Game elements
+    const backGround = document.getElementById(background);
+    const root = document.querySelector(':root');
+    const gameArea = document.getElementById('game-area');
+    const debugPoints = document.getElementById('debug-points');
+    const target = document.getElementById('target');
+    const ground = document.getElementById('ground');
+    const leftHand = document.getElementById('left-hand');
+    const rightHand = document.getElementById('right-hand');
+    const trajectoryPoints = document.getElementById('trajectory-points'); 
+    const arrowHeadPoints = document.getElementById('arrow-head-points'); 
+    const arrowShaftPoints = document.getElementById('arrow-shaft-points'); 
+    const arrowEndPoints = document.getElementById('arrow-end-points'); 
+    const score = document.getElementById('score'); 
+    const currentHit = document.getElementById('current-hit'); 
+    const arrowAnimations = document.getElementById('released-arrows');
+    const stationaryArrows = document.getElementById('stationary-arrows'); 
+    const explosion_10 = document.getElementById('explosion-10'); 
 
-// Perspective data
+// Perspective variables
     const screen = {
         name: 'screen',
         width: window.innerWidth,
@@ -28,28 +54,7 @@
         name: 'perspective',
     }
 
-// Graphical elements
-    const backGround = document.getElementById(background);
-    const root = document.querySelector(':root');
-    const gameArea = document.getElementById('game-area');
-    const titleScreen = document.getElementById('title-screen');
-    const startBtn = document.getElementById('start-btn');
-    const tutorial = document.getElementById('tutorial');
-    const debugPoints = document.getElementById('debug-points');
-    const target = document.getElementById('target');
-    const ground = document.getElementById('ground');
-    const leftHand = document.getElementById('left-hand');
-    const rightHand = document.getElementById('right-hand');
-    const trajectoryPoints = document.getElementById('trajectory-points'); 
-    const arrowHeadPoints = document.getElementById('arrow-head-points'); 
-    const arrowShaftPoints = document.getElementById('arrow-shaft-points'); 
-    const arrowEndPoints = document.getElementById('arrow-end-points'); 
-    const score = document.getElementById('score'); 
-    const currentHit = document.getElementById('current-hit'); 
-    const arrowAnimations = document.getElementById('released-arrows');
-    const stationaryArrows = document.getElementById('stationary-arrows'); 
-    const explosion_10 = document.getElementById('explosion-10'); 
-
+// Graphical variables
     let totalScore = 0;
     let arrowId = 0;
     let targetSize = 1*1.22;
@@ -60,26 +65,26 @@
     let leftHandPosition;
     let leftHandSize = getComputedStyle(leftHand).getPropertyValue('--left-hand-size');
     leftHandSize = leftHandSize.slice(0, -2);
-        leftHandSize = Number(leftHandSize);
-        let rightHandSize = getComputedStyle(rightHand).getPropertyValue('--right-hand-size');
-        rightHandSize = rightHandSize.slice(0, -2);
-        rightHandSize = Number(rightHandSize);
-        let originPosition = {
-            X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
-            Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
-        }    
+    leftHandSize = Number(leftHandSize);
+    let rightHandSize = getComputedStyle(rightHand).getPropertyValue('--right-hand-size');
+    rightHandSize = rightHandSize.slice(0, -2);
+    rightHandSize = Number(rightHandSize);
+    let originPosition = {
+        X: Number (getComputedStyle(target).getPropertyValue('left').slice(0, -2)),
+        Y: Number (getComputedStyle(sky).getPropertyValue('height').slice(0, -2))
+    }    
         
-        // Player input
-        let device;
-        let leftHandScr = {
-            Xs: 0,
-            Ys: 0
-        };
-        let leftHand_uvw = {
-            u: 0,
-            v: 0,
-            w: 0
-        }
+// Player input
+    let device;
+    let leftHandScr = {
+        Xs: 0,
+        Ys: 0
+    };
+    let leftHand_uvw = {
+        u: 0,
+        v: 0,
+        w: 0
+    }
     let rightHandScr = {
         Xs: 0,
         Ys: 0
@@ -93,7 +98,7 @@
     let rightHandDistance = 0.7;
     let shotTrajectory;
     
-    // Debug mode - specific variables
+// Debug mode - specific variables
     let debugMode;
     const testValues = 
     [0, 0, 30,
@@ -104,7 +109,7 @@
         -0.61, 1.2, 30,          
     ]
     
-    // Physics variables
+// Physics variables
     const g = 9.8; // m/s
     let time = 0;  // time will start at arrow release.
     let slowMoFactor = 1.0; // this variable will be used to slow time for debug or fun.
@@ -117,13 +122,16 @@
     let arwEnd;
     let hitTime;
     
-    // Bow parameters            
+// Bow variables            
     let v0 = 30; // this will be a complex equation later.
     let shotPreviewSteps = 16;
     let arrowShaftPointsCount = 64;
 
-    // Animation parameters
+// Animation variables
     let animation_fps = 30;
+
+// Gameplay variables
+    let droneHp = 100;
 
 //
 
@@ -160,6 +168,7 @@
     // 4. There are multiple points in the code, where a certain thing is calculated again, despite being calculated before.
     // 5. Suspect performance killers: display and loop functions. Some are calculating dozens of arrays, but could calculate just one,
     //    or have data passed from another function, that calculated sth earlier.
+    // 6. Add preload of images.
 
 //
 
@@ -177,11 +186,11 @@
 //
 
 // Gameplay features wishlist:
-    // 1. Start screen.
+    // 1. DONE - Start screen.
     // 2. End screen.
-    // 3. Instructions on start screen.
-    // 4. Name of the game.
-    // 5. 2-3 different game modes.
+    // 3. DONE - Instructions on start screen.
+    // 4. DONE - Name of the game.
+    // 5. 2-3 different game modes: 1) Killer 2) Chill 3) Timeout
     // 6. Add shop screen with bow and arrow upgrades.
     // 7. Equipment screen.
     // 8. Leaderboard.
@@ -189,6 +198,7 @@
     // 10. Options screen.
     // 11. Credits screen.
     // 12. Move Debug switch to options.
+    // 13. Add health bar to the drone in killer mode.
 //
 
 // Sound features wishlist:
@@ -215,7 +225,7 @@
     // gameArea.addEventListener('mousedown', gameStarted);
     // gameArea.addEventListener('mousemove', rightHandAim);
     // gameArea.addEventListener('mouseup', rightHandAim);
-    gameArea.addEventListener('touchstart', touch);
+    startBtn.addEventListener('touchstart', touch);
     // gameArea.addEventListener('touchstart', gameStarted);
     startBtn.addEventListener('touchend', tutorialStarted);
     // gameArea.addEventListener('touchcancel', touchCancelled);
@@ -959,23 +969,33 @@
 
         console.log('now animation plays');
         tutorial.style.display = 'block';
+        skip.addEventListener('touchend', skipTutorial)
         
         setTimeout(() => {
             console.log('now animation stops');
             gameArea.addEventListener('touchstart', gameStarted);
-            gameArea.addEventListener('touchmove', rightHandAim);
-            gameArea.addEventListener('touchend', bowReleased);
             score.style.setProperty('display', 'block');
             tutorial.style.display = 'none';
-        }, "6230");
+        }, "5380");
 
         };
 //
+
+// Skip tutorial 
+    
+    function skipTutorial (e) {
+        console.log('now animation stops');
+        gameArea.addEventListener('touchstart', gameStarted);
+        score.style.setProperty('display', 'block');
+        tutorial.style.display = 'none';
+    }
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
         sceneState = 'bowAim';
         console.log(sceneState);
+        gameArea.addEventListener('touchmove', rightHandAim);
+        gameArea.addEventListener('touchend', bowReleased);
         leftHandAim(e);
         };
 //
@@ -1483,7 +1503,7 @@
 
 
 
-        // Tis value is the distance the arrow travels along wAxis, until it reaches target plane:
+        // This value is the distance the arrow travels along wAxis, until it reaches target plane:
         delta_w = targetPosition.w - rightHand_uvw.w; // It doesn't compensate for arrow length.
         delta_u = delta_w / Math.tan(Math.PI/2 - horizRelAng_uvw);
         d = Math.sqrt(Math.pow(delta_u, 2) + Math.pow(delta_w, 2)); // we don't compensate for arrow length here.
@@ -1688,37 +1708,52 @@
 
 //
 
+
 // TRIGGER EVENT //////////////////////////////
 
     function arrowHit (uniqueArrowId) {
         sceneState = 'arwStopped';
+        console.log(sceneState);
         score.innerHTML = `Score: ${totalScore}`;
         displayScore (uniqueArrowId);
         displayExplosion_10(uniqueArrowId);
-        console.log(`Hit: `, arwHeadHit);
-        // currentHit.innerHTML = `${pointResult}`
-
-        // let scoreDiv = createElementFromHTML(
-        //     `<div id="arrow-score-${uniqueArrowId}" class="hit-score" style="">
-        //     </div>`);
-        // stationaryArrows.appendChild(arrowDiv);
-        // let currentArrowDiv = document.getElementById(`stationary-arrow-${uniqueArrowId}`);
-        // currentArrowDiv.append(createElementFromHTML(arwEndDiv) , createElementFromHTML(arrowLine) );
-
-
-        console.log(sceneState);
+        // console.log(`Hit: `, arwHeadHit);
+        
+        if ( totalScore >= droneHp && gameMode === 'killer') {
+            displayEndScreen ();
+        }
     };
 
 //
 
-// SCORE SECTION ////////////////////////////////////////////////////////
-// This section displays score calculated in the previous section and gives player the option to exit.
+// Display end screen
 
-// TRIGGER EVENT //////////////////////////////
-
+    function displayEndScreen () {
+        sceneState = 'gameOver';
+        console.log(sceneState);
+        gameArea.removeEventListener('touchmove', rightHandAim);
+        gameArea.removeEventListener('touchend', bowReleased);
+        leftHand.style.setProperty('display', 'none');
+        rightHand.style.setProperty('display', 'none');
+        endScreen.style.display = 'block';
+        playAgainBtn.addEventListener('touchend', continueGame);
+    };
+    
+    //
+    
+    // SCORE SECTION ////////////////////////////////////////////////////////
+    // This section displays score calculated in the previous section and gives player the option to exit.
+    
+    // TRIGGER EVENT //////////////////////////////
+    
     function continueGame () {
         sceneState = 'reload';
         console.log(sceneState);
+        endScreen.style.display = 'none';
+        playAgainBtn.removeEventListener('touchend', continueGame);
+        totalScore = 0;
+        score.innerHTML = `Score: ${totalScore}`;
+        skipTutorial();
     };
 
 //
@@ -1728,8 +1763,6 @@
 // TRIGGER EVENT //////////////////////////////
 
     function finishGame () {
-        sceneState = 'gameOver';
-        console.log(sceneState);
     };
 
 //

@@ -11,18 +11,16 @@
     --score-text-shadow: rgba(74, 255, 232, 1);
     --score-text-shadow-10: rgba(152, 103, 83, 1);
     --score-gold: rgb(235, 77, 29);
-    --target-color: rgb(150, 144, 125);
-    --target-white: rgb(238, 236, 231);
-    --target-blue: rgb(110, 127, 224);
-    --target-cyan: rgb(102, 195, 223);
-    --target-red: rgb(233, 92, 111);
-    --target-yellow: rgb(247, 213, 129);
     
     --hand: rgba(48, 119, 144, 0.5);
     --trajectory: rgba(74, 255, 232, 1); /*  */
     --arw-head: rgba(48, 96, 118, 1);
     --arw-shaft: rgba(54, 58, 62, 1);
     --arw-end: rgba(111, 62, 64, 1);
+    
+    --pink1: rgba(228, 193, 190, 1);
+    --pink2: rgba(248, 161, 171, 1);
+    --cyan-light: rgba(74, 255, 232, 1);
     
     --sky-height: 40vh;
     --sky-percentage: 40%;
@@ -183,6 +181,14 @@ input:focus + .slider {
     display: none;    
     background-image: url('images/tutorial.gif');    
     z-index: 1;
+}
+
+#skip {
+    display: table;
+    margin: 25vh auto;
+    color: var(--trajectory);
+    font-size: 1.5em;
+
 }
 
 #start-btn {
@@ -423,4 +429,57 @@ input:focus + .slider {
         opacity: 0;
         transform: translateY(-60px);
     }
+}
+
+#end {
+    display: none;
+    background-image: url(images/end-screen.png);
+    color: var(--pink2);
+    z-index: 1;
+}
+
+
+h2 {
+    font-size: 2em;
+}
+
+h3 {
+    color: var(--pink2);
+    display: table;
+    margin: 15vh auto 0 auto;
+    font-size: 1.5em;
+}
+
+p {
+    margin: 0 auto;
+}
+
+#game-mode {
+    color: var(--cyan-light);
+    margin: 0 auto 0 auto;
+
+}
+
+
+#play-again {
+    color: var(--cyan-light);
+    margin: 15vh auto 15vh auto;
+    text-align: center;
+}
+
+#play-again-btn {
+    position: relative;
+    margin: 5vh auto 5vh auto;
+    /* left: calc(50vw - calc((100vw / 108) * 83)); */
+    width: calc((100vw / 108) * 83);
+    height: calc((100vw / 108) * 30);
+    background-image: url('images/play-again-btn.png');
+    background-size: cover;
+}
+
+#stats {
+
+    display: block;
+    font-size: small;
+    margin: 1em 2em 1em 2em;    
 }
