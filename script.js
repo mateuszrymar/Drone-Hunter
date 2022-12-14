@@ -2,20 +2,29 @@
     
 // Scene state variables
     let sceneState = 'start';
-    let gameMode = 'killer';
+    let gameModeList = [
+        {id:0, mode:'killer', explain:'hit the drone<br>until it dies'},
+        {id:1, mode:'timeout', explain:'how many points <br> can you get in 60s?'},
+        {id:2, mode:'training', explain:'no pressure,<br>just shoot and chill.'}]
+    let gameMode = gameModeList[1];
 
 // UI & title screen elements
     const debugToggle = document.getElementById('debug-toggle');
     const debugStateLabel = document.getElementById('debug-state-label');  
     const titleScreen = document.getElementById('title-screen');
     const startBtn = document.getElementById('start-btn');
+    const timer = document.getElementById('timer');
     const tutorial = document.getElementById('tutorial');
     const skip = document.getElementById('skip');
     const endScreen = document.getElementById('end');
+    const previousModeBtn = document.getElementById('previous-game-mode');
+    const nextModeBtn = document.getElementById('next-game-mode');
+    const gameModeName = document.getElementById('game-mode-name');    
+    const modeExplanation = document.getElementById('mode-explanation');    
     const playAgainBtn = document.getElementById('play-again-btn');
     
 // Game elements
-    const backGround = document.getElementById(background);
+    const backGround = document.getElementById('background');
     const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
     const debugPoints = document.getElementById('debug-points');
@@ -140,8 +149,12 @@
     let animation_fps = 30;
 
 // Gameplay variables
-    let droneHp = 200;
-    let runStart;
+    let droneHp = 20;
+    let runStart; // this is the time when a run started
+    let timeoutDuration = 60; //[s]
+    timer.innerHTML = timeoutDuration;
+    let tutorialSkipped = false;
+
 
 //
 
@@ -167,6 +180,7 @@
     // 16. DONE - Make hitbox of the target bigger, so that the arrow gets stuck in the spaceship properly.
     // 17. Debug button is inaccessible.
     // 18. Double-tapping releases an arrow. This enables an exploit allowing to score 2000+ points / minute.
+    // 19. Sometimes time calculation gets messed up.
     
     
 //
@@ -938,29 +952,7 @@
         root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
         root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
 
-// Target - here we define point areas
 
-    let previousPointArea = '';
-    let thisPointArea = '';
-
-    for (let i = 0; i <= 9;) {
-        
-        thisPointArea = `
-        <div id="point-area-${10-i}" class="point-area " style="
-        width: calc(var(--target-size)*${(i+1)*0.1});
-        height: calc(var(--target-size)*${(i+1)*0.1});
-        z-index: ${10-i}">
-            ${previousPointArea}
-        </div>
-        `;
-        i++;
-        previousPointArea = thisPointArea;
-
-        if (i===9) {
-            target.innerHTML = thisPointArea;
-        }
-    };
-//
 
 
 
@@ -987,15 +979,13 @@
         startBtn.style.display = 'none';
         titleScreen.style.display = 'none';
 
-        console.log('now animation plays');
         tutorial.style.display = 'block';
         skip.addEventListener('touchend', skipTutorial)
         
         setTimeout(() => {
-            console.log('now animation stops');
-            gameArea.addEventListener('touchstart', gameStarted);
-            score.style.setProperty('display', 'block');
-            tutorial.style.display = 'none';
+            if (tutorialSkipped === false) {
+                skipTutorial();
+            }
         }, "5380");
 
         };
@@ -1004,17 +994,30 @@
 // Skip tutorial 
     
     function skipTutorial (e) {
-        console.log('now animation stops');
+        console.log(gameMode.mode);
         gameArea.addEventListener('touchstart', gameStarted);
+        if (gameMode.mode === 'timeout') {
+            timeout();
+            timer.style.display = 'table';
+        }
+        if (gameMode.mode === 'killer') {
+            timer.style.display = 'none';
+        }
+        if (gameMode.mode === 'training') {
+            timer.style.display = 'none';
+        }
+        runStart = Date.now();
         score.style.setProperty('display', 'block');
         tutorial.style.display = 'none';
-        runStart = Date.now();
+        target.style.backgroundImage = `url('images/target.gif')`;
+        tutorialSkipped = true;
     }
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
         sceneState = 'bowAim';
         console.log(sceneState);
+
         gameArea.addEventListener('touchmove', rightHandAim);
         gameArea.addEventListener('touchend', bowReleased);
         arrowShaftPoints.style.display = 'block';
@@ -1700,28 +1703,28 @@
             }, "400");
             setTimeout(() => {
                 score.style.animation = '';           
-                target.style.backgroundImage = `url('images/target.gif')`;            
+                target.style.backgroundImage = `url('images/target.png')`;            
             }, "1900");
         } else if (pointResults[i].result < 10 && pointResults[i].result >= 8) {
             score.style.animation = 'scoreAdd 1.9s normal forwards';           
             target.style.backgroundImage = `url('images/yellow_hit.gif')`;            
             setTimeout(() => {
                 score.style.animation = '';           
-                target.style.backgroundImage = `url('images/target.gif')`;            
+                target.style.backgroundImage = `url('images/target.png')`;            
             }, "1900");
         } else if (pointResults[i].result < 8 && pointResults[i].result >= 5) {
             score.style.animation = 'scoreAdd 1.3s normal forwards';           
             target.style.backgroundImage = `url('images/red_hit.gif')`;            
             setTimeout(() => {
                 score.style.animation = '';           
-                target.style.backgroundImage = `url('images/target.gif')`;            
+                target.style.backgroundImage = `url('images/target.png')`;            
             }, "1300");
         } else if (pointResults[i].result < 5 && pointResults[i].result >= 1) {
             score.style.animation = 'scoreAdd 0.7s normal forwards';           
             target.style.backgroundImage = `url('images/cyan_hit.gif')`;            
             setTimeout(() => {
                 score.style.animation = '';           
-                target.style.backgroundImage = `url('images/target.gif')`;            
+                target.style.backgroundImage = `url('images/target.png')`;            
             }, "700");
         } else {
             return;
@@ -1742,10 +1745,39 @@
         displayExplosion_10(uniqueArrowId);
         // console.log(`Hit: `, arwHeadHit);
         
-        if ( totalScore >= droneHp && gameMode === 'killer') {
+        if ( totalScore >= droneHp && gameMode.mode === 'killer') {
             displayEndScreen ();
         }
     };
+    
+    //
+    
+    // TIMEOUT MODE /////////////////////////////
+    
+    function timeout () {
+        if (gameMode.mode === 'timeout') {
+            setTimeout(() => {
+                displayEndScreen ();
+                timer.innerHTML = timeoutDuration; // i
+            }, String(timeoutDuration * 1000));
+        }
+        if (gameMode.mode === 'timeout') {
+            let i=0;
+            let timerInterval = setInterval(() => {
+                i++;
+                if (i >= timeoutDuration) {
+                    displayEndScreen ();                
+                    clearInterval(timerInterval);
+                    return;
+                } else {
+                timer.innerHTML = (timeoutDuration - i); // i
+                };
+                
+            }, 1000);
+        }
+        
+        return;
+    }
 
 //
 
@@ -1756,16 +1788,54 @@
 // Display end screen
 
     function displayEndScreen () {
-        sceneState = 'gameOver';
-        console.log(sceneState);
-        gameArea.removeEventListener('touchmove', rightHandAim);
-        gameArea.removeEventListener('touchend', bowReleased);
         leftHand.style.setProperty('display', 'none');
         rightHand.style.setProperty('display', 'none');
-        endScreen.style.display = 'block';
+        arrowShaftPoints.style.setProperty('display', 'none');
+        trajectoryPoints.style.setProperty('display', 'none');
+        arrowHeadPoints.style.setProperty('display', 'none');
+        arrowEndPoints.style.setProperty('display', 'none');
+        gameArea.removeEventListener('touchmove', rightHandAim);
+        gameArea.removeEventListener('touchend', bowReleased);
+        sceneState = 'gameOver';
+        console.log(sceneState);
+        gameModeName.innerHTML = ` ${gameMode.mode} `
+        previousModeBtn.addEventListener('touchstart', previousMode);
+        nextModeBtn.addEventListener('touchstart', nextMode);
         playAgainBtn.addEventListener('touchend', continueGame);
         calculateStats();
+        setTimeout(() => {
+            endScreen.style.display = 'block';
+        }, "500");
     };
+
+    
+//
+
+// Game mode switches
+    console.log(gameMode.id);
+    function previousMode (e) {
+        let newGameModeId = gameMode.id - 1;
+        if (newGameModeId < 0) {
+            newGameModeId = gameModeList.length - 1;
+        } else {}
+        gameMode = gameModeList[newGameModeId];
+        console.log(newGameModeId);
+        gameModeName.innerHTML = ` ${gameMode.mode} `
+        modeExplanation.innerHTML = ` ${gameMode.explain} `
+        return newGameModeId;
+    }
+    
+    function nextMode (e) {
+        let newGameModeId = gameMode.id + 1;
+        if (newGameModeId > (gameModeList.length -1)) {
+            newGameModeId = 0;
+        } else {}
+        gameMode = gameModeList[newGameModeId];
+        console.log(newGameModeId);
+        gameModeName.innerHTML = ` ${gameMode.mode} `
+        modeExplanation.innerHTML = ` ${gameMode.explain} `
+        return newGameModeId;
+    }
 
 //
 
@@ -1783,7 +1853,7 @@
         let correctedResults = unStreakResults(results);
         console.log('corrected results', correctedResults);
         let accuracy = Math.round(average(correctedResults) * 10);
-        let longestStreak = countConsecutiveBullseyes(10, results);
+        let longestStreak = countConsecutiveBullseyes(10, correctedResults);
         let pointsPerSec = Math.round(((totalScore / ( Date.now() - runStart )) * 1000) * 100) / 100;
         
         console.log(results);

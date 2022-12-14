@@ -52,6 +52,7 @@
         <span id="current-hit" class="ui hit-animation"></span>
         <div id="released-arrows"></div>
         <div id="stationary-arrows"></div>
+        <div id="timer" class="ui"></div>
     </section>
 
     <section id="end" class="fullscreen"> 
@@ -59,8 +60,13 @@
         <div id="play-again">
             <p>
                 new game mode:<br>
-                <h3 id="game-mode">ᐊ killer ᐅ</h3>
-                hit the drone until it loses all hp
+                
+                <h3 id="game-mode">
+                    <button id="previous-game-mode">ᐊ</button>
+                    <span id="game-mode-name"> killer </span>
+                    <button id="next-game-mode">ᐅ</button>
+                </h3>
+                <span id="mode-explanation">hit the drone<br>until it dies</span>
             </p>
             <div id="play-again-btn"></div>
         </div>
