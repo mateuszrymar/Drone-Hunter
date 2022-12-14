@@ -6,7 +6,7 @@
         {id:0, mode:'killer', explain:'hit the drone<br>until it dies'},
         {id:1, mode:'timeout', explain:'how many points <br> can you get in 60s?'},
         {id:2, mode:'training', explain:'no pressure,<br>just shoot and chill.'}]
-    let gameMode = gameModeList[1];
+    let gameMode = gameModeList[0];
 
 // UI & title screen elements
     const debugToggle = document.getElementById('debug-toggle');
@@ -149,11 +149,13 @@
     let animation_fps = 30;
 
 // Gameplay variables
-    let droneHp = 20;
+    let droneHp = 200;
     let runStart; // this is the time when a run started
-    let timeoutDuration = 5; //[s]
+    let timeoutDuration = 60; //[s]
     timer.innerHTML = timeoutDuration;
     let tutorialSkipped = false;
+    let stopSignal = false;
+
 
 
 //
@@ -1016,6 +1018,8 @@
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
         sceneState = 'bowAim';
+        if (stopSignal === true) return;
+    
         console.log(sceneState);
 
         gameArea.addEventListener('touchmove', rightHandAim);
@@ -1196,8 +1200,7 @@
             };
             
             shotPreview();
-
-    
+  
             return rightHandScr, rightHand_uvw;
         }
 
@@ -1766,6 +1769,7 @@
             let timerInterval = setInterval(() => {
                 i++;
                 if (i >= timeoutDuration) {
+                    timer.innerHTML = 0; // i
                     displayEndScreen ();                
                     clearInterval(timerInterval);
                     return;
@@ -1787,15 +1791,18 @@
     
 // Display end screen
 
+
     function displayEndScreen () {
-        leftHand.style.setProperty('display', 'none');
-        rightHand.style.setProperty('display', 'none');
-        arrowShaftPoints.style.setProperty('display', 'none');
-        trajectoryPoints.style.setProperty('display', 'none');
-        arrowHeadPoints.style.setProperty('display', 'none');
-        arrowEndPoints.style.setProperty('display', 'none');
+        stopSignal = true;
         gameArea.removeEventListener('touchmove', rightHandAim);
         gameArea.removeEventListener('touchend', bowReleased);
+        clearDisplay(trajectoryPoints);
+        clearDisplay(arrowHeadPoints);
+        clearDisplay(arrowEndPoints);
+        clearDisplay(arrowShaftPoints);
+        
+        leftHand.style.setProperty('display', 'none');
+        rightHand.style.setProperty('display', 'none');
         sceneState = 'gameOver';
         console.log(sceneState);
         gameModeName.innerHTML = ` ${gameMode.mode} `
@@ -1803,9 +1810,12 @@
         nextModeBtn.addEventListener('touchstart', nextMode);
         playAgainBtn.addEventListener('touchend', continueGame);
         calculateStats();
+        
         setTimeout(() => {
+            clearDisplay(timer);
             endScreen.style.display = 'block';
-        }, "500");
+            stopSignal = false;
+        }, "2000");
     };
 
     
