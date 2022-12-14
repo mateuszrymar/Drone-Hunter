@@ -393,7 +393,7 @@ input:focus + .slider {
 }
 
 #end {
-    display: block;
+    display: none;
     background-image: url(images/end-screen.png);
     color: var(--pink2);
     z-index: 1;

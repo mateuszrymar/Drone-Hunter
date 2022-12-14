@@ -140,7 +140,7 @@
     let animation_fps = 30;
 
 // Gameplay variables
-    let droneHp = 10;
+    let droneHp = 200;
     let runStart;
 
 //
@@ -1778,8 +1778,12 @@
         let results = pointResults.map(a => a.result);
         let missCount = countNoOfResults(0, results);
         let atTarget = results.length - missCount;
-        let accuracy = Math.round(average(results) * 10);
-        let longestStreak = countConsecutiveResults(10, results);
+        // to count accuracy properly we need to substitute 20,30..etc. with 10.
+        console.log('results', results)
+        let correctedResults = unStreakResults(results);
+        console.log('corrected results', correctedResults);
+        let accuracy = Math.round(average(correctedResults) * 10);
+        let longestStreak = countConsecutiveBullseyes(10, results);
         let pointsPerSec = Math.round(((totalScore / ( Date.now() - runStart )) * 1000) * 100) / 100;
         
         console.log(results);
@@ -1792,12 +1796,12 @@
             return count;
         }
         
-        function countConsecutiveResults(result, array){
+        function countConsecutiveBullseyes(result, array){
             let streak = 0;
             let streakArray = [0];
             let longestStreak = 0;
             for (let i = 0; i < array.length; i++) {
-                if (array[i] == result) {
+                if (array[i] >= result) {
                     streak++;
                 } else if ((array[i] != result) && (streak != 0)) {
                     streakArray.push(streak);
@@ -1808,6 +1812,20 @@
             let reversed = sorted.reverse();
             longestStreak = reversed[0];
             return longestStreak;
+        }
+
+        function unStreakResults (array) {
+            let unStreakedResults = [];
+            for (let i = 0; i < array.length; i++) {
+                if (array[i] > 10) {
+                    let changed = 10;
+                    unStreakedResults.push(changed);
+                } else {
+                    let unchanged = array[i];
+                    unStreakedResults.push(unchanged);
+                }
+            }
+            return unStreakedResults;
         }
 
         runScore.innerHTML =  `score: ${totalScore}`;
@@ -1838,6 +1856,7 @@
         arrowId=0;
         pointResults = [];
         score.innerHTML = `Score: ${totalScore}`;
+        arrowAnimations.innerHTML = '';
         skipTutorial();
     };
 
@@ -1852,4 +1871,4 @@
 
 //
 
-// GAMEOVER SECTION ////////////////////////////////////////////////////////
+// GAMEOVER SECTION ///////////////////////////////////////////////////////;
