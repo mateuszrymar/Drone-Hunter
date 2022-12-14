@@ -1761,7 +1761,6 @@
         if (gameMode.mode === 'timeout') {
             setTimeout(() => {
                 displayEndScreen ();
-                timer.innerHTML = timeoutDuration; // i
             }, String(timeoutDuration * 1000));
         }
         if (gameMode.mode === 'timeout') {
@@ -1776,7 +1775,6 @@
                 } else {
                 timer.innerHTML = (timeoutDuration - i); // i
                 };
-                
             }, 1000);
         }
         
@@ -1815,6 +1813,7 @@
             clearDisplay(timer);
             endScreen.style.display = 'block';
             stopSignal = false;
+            timer.innerHTML = timeoutDuration; // i
         }, "2000");
     };
 
