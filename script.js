@@ -151,7 +151,7 @@
 // Gameplay variables
     let droneHp = 20;
     let runStart; // this is the time when a run started
-    let timeoutDuration = 60; //[s]
+    let timeoutDuration = 5; //[s]
     timer.innerHTML = timeoutDuration;
     let tutorialSkipped = false;
 
