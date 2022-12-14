@@ -33,6 +33,15 @@
     const stationaryArrows = document.getElementById('stationary-arrows'); 
     const explosion_10 = document.getElementById('explosion-10'); 
 
+// Stats elements
+    const runScore = document.getElementById("run-score");
+    const runTime = document.getElementById("run-time");
+    const runMissed = document.getElementById("run-missed");
+    const runAtTarget = document.getElementById("run-at-target");
+    const runAccuracy = document.getElementById("run-accuracy");
+    const runLongestStreak = document.getElementById("run-longest-streak");
+    const runPps = document.getElementById("run-pps");
+
 // Perspective variables
     const screen = {
         name: 'screen',
@@ -131,7 +140,8 @@
     let animation_fps = 30;
 
 // Gameplay variables
-    let droneHp = 100;
+    let droneHp = 10;
+    let runStart;
 
 //
 
@@ -284,7 +294,7 @@
 
 //
 
-// General math functions
+// General functions
 
     function vectorLength (input_vector) {
         let result;
@@ -442,29 +452,6 @@
         return result;
     };
 
-    // test = solveQuadraticEquation(a, b, c);
-    // console.log(test);
-
-    // HARDCODED VALUES FOR DEBUGGING PURPOSES - TO BE DELETED / COMMENTED OUT       
-        // leftHand_uvw = {
-        //     "u": 0.12967788232866576,
-        //     "v": -0.12233762483836391,
-        //     "w": 1.4
-        // };
-        // rightHand_uvw = {
-        //     "u": 0.1406882685641185,
-        //     "v": -0.16270904103502398,
-        //     "w": 0.7
-        // };
-        // leftHand_uvw = [0.12967788232866576, 0.12967788232866576, 0]
-        // rightHand_uvw = [-0.16270904103502398, 0.12967788232866576]
-        
-        // rightHand_uvw = [] 
-    //
-
-    // console.log(vectorFromPoints(rightHand_uvw, leftHand_uvw));
-    // console.log(leftHand_uvw.length);
-
     function vectorAngle (vec1, vec2) {
         let result;
         if ((vec1.length === 2 && vec2.length === 2) || (vec1.length === 3 && vec2.length === 3)) {
@@ -532,6 +519,39 @@
         return result; 
     };
 
+    function msToMinutesAndSeconds(ms) {
+        let result;
+        let minutes = Math.floor(ms / 60000);
+        let seconds = ((ms % 60000) / 1000).toFixed(0);
+       
+        if (seconds == 60) {
+            result = `${minutes + 1}:00`
+        } else if (seconds < 10){
+            result = `${minutes}:0${seconds}`
+        } else {
+            result = `${minutes}:${seconds}`
+        }
+        return result;
+    }
+
+    function average (array) {
+        let result;
+        let sum = 0;
+        for (i=0; i< array.length; i++) {
+            sum +=  parseInt( array[i], 10 );
+        }
+        result = sum / array.length;
+        return result;
+    }
+
+    function sum (array) {
+        let sum = 0;
+        for (i=0; i< array.length; i++) {
+            sum +=  parseInt( array[i], 10 );
+        }
+        return sum;
+    }
+    
 //
 
 // General graphic functions
@@ -988,6 +1008,7 @@
         gameArea.addEventListener('touchstart', gameStarted);
         score.style.setProperty('display', 'block');
         tutorial.style.display = 'none';
+        runStart = Date.now();
     }
 
 // TRIGGER EVENT /////////////////////////////
@@ -996,6 +1017,8 @@
         console.log(sceneState);
         gameArea.addEventListener('touchmove', rightHandAim);
         gameArea.addEventListener('touchend', bowReleased);
+        arrowShaftPoints.style.display = 'block';
+        trajectoryPoints.style.display = 'block';
         leftHandAim(e);
         };
 //
@@ -1726,6 +1749,10 @@
 
 //
 
+    
+// SCORE SECTION ////////////////////////////////////////////////////////
+// This section displays score calculated in the previous section and gives player the option to exit.
+    
 // Display end screen
 
     function displayEndScreen () {
@@ -1737,21 +1764,79 @@
         rightHand.style.setProperty('display', 'none');
         endScreen.style.display = 'block';
         playAgainBtn.addEventListener('touchend', continueGame);
+        calculateStats();
     };
-    
-    //
-    
-    // SCORE SECTION ////////////////////////////////////////////////////////
-    // This section displays score calculated in the previous section and gives player the option to exit.
-    
-    // TRIGGER EVENT //////////////////////////////
+
+//
+
+// Calculate game statistics
+
+    function calculateStats () {
+        
+        totalScore;
+        let duration = msToMinutesAndSeconds( Date.now() - runStart );
+        let results = pointResults.map(a => a.result);
+        let missCount = countNoOfResults(0, results);
+        let atTarget = results.length - missCount;
+        let accuracy = Math.round(average(results) * 10);
+        let longestStreak = countConsecutiveResults(10, results);
+        let pointsPerSec = Math.round(((totalScore / ( Date.now() - runStart )) * 1000) * 100) / 100;
+        
+        console.log(results);
+        
+        function countNoOfResults(result, array){
+            let count = 0;
+            for (let i = 0; i < array.length; i++) {
+                if (array[i] == result) count++;
+            };
+            return count;
+        }
+        
+        function countConsecutiveResults(result, array){
+            let streak = 0;
+            let streakArray = [0];
+            let longestStreak = 0;
+            for (let i = 0; i < array.length; i++) {
+                if (array[i] == result) {
+                    streak++;
+                } else if ((array[i] != result) && (streak != 0)) {
+                    streakArray.push(streak);
+                    streak = 0;
+                } else {};
+            };
+            let sorted = streakArray.sort();
+            let reversed = sorted.reverse();
+            longestStreak = reversed[0];
+            return longestStreak;
+        }
+
+        runScore.innerHTML =  `score: ${totalScore}`;
+        runTime.innerHTML =  `time: ${duration}`;
+        runMissed.innerHTML =  `missed: ${missCount}`;
+        runAtTarget.innerHTML =  `at target: ${atTarget}`;
+        runAccuracy.innerHTML =  `accuracy: ${accuracy}%`;
+        runLongestStreak.innerHTML =  `bullseye streak: ${longestStreak}`;
+        runPps.innerHTML =  `points per sec: ${pointsPerSec}`;
+    }
+
+//
+
+
+
+
+// TRIGGER EVENT //////////////////////////////
     
     function continueGame () {
         sceneState = 'reload';
         console.log(sceneState);
         endScreen.style.display = 'none';
+        arrowShaftPoints.style.display = 'none';
+        trajectoryPoints.style.display = 'none';
         playAgainBtn.removeEventListener('touchend', continueGame);
         totalScore = 0;
+        streakLength = 0;
+        arrowId=0;
+        pointResults = [];
         score.innerHTML = `Score: ${totalScore}`;
         skipTutorial();
     };

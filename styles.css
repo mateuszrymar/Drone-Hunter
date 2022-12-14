@@ -462,8 +462,9 @@ p {
 
 
 #play-again {
+    position: relative;
+    top: calc(25vh - calc((100vw / 108) * 30)); 
     color: var(--cyan-light);
-    margin: 15vh auto 15vh auto;
     text-align: center;
 }
 
@@ -478,8 +479,10 @@ p {
 }
 
 #stats {
-
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
     display: block;
     font-size: small;
-    margin: 1em 2em 1em 2em;    
+    margin: 0 2em 0 2em;    
 }
