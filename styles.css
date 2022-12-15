@@ -13,7 +13,7 @@
     --score-gold: rgb(235, 77, 29);
     
     --hand: rgba(48, 119, 144, 0.5);
-    --trajectory: rgba(74, 255, 232, 1); /*  */
+    --trajectory: rgba(1, 28, 37, 1); /*  */
     --arw-head: rgba(48, 96, 118, 1);
     --arw-shaft: rgba(54, 58, 62, 1);
     --arw-end: rgba(111, 62, 64, 1);
@@ -231,7 +231,7 @@ input:checked + .slider:before {
 #skip {
     display: table;
     margin: 25vh auto;
-    color: var(--trajectory);
+    color: var(--cyan-light);
     font-size: 1.5em;
 
 }
@@ -264,7 +264,7 @@ input:checked + .slider:before {
     position: absolute;
     width: 2px;
     height: 2px;
-    /* border-radius: 50%; */
+    border-radius: 50%;
     background-color: var(--trajectory);
     opacity: 100%;
     transform: translate(-1px, -1px);

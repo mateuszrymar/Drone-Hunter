@@ -29,6 +29,7 @@
     const modeExplanation = document.getElementById('mode-explanation');    
     const playAgainBtn = document.getElementById('play-again-btn');
     
+    
 // Game elements
     const backGround = document.getElementById('background');
     const root = document.querySelector(':root');
@@ -46,7 +47,23 @@
     const currentHit = document.getElementById('current-hit'); 
     const arrowAnimations = document.getElementById('released-arrows');
     const stationaryArrows = document.getElementById('stationary-arrows'); 
-    const explosion_10 = document.getElementById('explosion-10'); 
+    const explosion_10 = document.getElementById('explosion-10');
+
+// Game sounds
+    const soundtrack = new Audio('sounds/music.mp3');
+    soundtrack.loop = true;
+    soundtrack.volume = 0.2;
+    const soundBowShoot = new Audio('sounds/bowShoot.wav');
+    soundBowShoot.volume = 0.05;
+    const soundTargetHit = new Audio('sounds/targetHit.wav');
+    soundTargetHit.volume = 0.25;
+    const soundDroidHit = new Audio('sounds/droidHit.wav');
+    soundDroidHit.volume = 0.15;
+    const soundGroundHit = new Audio('sounds/groundHit.wav');
+    soundGroundHit.volume = 0.2;
+    const soundExplosion = new Audio('sounds/explosion.wav');
+    soundExplosion.volume = 0.25;
+
 
 // Stats elements
     const runScore = document.getElementById("run-score");
@@ -141,7 +158,7 @@
     let hitTime;
     
 // Bow variables            
-    let v0 = 30; // this will be a complex equation later.
+    let v0 = 40; // this will be a complex equation later.
     let shotPreviewSteps = 16;
     let arrowShaftPointsCount = 64;
 
@@ -906,9 +923,11 @@
         if (soundMode === true) {
             sliderLabel.innerHTML = `sound on`;
             console.log('sound: ON');
+            soundOn();
         } else {
             sliderLabel.innerHTML = `sound off`;
             console.log('sound: OFF');
+            soundOff();
         }
         return soundMode;
     }
@@ -925,8 +944,10 @@
             optionSound.addEventListener('click', soundOnOff);
             if (soundMode === true) {
                 optionSound.innerHTML = `sound: on`
+                soundOn();
             } else {
                 optionSound.innerHTML = `sound: off`
+                soundOff();
             }
             optionEndGame.style.display = 'block';
             optionEndGame.addEventListener('click', endGame);
@@ -969,16 +990,31 @@
         console.log(soundMode);
         if (soundMode === true) {
             optionSound.innerHTML = `sound: on`
+            soundOn();
         } else {
             optionSound.innerHTML = `sound: off`
+            soundOff();
         }
     }
 
 //
 
 
+// Sound section
 
+    function soundOn () {
+        soundtrack.play();
+    }
+    
+    function soundOff () {
+        soundtrack.pause();
+    }
 
+    function playSound (sound) {
+        if (soundMode === true) {
+            sound.play();
+        } else return;
+    }
 
 
 
@@ -1527,6 +1563,7 @@
 
     function bowReleased () {
         sceneState = 'arwFlight';
+        playSound(soundBowShoot);      
         console.log(sceneState);
         console.log(`Arrow no:${arrowId}`);
         clearDisplay(trajectoryPoints);
@@ -1627,11 +1664,17 @@
             totalScore = totalScore + pointResult.result;
             arwHeadHit = intersectionPoint_uvw;
             console.log('Target hit. Result: ', pointResult.result, ' points.');
+            setTimeout(() => {
+                playSound(soundTargetHit);
+            }, `${time*1000}`);
         } else  if (offTarget > targetSize/2 && offTarget <= targetSize*1.6) {
             pointResult.result = 0;
             streakLength = 1;
             arwHeadHit = intersectionPoint_uvw;
-            console.log('Droid hit.');        
+            console.log('Droid hit.');
+            setTimeout(() => {
+                playSound(soundDroidHit);        
+            }, `${time*1000}`);
         } else {
             console.log('Ground hit.');
             pointResult.result = 0;
@@ -1640,6 +1683,9 @@
             
             distToGroundAtRel = (cameraHeight + arwHeadAtRel_uvw[1]);
             time = timeAtHeight(distToGroundAtRel, arwAngAtRel_dh, v0)[0];
+            setTimeout(() => {
+                playSound(soundGroundHit);        
+            }, `${time*1000}`);
             groundHit_dh = arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, [time]);
             groundHit_dh = groundHit_dh[0];
             groundHit_uvw = arwPlnToPerspective(groundHit_dh);
@@ -1757,6 +1803,7 @@
         let i = arrowId;
         if (pointResults[i].result >= 10) {
             explosion_10.style.opacity = `100%`;
+            playSound(soundExplosion);        
             target.style.backgroundImage = `url('images/yellow_hit.gif')`; 
             let pointText = document.getElementById(`arrow-points-${arrowId}`);
             pointText.style.color = 'var(--score-text-10)';           
@@ -1940,7 +1987,7 @@
             let streak = 0;
             let streakArray = [0];
             let longestStreak = 0;
-            for (let i = 0; i < array.length; i++) {
+            for (let i = 0; i <= array.length; i++) {
                 if (array[i] >= result) {
                     streak++;
                 } else if ((array[i] != result) && (streak != 0)) {
@@ -1950,6 +1997,7 @@
             };
             let sorted = streakArray.sort();
             let reversed = sorted.reverse();
+            console.log(reversed);
             longestStreak = reversed[0];
             return longestStreak;
         }
