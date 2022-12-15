@@ -22,9 +22,15 @@
     </section>
 
     <section class="ui">
-        <label class="debug-switch">
-            <input type="checkbox" id="debug-toggle">
-            <span class="slider ui"><span id ='debug-state-label'>Debug: OFF</span></span>
+        <label id="menu" class="switch">
+            <input type="checkbox" id="toggle">
+            <span id="menu-slider" class="slider ui label"><span id ='slider-label'>sound off</span></span>
+            <span id="menu-burger" class="burger ui label" style="display: none;">
+                <span id ='burger-label'>☰</span>
+                <p id="option-return" style="display: none;">return</p>
+                <p id="option-sound" style="display: none;">sound: off</p>
+                <p id="option-end-game" style="display: none;">end game</p>
+            </span>
         </label>
         <span id="score" class="ui">score: 0</span>
     </section>    

@@ -9,8 +9,14 @@
     let gameMode = gameModeList[0];
 
 // UI & title screen elements
-    const debugToggle = document.getElementById('debug-toggle');
-    const debugStateLabel = document.getElementById('debug-state-label');  
+    const toggle = document.getElementById('toggle');
+    const sliderMenu = document.getElementById('menu-slider');
+    const burgerMenu = document.getElementById('menu-burger');
+    const burgerLabel = document.getElementById('burger-label');
+    const optionReturn = document.getElementById('option-return');
+    const optionSound = document.getElementById('option-sound');
+    const optionEndGame = document.getElementById('option-end-game');
+    const sliderLabel = document.getElementById('slider-label');  
     const titleScreen = document.getElementById('title-screen');
     const startBtn = document.getElementById('start-btn');
     const timer = document.getElementById('timer');
@@ -116,16 +122,10 @@
     let rightHandDistance = 0.7;
     let shotTrajectory;
     
-// Debug mode - specific variables
+// Mode - specific variables
     let debugMode;
-    const testValues = 
-    [0, 0, 30,
-        10.800665, 0, 30,
-        -10.800665, 0, 30,
-        0, 1.2, 30,
-        0.61, 1.2, 30,
-        -0.61, 1.2, 30,          
-    ]
+    let soundMode = false;
+    let optionsMode = false;
     
 // Physics variables
     const g = 9.8; // m/s
@@ -183,6 +183,7 @@
     // 17. Debug button is inaccessible.
     // 18. Double-tapping releases an arrow. This enables an exploit allowing to score 2000+ points / minute.
     // 19. Sometimes time calculation gets messed up.
+    // 20. On mobile there are seemingly random freezes that are not reproducable on desktop.
     
     
 //
@@ -216,7 +217,7 @@
     // 2. End screen.
     // 3. DONE - Instructions on start screen.
     // 4. DONE - Name of the game.
-    // 5. 2-3 different game modes: 1) Killer 2) Chill 3) Timeout
+    // 5. DONE - 2-3 different game modes: 1) Killer 2) Chill 3) Timeout
     // 6. Add shop screen with bow and arrow upgrades.
     // 7. Equipment screen.
     // 8. Leaderboard.
@@ -246,7 +247,8 @@
 // GLOBAL UTILITIES SECTION ////////////////////////////////////////////////////////           
 
 // Add event listeners
-    debugToggle.addEventListener('click', toggle);
+    // soundToggle.addEventListener('touchstart', toggleSound);
+    toggle.addEventListener('click', toggleSound);
     // gameArea.addEventListener('mousedown', mouse);
     // gameArea.addEventListener('mousedown', gameStarted);
     // gameArea.addEventListener('mousemove', rightHandAim);
@@ -898,21 +900,79 @@
 
 // USER INTERFACE SECTION ////////////////////////////////////////////////////////
 // This section contains all UI elements.
-
-    // Debug mode
-    function toggle(e) {
-        debugMode = debugToggle.checked
-        if (debugMode === true) {
-            debugStateLabel.innerHTML = `Debug: ON`;
-            console.log('Debug: ON');
-            display(testValues, debugPoints, 'test-point', 1, false);
+    
+    function toggleSound() {
+        soundMode = toggle.checked;
+        if (soundMode === true) {
+            sliderLabel.innerHTML = `sound on`;
+            console.log('sound: ON');
         } else {
-            debugStateLabel.innerHTML = `Debug: OFF`;
-            console.log('Debug: OFF');
-            clearDisplay(debugPoints);
+            sliderLabel.innerHTML = `sound off`;
+            console.log('sound: OFF');
         }
-        return debugMode
-    }    
+        return soundMode;
+    }
+
+    function openOptions() {
+        optionsMode = true;        
+        
+        if (optionsMode = true) {  
+            console.log('options: ON');
+            toggle.removeEventListener('click', openOptions);        
+            optionReturn.style.display = 'block';
+            optionReturn.addEventListener('click', closeOptions);
+            optionSound.style.display = 'block';
+            optionSound.addEventListener('click', soundOnOff);
+            if (soundMode === true) {
+                optionSound.innerHTML = `sound: on`
+            } else {
+                optionSound.innerHTML = `sound: off`
+            }
+            optionEndGame.style.display = 'block';
+            optionEndGame.addEventListener('click', endGame);
+        } else {
+            optionReturn.removeEventListener('click', closeOptions);
+            return optionsMode;
+        }
+    }
+
+    function closeOptions() {  
+        optionsMode = false;
+        console.log('options: OFF');
+        optionReturn.style.display = 'none';
+        optionSound.style.display = 'none';
+        optionEndGame.style.display = 'none';
+        setTimeout ((() => {
+            toggle.addEventListener('click', openOptions);
+        }), 50);
+        return optionsMode;
+    }
+
+    function endGame (){
+        closeOptions();
+        displayEndScreen(200);
+        
+    }
+
+    
+    function burgerMenuOn() {
+        sliderMenu.style.display = 'none';
+        burgerMenu.style.display = 'block';
+        toggle.removeEventListener('click', toggleSound);
+        toggle.checked = false;
+        toggle.addEventListener('click', openOptions);
+
+    }
+
+    function soundOnOff () {
+        soundMode = !(soundMode);
+        console.log(soundMode);
+        if (soundMode === true) {
+            optionSound.innerHTML = `sound: on`
+        } else {
+            optionSound.innerHTML = `sound: off`
+        }
+    }
 
 //
 
@@ -980,6 +1040,7 @@
         startBtn.removeEventListener('touchstart', tutorialStarted);
         startBtn.style.display = 'none';
         titleScreen.style.display = 'none';
+        burgerMenuOn();
 
         tutorial.style.display = 'block';
         skip.addEventListener('touchend', skipTutorial)
@@ -1749,7 +1810,7 @@
         // console.log(`Hit: `, arwHeadHit);
         
         if ( totalScore >= droneHp && gameMode.mode === 'killer') {
-            displayEndScreen ();
+            displayEndScreen (2000);
         }
     };
     
@@ -1760,7 +1821,7 @@
     function timeout () {
         if (gameMode.mode === 'timeout') {
             setTimeout(() => {
-                displayEndScreen ();
+                displayEndScreen (2000);
             }, String(timeoutDuration * 1000));
         }
         if (gameMode.mode === 'timeout') {
@@ -1769,7 +1830,7 @@
                 i++;
                 if (i >= timeoutDuration) {
                     timer.innerHTML = 0; // i
-                    displayEndScreen ();                
+                    displayEndScreen (2000);                
                     clearInterval(timerInterval);
                     return;
                 } else {
@@ -1790,7 +1851,7 @@
 // Display end screen
 
 
-    function displayEndScreen () {
+    function displayEndScreen (delay) {
         stopSignal = true;
         gameArea.removeEventListener('touchmove', rightHandAim);
         gameArea.removeEventListener('touchend', bowReleased);
@@ -1814,7 +1875,7 @@
             endScreen.style.display = 'block';
             stopSignal = false;
             timer.innerHTML = timeoutDuration; // i
-        }, "2000");
+        }, `${delay}`);
     };
 
     
