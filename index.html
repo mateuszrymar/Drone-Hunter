@@ -11,87 +11,89 @@
     <title>Archer 0.5 (beta)</title>
 </head>
 <body>
-    
-    <section id="start">
-        <h1 id="title-screen" class="fullscreen"></h1>
-        <div id="start-btn"></div>
-        <div id="start-up"></div>
-        <div id="tutorial" class="fullscreen">
-            <span id="skip">skip tutorial</span>
-        </div>
-    </section>
+    <main id="game-container">
 
-    <section class="ui">
-        <label id="menu" class="switch">
-            <input type="checkbox" id="toggle">
-            <span id="menu-slider" class="slider ui label"><span id ='slider-label'>sound off</span></span>
-            <span id="menu-burger" class="burger ui label" style="display: none;">
-                <span id ='burger-label'>☰</span>
-                <p id="option-return" style="display: none;">return</p>
-                <p id="option-sound" style="display: none;">sound: off</p>
-                <p id="option-end-game" style="display: none;">end game</p>
-            </span>
-        </label>
-        <span id="score" class="ui">score: 0</span>
-    </section>    
+        <section id="start">
+            <h1 id="title-screen" class="fullscreen"></h1>
+            <div id="start-btn"></div>
+            <div id="start-up"></div>
+            <div id="tutorial" class="fullscreen">
+                <span id="skip">skip tutorial</span>
+            </div>
+        </section>
     
-    <section id="game-area">
-        <div id="point-area-1" class="point-area"></div>
-        <div id="ground"></div>
-        <div id="sky"></div>
-        <div id="fx">
-            <div id="target-hit"></div>
-            <div id="explosion-10" class="fullscreen"></div>
-            <div id="ground-hit"></div>
-            <div id="background-fx"></div>
-        </div>
-        <div id="background" class="fullscreen"></div>
-        <div id="target"></div>
-        <div id="target-fallback"></div>
-        <div id="left-hand"></div>
-        <div id="right-hand"></div>
-        <div id="debug-points"></div>
-        <div id="trajectory-points"></div>
-        <div id="arrow-head-points"></div>
-        <div id="arrow-shaft-points"></div>
-        <div id="arrow-end-points"></div>
-        <span id="current-hit" class="ui hit-animation"></span>
-        <div id="released-arrows"></div>
-        <div id="stationary-arrows"></div>
-        <div id="timer" class="ui"></div>
-    </section>
-
-    <section id="end" class="fullscreen"> 
-        <h3>You killed it!</h3>
+        <section class="ui">
+            <label id="menu" class="switch">
+                <input type="checkbox" id="toggle">
+                <span id="menu-slider" class="slider ui label"><span id ='slider-label'>sound off</span></span>
+                <span id="menu-burger" class="burger ui label" style="display: none;">
+                    <span id ='burger-label'>☰</span>
+                    <p id="option-return" style="display: none;">return</p>
+                    <p id="option-sound" style="display: none;">sound: off</p>
+                    <p id="option-end-game" style="display: none;">end game</p>
+                </span>
+            </label>
+            <span id="score" class="ui">score: 0</span>
+        </section>    
         
-        <div id="stats">
-            stats:
-            <ul>
-                <li id="run-score">score: 0</li>
-                <li id="run-time">time: 0</li>
-                <li id="run-missed">missed: 0</li>
-                <li id="run-at-target">at target: 0</li>
-                <li id="run-accuracy">accuracy: 0%</li>
-                <li id="run-longest-streak">longest streak: 0</li>
-                <li id="run-pps">points per sec: 0</li>
-            </ul>
-        </div>
-
-        <div id="play-again">
-            <p>
-                new game mode:<br>
-                
-                <h3 id="game-mode">
-                    <button id="previous-game-mode">ᐊ</button>
-                    <span id="game-mode-name"> killer </span>
-                    <button id="next-game-mode">ᐅ</button>
-                </h3>
-                <span id="mode-explanation">hit the drone<br>until it dies</span>
-            </p>
-            <div id="play-again-btn"></div>
-        </div>
-    </section>
+        <section id="game-area">
+            <div id="point-area-1" class="point-area"></div>
+            <div id="ground"></div>
+            <div id="sky"></div>
+            <div id="fx">
+                <div id="target-hit"></div>
+                <div id="explosion-10" class="fullscreen"></div>
+                <div id="ground-hit"></div>
+                <div id="background-fx"></div>
+            </div>
+            <div id="background" class="fullscreen"></div>
+            <div id="target"></div>
+            <div id="target-fallback"></div>
+            <div id="left-hand"></div>
+            <div id="right-hand"></div>
+            <div id="debug-points"></div>
+            <div id="trajectory-points"></div>
+            <div id="arrow-head-points"></div>
+            <div id="arrow-shaft-points"></div>
+            <div id="arrow-end-points"></div>
+            <span id="current-hit" class="ui hit-animation"></span>
+            <div id="released-arrows"></div>
+            <div id="stationary-arrows"></div>
+            <div id="timer" class="ui"></div>
+        </section>
     
+        <section id="end" class="fullscreen"> 
+            <h3>You killed it!</h3>
+            
+            <div id="stats">
+                stats:
+                <ul>
+                    <li id="run-score">score: 0</li>
+                    <li id="run-time">time: 0</li>
+                    <li id="run-missed">missed: 0</li>
+                    <li id="run-at-target">at target: 0</li>
+                    <li id="run-accuracy">accuracy: 0%</li>
+                    <li id="run-longest-streak">longest streak: 0</li>
+                    <li id="run-pps">points per sec: 0</li>
+                </ul>
+            </div>
+    
+            <div id="play-again">
+                <p>
+                    new game mode:<br>
+                    
+                    <h3 id="game-mode">
+                        <button id="previous-game-mode">ᐊ</button>
+                        <span id="game-mode-name"> killer </span>
+                        <button id="next-game-mode">ᐅ</button>
+                    </h3>
+                    <span id="mode-explanation">hit the drone<br>until it dies</span>
+                </p>
+                <div id="play-again-btn"></div>
+            </div>
+        </section>
+
+    </main>    
 </body>
 <script src="script.js"></script>
 </html>

@@ -26,6 +26,7 @@
     --sky-percentage: 40%;
     --sky-fallback: rgba(88, 174, 199, 1);
     --ground-fallback: rgba(11, 40, 47, 1);
+    --margins: rgba(1, 28, 37, 1);
     
     --target-size: ; /* Calculated in JS */
     /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
@@ -35,7 +36,11 @@
 
     --left-hand-size: 48px;
     --right-hand-size: 64px;    
+
+    --viewport-height: 100vh;
+    --viewport-width: calc(var(--viewport-height) * 0.45);
 }
+
 
 html, body {
     margin: 0; 
@@ -49,6 +54,8 @@ body {
     font-family: 'Silkscreen', sans-serif;
     position: relative;
     user-select: none;
+    background-color: var(--margins);
+
 }
 
 .ui {
@@ -251,11 +258,8 @@ input:checked + .slider:before {
 }
 
 #start-btn:hover, #start-btn:active {
-    top: calc(55vh -1);
-    left: calc(50vw - calc((100vw / 108) * 16));
-    width: calc((100vw / 108) * 32);
-    height: calc((100vw / 108) * 32);
-    background-image: url('images/start-btn-glow.png');    
+    background-image: url('images/start-btn-glow.png');
+    transform: scale(calc(33 / 32));    
 }
 
 /* GAME OBJECTS */
@@ -301,7 +305,7 @@ input:checked + .slider:before {
 }
 
 #sky {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     width: 100vw;
@@ -503,4 +507,39 @@ p {
     display: block;
     font-size: small;
     margin: 2em 2em 0 2em;    
+}
+
+@media (pointer: fine) {
+    
+    
+    #game-container {
+        position: absolute;
+        left: calc( (100vw - 45vh) / 2 );
+        top: 0%;
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+        overflow: hidden;
+        outline: calc(var(--viewport-height) / 240 ) solid var(--ground-fallback);
+    }
+
+    .fullscreen {
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+    }
+
+    #start-btn {
+        width: calc((var(--viewport-width) / 108) * 30);
+        height: calc((var(--viewport-width) / 108) * 30);
+        left: calc(var(--viewport-width) / 2 - calc((var(--viewport-width) / 108) * 15));
+    }
+
+    #target, #target-fallback {
+        width: var(--viewport-width);
+        height: var(--viewport-height);
+    }    
+
+    #game-area {
+        width: var(--viewport-width);
+    }
+    
 }
