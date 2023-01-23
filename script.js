@@ -180,15 +180,17 @@
 // GLOBAL UTILITIES SECTION ////////////////////////////////////////////////////////           
 
 // Add event listeners
-    // soundToggle.addEventListener('touchstart', toggleSound);
     toggle.addEventListener('click', toggleSound);
-    // gameArea.addEventListener('mousedown', mouse);
+    // Mouse events
+    startBtn.addEventListener('mousedown', mouse);
+    startBtn.addEventListener('mouseup', tutorialStarted);
     // gameArea.addEventListener('mousedown', gameStarted);
     // gameArea.addEventListener('mousemove', rightHandAim);
     // gameArea.addEventListener('mouseup', rightHandAim);
+    // Touch events
     startBtn.addEventListener('touchstart', touch);
-    // gameArea.addEventListener('touchstart', gameStarted);
     startBtn.addEventListener('touchend', tutorialStarted);
+    // gameArea.addEventListener('touchstart', gameStarted);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 
@@ -197,13 +199,13 @@
 // Device recognition           
     function mouse () {
         device = 'mouse';
-        gameArea.removeEventListener('mousedown', mouse);
+        startBtn.removeEventListener('mousedown', mouse);
         console.log(device);
         return device;
     };
     function touch () {
         device = 'touch';
-        gameArea.removeEventListener('touchstart', touch);
+        startBtn.removeEventListener('touchstart', touch);
         console.log(device);
         return device;
     };
@@ -967,15 +969,6 @@
         root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
 
 
-
-
-
-
-
-
-
-
-
 // USER INPUT SECTION ////////////////////////////////////////////////////////
 // This section contains all objects the player interacts with, excluding UI.
 
@@ -989,13 +982,21 @@
     function tutorialStarted (e) {
         sceneState = 'tutorial';
         console.log(sceneState);
-        startBtn.removeEventListener('touchstart', tutorialStarted);
+        if (device === 'mouse') {
+            startBtn.removeEventListener('mousedown', mouse);
+        } else {
+            startBtn.removeEventListener('touchstart', tutorialStarted);
+        }
         startBtn.style.display = 'none';
         titleScreen.style.display = 'none';
         burgerMenuOn();
 
         tutorial.style.display = 'block';
-        skip.addEventListener('touchend', skipTutorial)
+        if (device === 'mouse') {
+            skip.addEventListener('click', skipTutorial);
+        } else {
+            skip.addEventListener('touchend', skipTutorial);
+        }
         
         setTimeout(() => {
             if (tutorialSkipped === false) {
@@ -1010,7 +1011,12 @@
     
     function skipTutorial (e) {
         console.log(gameMode.mode);
-        gameArea.addEventListener('touchstart', gameStarted);
+        if (device === 'mouse') {
+            gameArea.addEventListener('mousedown', gameStarted);
+        } else {
+            gameArea.addEventListener('touchstart', gameStarted);
+        }
+
         if (gameMode.mode === 'timeout') {
             timeout();
             timer.style.display = 'table';
@@ -1035,8 +1041,16 @@
     
         console.log(sceneState);
 
-        gameArea.addEventListener('touchmove', rightHandAim);
-        gameArea.addEventListener('touchend', bowReleased);
+        if (device === 'mouse') {
+            gameArea.addEventListener('mousemove', rightHandAim);
+            gameArea.addEventListener('mouseup', bowReleased);
+
+        } else {
+            gameArea.addEventListener('touchmove', rightHandAim);
+            gameArea.addEventListener('touchend', bowReleased);
+        }
+
+
         arrowShaftPoints.style.display = 'block';
         trajectoryPoints.style.display = 'block';
         leftHandAim(e);
@@ -1051,7 +1065,7 @@
             let triggerX;
             let triggerY;
             if (device === 'mouse') {
-                triggerX = e.clientX;
+                triggerX = e.clientX - ((window.innerWidth - (window.innerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1145,7 +1159,7 @@
 
 
             if (device === 'mouse') {
-                triggerX = e.clientX;
+                triggerX = e.clientX - ((window.innerWidth - (window.innerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1816,6 +1830,9 @@
 
     function displayEndScreen (delay) {
         stopSignal = true;
+        
+        // if (device === 'mouse') {
+
         gameArea.removeEventListener('touchmove', rightHandAim);
         gameArea.removeEventListener('touchend', bowReleased);
         clearDisplay(trajectoryPoints);
