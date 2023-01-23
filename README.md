@@ -35,4 +35,4 @@ My goal for this project was to apply concepts learned in a JavaScript tutorial 
   - Add a few levels with increasing difficulty.
   - Add a shop with upgrades to create progression.
   - Add a leaderboard to increase player engagement.
-  
+  - Optimize performance.
