@@ -140,7 +140,7 @@
     let shotTrajectory;
     
 // Mode - specific variables
-    let debugMode;
+    let debugMode = true;
     let soundMode = false;
     let optionsMode = false;
     
@@ -172,6 +172,58 @@
     timer.innerHTML = timeoutDuration;
     let tutorialSkipped = false;
     let stopSignal = false;
+
+// Debug
+    const testValues = 
+    [-10.800665, 30, 0,
+        10.800665, 30, 0,
+        0, 30, 0,
+        -3.600222, 10, 0,
+        3.600222, 10, 0,
+        0, 10, 0,
+        -10.800665, 30, 9.594765,
+        10.800665, 30, 9.594765,
+        0, 30, 9.594765,
+        -10.800665, 30, 19.18953,
+        10.800665, 30, 19.18953,
+        0, 30, 19.18953,
+        -10.800665, 30, -14.392148,
+        10.800665, 30, -14.392148,
+        0, 30, -14.392148,
+        -10.800665, 30, -28.784295,
+        10.800665, 30, -28.784295,
+        0, 30, -28.784295,
+        -3.600222, 10, 6.39651,
+        3.600222, 10, 6.39651,
+        0, 10, 6.39651,
+        -3.600222, 10, 3.198255,
+        3.600222, 10, 3.198255,
+        0, 10, 3.198255,
+        -3.600222, 10, -4.797383,
+        3.600222, 10, -4.797383,
+        0, 10, -4.797383,
+        -3.600222, 10, -9.594765,
+        3.600222, 10, -9.594765,
+        0, 10, -9.594765,
+        -10.800665, 30, 7.298407,
+        10.800665, 30, 7.298407,
+        0, 30, 7.298407,
+        -10.800665, 30, 6.211564,
+        10.800665, 30, 6.211564,
+        0, 30, 6.211564,
+        -10.800665, 30, 3.923787,
+        10.800665, 30, 3.923787,
+        0, 30, 3.923787,
+        -10.800665, 30, 2.120212,
+        10.800665, 30, 2.120212,
+        0, 30, 2.120212,
+        0, 30, -1.7,
+        10.800665, 30, -1.7,
+        -10.800665, 30, -1.7,
+        0, 30, -0.5,
+        0.61, 30, -0.5,
+        -0.61, 30, -0.5                 
+    ]
 
 
 
@@ -823,6 +875,16 @@
         targetDiv.innerHTML = pointCollection;        
     }
 
+    (function debug() {
+        
+        if (debugMode === true) {
+            console.log('Debug: ON');
+            display(testValues, debugPoints, 'test-point', 10);
+        } else {            
+            clearDisplay(debugPoints);
+        }
+        return debugMode
+    })();  
 //
 
 
@@ -965,8 +1027,14 @@
         targetPositionPixels = imagePlaneToScreen(perspectiveToImagePlane(targetPosition, imagePlaneDepth));
         let targetPositionPixelsXs = targetPositionPixels.Xs;
 
-        root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
-        root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        // TODO: ADJUST THESE VALUES FOR DESKTOP
+        // if (device === 'mouse') {
+        //     root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
+        //     root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        // } else {
+        //     root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
+        //     root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        // }
 
 
 // USER INPUT SECTION ////////////////////////////////////////////////////////
@@ -1150,7 +1218,7 @@
 
 //
     // Right hand aim
-        // TODO: this function is basically a duplicaye code of leftHandAim. These two should be combined into one.
+        // TODO: this function is basically a duplicate code of leftHandAim. These two should be combined into one.
 
         function rightHandAim(e) {
             rightHand.style.setProperty('display', 'block');
@@ -1492,6 +1560,7 @@
 // TRIGGER EVENT //////////////////////////////
 
     function bowReleased () {
+        console.log('bow released')
         sceneState = 'arwFlight';
         playSound(soundBowShoot);      
         console.log(sceneState);
