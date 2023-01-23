@@ -34,7 +34,24 @@
     --point-area-size: calc(var(--target-size)/20);
 
     --left-hand-size: 48px;
-    --right-hand-size: 64px;    
+    --right-hand-size: 64px;  
+    /* all width's are parameterized here(except widths with min/max/fit content) */
+    --switch-width: 30px;  
+    --slider-before-width: 13px;
+    --menu-burger_p-width: 50vw;
+    --test-point-width: 2px;
+    --start-btn-width: calc((100vw / 108) * 30);
+    --start-btn-hover_active-width: calc((100vw / 108) * 32);
+    --trajectory-width: 2px;
+    --arrow-end-width: 16px;
+    --game-area-width: 100vw;
+    --sky-width: 100vw;
+    --ground-width: 100vw;
+    --fullscreen-width: 100vw;
+    --explosion-10-width: 100vw;
+    --target_fallback-width: 100vw;
+    --right-hand-width: 4em;
+    --play-again-btn-width: calc((100vw / 108) * 83);
 }
 
 html, body {
@@ -72,7 +89,7 @@ body {
     display: inline-block;
     top: 1em;
     left: 1em;
-    width: 30px;
+    width: var(--switch-width);
     height: 17px;
 }
 
@@ -88,7 +105,7 @@ input {
     content: "";
     border-radius: 50%;
     height: 13px;
-    width: 13px;
+    width: var(--slider-before-width);
     left: 2px;
     bottom: 2px;
     background-color: var(--cyan-light);
@@ -166,9 +183,8 @@ input:checked + .slider:before {
     padding: 0.2em 0 0.4em 2em;
     margin: 2px;
     background: var(--cyan-light);
-    width: 50vw;
+    width: var(--menu-burger_p-width);
     transform: translateX(-5px);
-
     z-index: -1;
 }
 
@@ -210,7 +226,7 @@ input:checked + .slider:before {
 
 .test-point {
     position: absolute;
-    width: 2px;
+    width: var(--test-point-width);
     height: 2px;
     background-color: black;
     transform: translate(-1px, -1px);
@@ -240,7 +256,7 @@ input:checked + .slider:before {
     background-image: url('images/start-btn.png');    
     z-index: 1;
     position: absolute;
-    width: calc((100vw / 108) * 30);
+    width: var(--start-btn-width);
     height: calc((100vw / 108) * 30);
     top: 55vh;
     left: calc(50vw - calc((100vw / 108) * 15));
@@ -253,7 +269,7 @@ input:checked + .slider:before {
 #start-btn:hover, #start-btn:active {
     top: calc(55vh -1);
     left: calc(50vw - calc((100vw / 108) * 16));
-    width: calc((100vw / 108) * 32);
+    width: var(--start-btn-hover_active-width);
     height: calc((100vw / 108) * 32);
     background-image: url('images/start-btn-glow.png');    
 }
@@ -262,7 +278,7 @@ input:checked + .slider:before {
 
 .trajectory {
     position: absolute;
-    width: 2px;
+    width: var(--trajectory-width);
     height: 2px;
     border-radius: 50%;
     background-color: var(--trajectory);
@@ -284,7 +300,7 @@ input:checked + .slider:before {
 
 .arrow-end {
     position: absolute;
-    width: 16px;
+    width: var(--arrow-end-width);
     height: 16px;
     background-color: var(--arw-end);
     transform: translate(-8px, -8px);
@@ -294,7 +310,7 @@ input:checked + .slider:before {
 
 #game-area {
     height: calc(100vh - 3em) ;
-    width: 100vw;
+    width: var(--game-area-width);
     top: 0;
     left: 0;
     z-index: -10;
@@ -304,7 +320,7 @@ input:checked + .slider:before {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: var(--sky-width);
     height: var(--sky-height) ;
     background: var(--sky-fallback);
     background: linear-gradient(0deg, rgba(19,59,67,1) 0%, rgba(39,103,121,1) 20%,  rgba(75,156,181,1) 40%, rgba(106,195,218,1) 100%);
@@ -314,7 +330,7 @@ input:checked + .slider:before {
 #ground {
     position: absolute;
     top: var(--sky-height);
-    width: 100vw;
+    width: var(--ground-width);
     height: calc(100vh - var(--sky-height));
     background: var(--ground-fallback);
     background: linear-gradient(0deg, rgba(1,28,37,1) 0%, rgba(1,28,37,1) 20%, rgba(24,62,63,1) 75%, rgba(19,59,67,1) 100%);    z-index: -499;
@@ -326,7 +342,7 @@ input:checked + .slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: var(--fullscreen-width);
     height: 100vh;
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
@@ -343,7 +359,7 @@ input:checked + .slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: var(--explosion-10-width);
     height: 100vh;
     background-image: url('images/10FX.png');
     background-position: 50% var(--sky-percentage);
@@ -358,7 +374,7 @@ input:checked + .slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: var(--target_fallback-width);
     height: 100vh;
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
@@ -394,7 +410,7 @@ input:checked + .slider:before {
 
 #right-hand {
     display: none;
-    width: 4em;
+    width: var(--right-hand-width);
     height: 4em;
     background-color: none;
     border: 6px solid var(--hand);
@@ -491,7 +507,7 @@ p {
     position: relative;
     margin: 2vh auto 5vh auto;
     /* left: calc(50vw - calc((100vw / 108) * 83)); */
-    width: calc((100vw / 108) * 83);
+    width: var(--play-again-btn-width);
     height: calc((100vw / 108) * 30);
     background-image: url('images/play-again-btn.png');
     background-size: cover;
