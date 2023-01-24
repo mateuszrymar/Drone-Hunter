@@ -952,9 +952,9 @@
 
         tutorial.style.display = 'block';
         if (device === 'mouse') {
-            skip.addEventListener('mouseup', skipTutorial);
+            tutorial.addEventListener('mouseup', skipTutorial);
         } else {
-            skip.addEventListener('touchend', skipTutorial);
+            tutorial.addEventListener('touchend', skipTutorial);
         }
         
         setTimeout(() => {
