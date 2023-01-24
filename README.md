@@ -1,5 +1,5 @@
 ## What is this game about?
-  You're a hunter-gatherer in a post-apocalyptic world that was taken over by the AI. Use your machine bow to kill robots and clean your tribe's territory.
+  You're a hunter in a post-apocalyptic world that was taken over by the AI. Use your machine bow to kill robots and clean your tribe's territory.
 
 ## How I worked on this project
 
