@@ -27,14 +27,12 @@ My goal for this project was to apply concepts learned in a JavaScript tutorial 
   - Testing.
   - Dealing with a large codebase.
   - DOM manipulation.
-  - State management. 
 
 ## Why I built the project this way
-  This was my first personal project in vanilla JavaScript (I'm not counting tutorial projects). 
-  I used functional approach, since I haven't started learning OOP yet. I found it feels quite natural to me.  
+  This was my first personal project in vanilla JavaScript (I'm not counting tutorial projects).
+  I learnt a lot while working on this project, but overall structure could be much cleaner if I were to write it once again.
 
 ## If I had more time, I'd do this:
-  - Educate myself on principles of functional programming, especially immutability.
   - Separate JS code into a few modules, do a major refactoring.
   - Create animations.
   - Add a few levels with increasing difficulty.
