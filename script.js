@@ -53,18 +53,17 @@
 // Game sounds
     const soundtrack = new Audio('sounds/music.mp3');
     soundtrack.loop = true;
-    soundtrack.volume = 0.2;
+    soundtrack.volume = 0.4;
     const soundBowShoot = new Audio('sounds/bowShoot.wav');
-    soundBowShoot.volume = 0.05;
+    soundBowShoot.volume = 0.2;
     const soundTargetHit = new Audio('sounds/targetHit.wav');
-    soundTargetHit.volume = 0.25;
+    soundTargetHit.volume = 0.5;
     const soundDroidHit = new Audio('sounds/droidHit.wav');
-    soundDroidHit.volume = 0.15;
+    soundDroidHit.volume = 0.3;
     const soundGroundHit = new Audio('sounds/groundHit.wav');
-    soundGroundHit.volume = 0.2;
+    soundGroundHit.volume = 0.4;
     const soundExplosion = new Audio('sounds/explosion.wav');
-    soundExplosion.volume = 0.25;
-
+    soundExplosion.volume = 0.5;
 
 // Stats elements
     const runScore = document.getElementById("run-score");
@@ -179,7 +178,8 @@
     let stopSignal = false;
     let drawStart;
     let drawArray = [];
-    let fullDrawTime = 0.3; //[s] - this is how long bow takes to draw it fully.
+    let fullDrawTime = 0.1; //[s] - this is how long bow takes to draw it fully.
+    let currentTimeoutID;
 
 
 
@@ -805,6 +805,9 @@
             toggle.removeEventListener('click', openOptions);        
             optionReturn.style.display = 'block';
             optionReturn.addEventListener('click', closeOptions);
+            gameArea.addEventListener('click', closeOptions);
+            endScreen.addEventListener('click', closeOptions);
+            tutorial.addEventListener('click', closeOptions);
             optionSound.style.display = 'block';
             optionSound.addEventListener('click', soundOnOff);
             if (soundMode === true) {
@@ -831,7 +834,10 @@
         setTimeout ((() => {
             toggle.addEventListener('click', openOptions);
         }), 50);
-        return optionsMode;
+        gameArea.removeEventListener('click', closeOptions);
+        endScreen.removeEventListener('click', closeOptions);
+        tutorial.removeEventListener('click', closeOptions);
+    return optionsMode;
     }
 
     function endGame (){
@@ -1796,19 +1802,19 @@
     // TIMEOUT MODE /////////////////////////////
     
     function timeout () {
-        if (gameMode.mode === 'timeout') {
-            setTimeout(() => {
-                displayEndScreen (2000);
-            }, String(timeoutDuration * 1000));
-        }
+        // if (gameMode.mode === 'timeout') {
+        //     setTimeout(() => {
+        //         displayEndScreen (2000);
+        //     }, String(timeoutDuration * 1000));
+        // }
         if (gameMode.mode === 'timeout') {
             let i=0;
-            let timerInterval = setInterval(() => {
+            currentTimeoutID = setInterval(() => {
                 i++;
                 if (i >= timeoutDuration) {
                     timer.innerHTML = 0; // i
                     displayEndScreen (2000);                
-                    clearInterval(timerInterval);
+                    clearInterval(currentTimeoutID);
                     return;
                 } else {
                 timer.innerHTML = (timeoutDuration - i); // i
@@ -1816,7 +1822,7 @@
             }, 1000);
         }
         
-        return;
+        return currentTimeoutID;
     }
 
 //
@@ -1830,6 +1836,7 @@
 
     function displayEndScreen (delay) {
         stopSignal = true;
+        clearInterval(currentTimeoutID);
         
         if (device === 'mouse') {
             window.removeEventListener('mousemove', bowAimed);
