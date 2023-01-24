@@ -48,7 +48,7 @@
     --test-point-width: 2px;
     --start-btn-width: calc((100vw / 108) * 30);
     --start-btn-hover_active-width: calc((100vw / 108) * 32);
-    --trajectory-width: 2px;
+    --trajectory-width: 4px;
     --arrow-end-width: 16px;
     --game-area-width: 100vw;
     --sky-width: 100vw;
