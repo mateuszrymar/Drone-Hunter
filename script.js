@@ -194,15 +194,9 @@
     // Mouse events
     startBtn.addEventListener('mousedown', mouse);
     startBtn.addEventListener('mouseup', tutorialStarted);
-    // gameArea.addEventListener('mousedown', gameStarted);
-    // gameArea.addEventListener('mousemove', rightHandAim);
-    // gameArea.addEventListener('mouseup', rightHandAim);
     // Touch events
     startBtn.addEventListener('touchstart', touch);
     startBtn.addEventListener('touchend', tutorialStarted);
-    // gameArea.addEventListener('touchstart', gameStarted);
-    // gameArea.addEventListener('touchcancel', touchCancelled);
-    // gameArea.addEventListener('touchmove', touchMoved);
 
 //
 
@@ -995,7 +989,6 @@
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
-        console.log('gameStarted');
         sceneState = 'bowAim';
         if (stopSignal === true) return;
     
@@ -1150,7 +1143,6 @@
             let triggerX;
             let triggerY;
 
-
             if (device === 'mouse') {
                 triggerX = e.clientX - ((window.innerWidth - (gameContainerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
@@ -1158,7 +1150,6 @@
                 triggerX = e.touches[0].clientX;
                 triggerY = e.touches[0].clientY;
             }
-
 
             rightHand.style.left = `${triggerX-rightHandSize/2}px`;
             rightHand.style.top = `${triggerY-rightHandSize/2}px`;
@@ -1481,28 +1472,38 @@
 // TRIGGER EVENT //////////////////////////////
 
     function bowReleased () {
-        console.log('bow released')
-        sceneState = 'arwFlight';
-        evaluateDraw();
-        playSound(soundBowShoot);      
-        console.log(sceneState);
-        console.log(`Arrow no:${arrowId}`);
-        if (device === 'mouse') {
-            window.removeEventListener('mousemove', bowAimed);
-            window.removeEventListener('mouseup', bowReleased);
-        } else {
-            gameArea.removeEventListener('touchmove', bowAimed);
-            gameArea.removeEventListener('touchend', bowReleased);
-        }
-
-        clearDisplay(trajectoryPoints);
-        clearDisplay(arrowHeadPoints);
-        clearDisplay(arrowEndPoints);
-        clearDisplay(arrowShaftPoints);
-        evalHit(arrowId);
-        animateArrow(arwHeadAtRel_dh, hitTime, arrowId);
-        arrowId++;
-        //animFlight();
+        if ( (leftHand.style.display === 'block') && (rightHand.style.display === 'block') ) {
+            console.log('bow released')
+            sceneState = 'arwFlight';
+            evaluateDraw();
+            playSound(soundBowShoot);      
+            console.log(sceneState);
+            console.log(`Arrow no:${arrowId}`);
+            if (device === 'mouse') {
+                window.removeEventListener('mousemove', bowAimed);
+                window.removeEventListener('mouseup', bowReleased);
+            } else {
+                gameArea.removeEventListener('touchmove', bowAimed);
+                gameArea.removeEventListener('touchend', bowReleased);
+            }
+    
+            clearDisplay(trajectoryPoints);
+            clearDisplay(arrowHeadPoints);
+            clearDisplay(arrowEndPoints);
+            clearDisplay(arrowShaftPoints);
+            leftHand.style = 'display: none';
+            rightHand.style = 'display: none';
+    
+            console.log(
+                leftHandScr,
+                leftHand_uvw,
+                rightHandScr,
+                rightHand_uvw
+            )
+            evalHit(arrowId);
+            animateArrow(arwHeadAtRel_dh, hitTime, arrowId);
+            arrowId++;
+        } else return;
     };
 
 //
@@ -1831,10 +1832,10 @@
         stopSignal = true;
         
         if (device === 'mouse') {
-            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mousemove', bowAimed);
             window.removeEventListener('mouseup', bowReleased);
         } else {
-            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchmove', bowAimed);
             gameArea.removeEventListener('touchend', bowReleased);
         }
         clearDisplay(trajectoryPoints);
