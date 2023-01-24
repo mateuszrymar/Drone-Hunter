@@ -31,6 +31,7 @@
     
     
 // Game elements
+    const gameContainer = document.getElementById('game-container');
     const backGround = document.getElementById('background');
     const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
@@ -75,10 +76,12 @@
     const runPps = document.getElementById("run-pps");
 
 // Perspective variables
+    const gameContainerWidth = gameContainer.offsetWidth;
+    const gameContainerHeight = gameContainer.offsetHeight;
     const screen = {
         name: 'screen',
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: gameContainerWidth,
+        height: gameContainerHeight,
         depth: 0,
     }
     const fov = 39.6;
@@ -86,11 +89,13 @@
     const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
-        width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180), // window.innerWidth, <<< TU MOZE BYĆ BUG
-        height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (window.innerWidth / window.innerHeight),
+        width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180),
+        height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (gameContainerWidth / gameContainerHeight),
         depth: imagePlaneDepth,
     }
-    const imagePlaneScale = imagePlane.width / window.innerWidth;
+    console.log(window.innerWidth);
+    console.log(gameContainer.offsetWidth);
+    const imagePlaneScale = imagePlane.width / gameContainerWidth;
     const perspective = {
         name: 'perspective',
     }
@@ -140,7 +145,7 @@
     let shotTrajectory;
     
 // Mode - specific variables
-    let debugMode;
+    let debugMode = false;
     let soundMode = false;
     let optionsMode = false;
     
@@ -159,7 +164,7 @@
     
 // Bow variables            
     let v0 = 40; // this will be a complex equation later.
-    let shotPreviewSteps = 16;
+    let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
 // Animation variables
@@ -173,22 +178,24 @@
     let tutorialSkipped = false;
     let stopSignal = false;
 
-
-
+// Debug
+    const testValues = [];
 //
 
 // GLOBAL UTILITIES SECTION ////////////////////////////////////////////////////////           
 
 // Add event listeners
-    // soundToggle.addEventListener('touchstart', toggleSound);
     toggle.addEventListener('click', toggleSound);
-    // gameArea.addEventListener('mousedown', mouse);
+    // Mouse events
+    startBtn.addEventListener('mousedown', mouse);
+    startBtn.addEventListener('mouseup', tutorialStarted);
     // gameArea.addEventListener('mousedown', gameStarted);
     // gameArea.addEventListener('mousemove', rightHandAim);
     // gameArea.addEventListener('mouseup', rightHandAim);
+    // Touch events
     startBtn.addEventListener('touchstart', touch);
-    // gameArea.addEventListener('touchstart', gameStarted);
     startBtn.addEventListener('touchend', tutorialStarted);
+    // gameArea.addEventListener('touchstart', gameStarted);
     // gameArea.addEventListener('touchcancel', touchCancelled);
     // gameArea.addEventListener('touchmove', touchMoved);
 
@@ -197,13 +204,13 @@
 // Device recognition           
     function mouse () {
         device = 'mouse';
-        gameArea.removeEventListener('mousedown', mouse);
+        startBtn.removeEventListener('mousedown', mouse);
         console.log(device);
         return device;
     };
     function touch () {
         device = 'touch';
-        gameArea.removeEventListener('touchstart', touch);
+        startBtn.removeEventListener('touchstart', touch);
         console.log(device);
         return device;
     };
@@ -821,6 +828,16 @@
         targetDiv.innerHTML = pointCollection;        
     }
 
+    (function debug() {
+        
+        if (debugMode === true) {
+            console.log('Debug: ON');
+            display(testValues, debugPoints, 'test-point', 10);
+        } else {            
+            clearDisplay(debugPoints);
+        }
+        return debugMode
+    })();  
 //
 
 
@@ -963,17 +980,14 @@
         targetPositionPixels = imagePlaneToScreen(perspectiveToImagePlane(targetPosition, imagePlaneDepth));
         let targetPositionPixelsXs = targetPositionPixels.Xs;
 
-        root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
-        root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
-
-
-
-
-
-
-
-
-
+        // TODO: ADJUST THESE VALUES FOR DESKTOP
+        // if (device === 'mouse') {
+        //     root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
+        //     root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        // } else {
+        //     root.style.setProperty('--target-position-X', `${targetPositionPixels.Xs - (targetSizePixels/2)}px`);
+        //     root.style.setProperty('--target-position-Y', `${targetPositionPixels.Ys - (targetSizePixels/2)}px`);
+        // }
 
 
 // USER INPUT SECTION ////////////////////////////////////////////////////////
@@ -989,13 +1003,21 @@
     function tutorialStarted (e) {
         sceneState = 'tutorial';
         console.log(sceneState);
-        startBtn.removeEventListener('touchstart', tutorialStarted);
+        if (device === 'mouse') {
+            startBtn.removeEventListener('mousedown', mouse);
+        } else {
+            startBtn.removeEventListener('touchstart', tutorialStarted);
+        }
         startBtn.style.display = 'none';
         titleScreen.style.display = 'none';
         burgerMenuOn();
 
         tutorial.style.display = 'block';
-        skip.addEventListener('touchend', skipTutorial)
+        if (device === 'mouse') {
+            skip.addEventListener('mouseup', skipTutorial);
+        } else {
+            skip.addEventListener('touchend', skipTutorial);
+        }
         
         setTimeout(() => {
             if (tutorialSkipped === false) {
@@ -1010,10 +1032,15 @@
     
     function skipTutorial (e) {
         console.log(gameMode.mode);
-        gameArea.addEventListener('touchstart', gameStarted);
+        if (device === 'mouse') {
+            gameArea.addEventListener('mousedown', gameStarted);
+        } else {
+            gameArea.addEventListener('touchstart', gameStarted);
+        }
+
         if (gameMode.mode === 'timeout') {
             timeout();
-            timer.style.display = 'table';
+            timer.style.display = 'flex';
         }
         if (gameMode.mode === 'killer') {
             timer.style.display = 'none';
@@ -1030,16 +1057,25 @@
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
+        console.log('gameStarted');
         sceneState = 'bowAim';
         if (stopSignal === true) return;
     
-        console.log(sceneState);
-
-        gameArea.addEventListener('touchmove', rightHandAim);
-        gameArea.addEventListener('touchend', bowReleased);
+        console.log(sceneState);        
+        
         arrowShaftPoints.style.display = 'block';
         trajectoryPoints.style.display = 'block';
         leftHandAim(e);
+
+        if (device === 'mouse') {
+            // gameArea.removeEventListener('mousedown', gameStarted);                
+            window.addEventListener('mousemove', rightHandAim);
+            window.addEventListener('mouseup', bowReleased);
+        } else {
+            // gameArea.removeEventListener('touchstart', gameStarted);
+            gameArea.addEventListener('touchmove', rightHandAim);
+            gameArea.addEventListener('touchend', bowReleased);
+        }
         };
 //
 
@@ -1051,7 +1087,7 @@
             let triggerX;
             let triggerY;
             if (device === 'mouse') {
-                triggerX = e.clientX;
+                triggerX = e.clientX - ((window.innerWidth - (gameContainerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1136,7 +1172,7 @@
 
 //
     // Right hand aim
-        // TODO: this function is basically a duplicaye code of leftHandAim. These two should be combined into one.
+        // TODO: this function is basically a duplicate code of leftHandAim. These two should be combined into one.
 
         function rightHandAim(e) {
             rightHand.style.setProperty('display', 'block');
@@ -1145,7 +1181,7 @@
 
 
             if (device === 'mouse') {
-                triggerX = e.clientX;
+                triggerX = e.clientX - ((window.innerWidth - (gameContainerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1461,10 +1497,7 @@
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', arrowSize, false);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
-                 8, arrowShaftPoints, 'arrow-shaft');
-
-
-            
+                 8, arrowShaftPoints, 'arrow-shaft');         
 
             
 
@@ -1478,10 +1511,19 @@
 // TRIGGER EVENT //////////////////////////////
 
     function bowReleased () {
+        console.log('bow released')
         sceneState = 'arwFlight';
         playSound(soundBowShoot);      
         console.log(sceneState);
         console.log(`Arrow no:${arrowId}`);
+        if (device === 'mouse') {
+            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mouseup', bowReleased);
+        } else {
+            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchend', bowReleased);
+        }
+
         clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
@@ -1816,21 +1858,34 @@
 
     function displayEndScreen (delay) {
         stopSignal = true;
-        gameArea.removeEventListener('touchmove', rightHandAim);
-        gameArea.removeEventListener('touchend', bowReleased);
+        
+        if (device === 'mouse') {
+            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mouseup', bowReleased);
+        } else {
+            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchend', bowReleased);
+        }
         clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
+        timer.style.display = 'none'
         
         leftHand.style.setProperty('display', 'none');
         rightHand.style.setProperty('display', 'none');
         sceneState = 'gameOver';
         console.log(sceneState);
-        gameModeName.innerHTML = ` ${gameMode.mode} `
-        previousModeBtn.addEventListener('touchstart', previousMode);
-        nextModeBtn.addEventListener('touchstart', nextMode);
-        playAgainBtn.addEventListener('touchend', continueGame);
+        gameModeName.innerHTML = ` ${gameMode.mode} `;
+        if (device === 'mouse') {
+            previousModeBtn.addEventListener('mousedown', previousMode);
+            nextModeBtn.addEventListener('mousedown', nextMode);
+            playAgainBtn.addEventListener('mouseup', continueGame);        
+        } else {
+            previousModeBtn.addEventListener('touchstart', previousMode);
+            nextModeBtn.addEventListener('touchstart', nextMode);
+            playAgainBtn.addEventListener('touchend', continueGame);
+        }
         calculateStats();
         
         setTimeout(() => {
@@ -1954,7 +2009,11 @@
         endScreen.style.display = 'none';
         arrowShaftPoints.style.display = 'none';
         trajectoryPoints.style.display = 'none';
-        playAgainBtn.removeEventListener('touchend', continueGame);
+        if (device === 'mouse') {
+            playAgainBtn.removeEventListener('mouseup', continueGame);
+        } else {
+            playAgainBtn.removeEventListener('touchend', continueGame);
+        }
         totalScore = 0;
         streakLength = 0;
         arrowId=0;

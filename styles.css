@@ -13,7 +13,7 @@
     --score-gold: rgb(235, 77, 29);
     
     --hand: rgba(48, 119, 144, 0.5);
-    --trajectory: rgba(1, 28, 37, 1); /*  */
+    --trajectory: rgba(248, 161, 171, 1); /*  */
     --arw-head: rgba(48, 96, 118, 1);
     --arw-shaft: rgba(54, 58, 62, 1);
     --arw-end: rgba(111, 62, 64, 1);
@@ -26,15 +26,21 @@
     --sky-percentage: 40%;
     --sky-fallback: rgba(88, 174, 199, 1);
     --ground-fallback: rgba(11, 40, 47, 1);
+    --margins: rgba(1, 28, 37, 1);
     
     --target-size: ; /* Calculated in JS */
     /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
-    --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));  */
+    --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3)); */
     --target-border: calc((var(--target-size))*0.01);
     --point-area-size: calc(var(--target-size)/20);
 
     --left-hand-size: 48px;
-    --right-hand-size: 64px;  
+
+    --right-hand-size: 64px;    
+
+    --viewport-height: 100vh;
+    --viewport-width: calc(var(--viewport-height) * 0.45);
+
     /* all width's are parameterized here(except widths with min/max/fit content) */
     --switch-width: 30px;  
     --slider-before-width: 13px;
@@ -51,8 +57,11 @@
     --explosion-10-width: 100vw;
     --target_fallback-width: 100vw;
     --right-hand-width: 4em;
-    --play-again-btn-width: calc((100vw / 108) * 83);
+    --play-again-btn-width: calc((var(--viewport-width) / 108) * 83);
+    --play-again-btn-height: calc((var(--viewport-width) / 108) * 30);
+
 }
+
 
 html, body {
     margin: 0; 
@@ -66,6 +75,8 @@ body {
     font-family: 'Silkscreen', sans-serif;
     position: relative;
     user-select: none;
+    background-color: var(--margins);
+
 }
 
 .ui {
@@ -77,11 +88,21 @@ body {
 
 #timer {
     display: none;
+    position: absolute;
+    top: calc(var(--viewport-height) * 0.2);
+    width: 100%;
+    justify-content: center;
     font-size: 2em;
     margin: 2em auto;
 }
 
 /* Debug Toggle */
+#debug-points {
+    display: none;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+}
 
 
 .switch {
@@ -267,11 +288,10 @@ input:checked + .slider:before {
 }
 
 #start-btn:hover, #start-btn:active {
-    top: calc(55vh -1);
-    left: calc(50vw - calc((100vw / 108) * 16));
-    width: var(--start-btn-hover_active-width);
-    height: calc((100vw / 108) * 32);
-    background-image: url('images/start-btn-glow.png');    
+
+    background-image: url('images/start-btn-glow.png');
+    transform: scale(calc(33 / 32));    
+
 }
 
 /* GAME OBJECTS */
@@ -279,11 +299,12 @@ input:checked + .slider:before {
 .trajectory {
     position: absolute;
     width: var(--trajectory-width);
-    height: 2px;
+    height: var(--trajectory-width);
     border-radius: 50%;
     background-color: var(--trajectory);
     opacity: 100%;
-    transform: translate(-1px, -1px);
+    transform: translate(-2px, -2px);
+    box-shadow: 1px 1px 0 var(--arw-end);
     z-index: 30;
 }
 
@@ -317,7 +338,7 @@ input:checked + .slider:before {
 }
 
 #sky {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     width: var(--sky-width);
@@ -342,8 +363,8 @@ input:checked + .slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--fullscreen-width);
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
@@ -359,8 +380,10 @@ input:checked + .slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--explosion-10-width);
-    height: 100vh;
+
+    width: 100%;
+    height: 100%;
+
     background-image: url('images/10FX.png');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
@@ -383,8 +406,8 @@ input:checked + .slider:before {
 }
 
 #target{
-    /* background-image: url('images/target.gif'); */
-    background-image: url('images/target-fallback.png');
+    background-image: url('images/target.gif');
+    /* background-image: url('images/target-fallback.png'); */
     z-index: -30;
 }
 
@@ -497,8 +520,8 @@ p {
 
 #play-again {
     position: absolute;
-    bottom: calc(25vh - calc((100vw / 108) * 30));
-    left: calc((100vw / 108 / 2) * (108 - 83));
+    bottom: calc(25vh - calc((var(--viewport-width) / 108) * 30));
+    left: calc((var(--viewport-width) / 108 / 2) * (108 - 83));
     color: var(--cyan-light);
     text-align: center;
 }
@@ -507,8 +530,10 @@ p {
     position: relative;
     margin: 2vh auto 5vh auto;
     /* left: calc(50vw - calc((100vw / 108) * 83)); */
+
     width: var(--play-again-btn-width);
-    height: calc((100vw / 108) * 30);
+    height: var(--play-again-btn-height);
+
     background-image: url('images/play-again-btn.png');
     background-size: cover;
 }
@@ -519,4 +544,39 @@ p {
     display: block;
     font-size: small;
     margin: 2em 2em 0 2em;    
+}
+
+@media (pointer: fine) {
+    
+    
+    #game-container {
+        position: absolute;
+        left: calc( (100vw - 45vh) / 2 );
+        top: 0%;
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+        overflow: hidden;
+        outline: calc(var(--viewport-height) / 240 ) solid var(--ground-fallback);
+    }
+
+    .fullscreen {
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+    }
+
+    #start-btn {
+        width: calc((var(--viewport-width) / 108) * 30);
+        height: calc((var(--viewport-width) / 108) * 30);
+        left: calc(var(--viewport-width) / 2 - calc((var(--viewport-width) / 108) * 15));
+    }
+
+    #target, #target-fallback {
+        width: var(--viewport-width);
+        height: var(--viewport-height);
+    }    
+
+    #game-area {
+        width: var(--viewport-width);
+    }
+    
 }
