@@ -163,7 +163,7 @@
     let hitTime;
     
 // Bow variables            
-    let v0 = 40; // this will be a complex equation later.
+    let maxVelocity = 40; // [m/s] - this is the speed arrow gets when bow is fully drawn
     let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
@@ -177,6 +177,11 @@
     timer.innerHTML = timeoutDuration;
     let tutorialSkipped = false;
     let stopSignal = false;
+    let drawStart;
+    let drawArray = [];
+    let fullDrawTime = 0.3; //[s] - this is how long bow takes to draw it fully.
+
+
 
 // Debug
     const testValues = [];
@@ -999,17 +1004,20 @@
         arrowShaftPoints.style.display = 'block';
         trajectoryPoints.style.display = 'block';
         leftHandAim(e);
+        drawStart = `${Date.now()}`;
 
         if (device === 'mouse') {
             // gameArea.removeEventListener('mousedown', gameStarted);                
-            window.addEventListener('mousemove', rightHandAim);
+            window.addEventListener('mousemove', bowAimed);
             window.addEventListener('mouseup', bowReleased);
         } else {
             // gameArea.removeEventListener('touchstart', gameStarted);
-            gameArea.addEventListener('touchmove', rightHandAim);
+            gameArea.addEventListener('touchmove', bowAimed);
             gameArea.addEventListener('touchend', bowReleased);
         }
-        };
+
+        return drawStart;
+    };
 //
 
 //
@@ -1097,13 +1105,43 @@
     
     function bowAimed (e) {
         sceneState = 'bowDraw';
-        console.log(sceneState);        
         rightHandAim(e);
     };
 
 //
 
 //
+
+    // Draw evaluation
+
+
+        (function createDrawArray() {
+            let step = 1/60;
+            let drawArrayLength = parseInt(fullDrawTime / step);
+            
+            for ( let i = 0; i <= drawArrayLength; i++) {
+                drawArray.push( i * step );
+            }
+
+            return drawArray;
+        })();
+
+        function evaluateDraw() {
+            let currentTime = `${Date.now()}`;
+            let drawDuration = (currentTime - drawStart) / 1000;
+            let maxVelocityFraction;
+            if (drawDuration < fullDrawTime) {
+                maxVelocityFraction = drawDuration / fullDrawTime;
+            } else {
+                maxVelocityFraction = 1;
+            }
+
+            v0 = maxVelocity * maxVelocityFraction;
+
+            return v0;
+            console.log(maxVelocityFraction);
+        }
+
     // Right hand aim
         // TODO: this function is basically a duplicate code of leftHandAim. These two should be combined into one.
 
@@ -1180,7 +1218,7 @@
             } else {
                 rightHand.innerHTML = ``;
             };
-            
+                            
             shotPreview();
   
             return rightHandScr, rightHand_uvw;
@@ -1340,7 +1378,7 @@
         
         function timeAtDist (startPoint_dh, distance, angle) {
             let timeAtTargetDistance;
-            let v0x = v0 * Math.cos(angle);
+            let v0x = maxVelocity * Math.cos(angle);
             timeAtTargetDistance = (distance - startPoint_dh.d) / v0x;
             return timeAtTargetDistance;
         }; 
@@ -1408,7 +1446,7 @@
             let targetPosition_dh = perspectiveToArwPln(targetPosition);
             let predictedHitDist = (targetPosition_dh.d / Math.cos(horizRelAng_uvw));
             t = series(0, timeAtDist(arwHeadAtRel_dh, predictedHitDist, arwAngAtRel_dh), shotPreviewSteps);
-            let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, v0, t));
+            let shotTrajectory_dh = (arrowMotion(arwHeadAtRel_dh, arwAngAtRel_dh, maxVelocity, t));
 
             shotTrajectory = [];
             for (i = 0; i < shotTrajectory_dh.length;) {
@@ -1445,14 +1483,15 @@
     function bowReleased () {
         console.log('bow released')
         sceneState = 'arwFlight';
+        evaluateDraw();
         playSound(soundBowShoot);      
         console.log(sceneState);
         console.log(`Arrow no:${arrowId}`);
         if (device === 'mouse') {
-            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mousemove', bowAimed);
             window.removeEventListener('mouseup', bowReleased);
         } else {
-            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchmove', bowAimed);
             gameArea.removeEventListener('touchend', bowReleased);
         }
 
