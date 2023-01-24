@@ -38,6 +38,7 @@
     const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('target');
     const healthBar = document.getElementById('health-bar');
+    const healthBarHpLeft = document.getElementById('hp-left');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
@@ -980,12 +981,15 @@
         if (gameMode.mode === 'timeout') {
             timeout();
             timer.style.display = 'flex';
+            healthBar.style.display = 'none';
         }
         if (gameMode.mode === 'killer') {
+            healthBar.style.display = 'block';
             timer.style.display = 'none';
         }
         if (gameMode.mode === 'training') {
             timer.style.display = 'none';
+            healthBar.style.display = 'none';
         }
         runStart = Date.now();
         score.style.setProperty('display', 'block');
@@ -1632,6 +1636,14 @@
         pointResults.push(pointResult);
 
     };
+
+    function updateHealthBar() {
+        let hpWidth = ( 1 - (totalScore / droneHp)) * 100;
+        if (hpWidth < 0) {
+            hpWidth = 0;
+        }
+        healthBarHpLeft.style.width = `${hpWidth}%`;
+    }
 //
 
 // Calculation of arrowHead and arrowEnd positions at a given time
@@ -1791,6 +1803,7 @@
         score.innerHTML = `Score: ${totalScore}`;
         displayScore (uniqueArrowId);
         displayExplosion_10(uniqueArrowId);
+        updateHealthBar();
         // console.log(`Hit: `, arwHeadHit);
         
         if ( totalScore >= droneHp && gameMode.mode === 'killer') {
