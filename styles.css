@@ -44,7 +44,7 @@
     /* all width's are parameterized here(except widths with min/max/fit content) */
     --switch-width: 30px;  
     --slider-before-width: 13px;
-    --menu-burger_p-width: 50vw;
+    --menu-burger_p-width: 20vw;
     --test-point-width: 2px;
     --start-btn-width: calc((100vw / 108) * 30);
     --start-btn-hover_active-width: calc((100vw / 108) * 32);
@@ -174,7 +174,7 @@ input:checked + .slider:before {
     box-shadow: 1px 1px var(--ui-shadow);
     transition: .4s;
     border-radius: 0px;
-    font-size: 2em;
+    font-size: 1em;
     height: 28px;
 }
 
@@ -201,7 +201,7 @@ input:checked + .slider:before {
     font-size: 0.75em;
     left: 0;
     top: 0;
-    padding: 0.2em 0 0.4em 2em;
+    padding: 0.2em 0 0.4em 6em;
     margin: 2px;
     background: var(--cyan-light);
     width: var(--menu-burger_p-width);
