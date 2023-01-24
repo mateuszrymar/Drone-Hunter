@@ -520,15 +520,19 @@ p {
 
 #play-again {
     position: absolute;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
     bottom: calc(25vh - calc((var(--viewport-width) / 108) * 30));
-    left: calc((var(--viewport-width) / 108 / 2) * (108 - 83));
+    /* left: calc((var(--viewport-width) / 108 / 2) * (108 - 83)); */
     color: var(--cyan-light);
     text-align: center;
 }
 
 #play-again-btn {
     position: relative;
-    margin: 2vh auto 5vh auto;
+    margin: 2vh auto 10vh auto;
     /* left: calc(50vw - calc((100vw / 108) * 83)); */
 
     width: var(--play-again-btn-width);
@@ -537,12 +541,17 @@ p {
     background-image: url('images/play-again-btn.png');
     background-size: cover;
 }
+#credits,
+#credits a:-webkit-any-link {
+    color: var(--pink2);
+}
 
 #stats {
     position: relative;
-    left: 1em;
-    display: block;
-    font-size: small;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: medium;
     margin: 2em 2em 0 2em;    
 }
 
@@ -577,6 +586,10 @@ p {
 
     #game-area {
         width: var(--viewport-width);
+    }
+
+    #stats {
+        font-size: large;
     }
     
 }
