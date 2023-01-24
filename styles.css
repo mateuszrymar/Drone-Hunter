@@ -198,10 +198,9 @@ input:checked + .slider:before {
 
 #menu-burger > p {
     position: relative;
-    font-size: 0.75em;
     left: 0;
     top: 0;
-    padding: 0.2em 0 0.4em 6em;
+    padding: 0.2em 1em 0.4em 6em;
     margin: 2px;
     background: var(--cyan-light);
     width: var(--menu-burger_p-width);
