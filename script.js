@@ -434,12 +434,6 @@
         return result;
     };
     
-    // test = vectorAngle([1, 0, 0], [0, 1, 0]);
-    // console.log(test);
-    // // vec = [0, 1, 0];
-    // // console.log(vec.length)
-    // console.log(planeVecVecPt ([-1, 0, 0], [0, 1, 0], [0, 0, 0]));
-    
     function changeOrigin (plane, newOrigin) {
         let result = {type: 'plane', xAxis: [0, 0, 0], yAxis: [0, 0, 0], zAxis: [0, 0, 0], origin: [0, 0, 0]};
         if ((plane.type === 'plane' && newOrigin.length === 3) || (plane.type === 'plane' && newOrigin.length === 2)) {
@@ -555,68 +549,7 @@
         target_div.innerHTML = result;
         arrowLine = result;
         // return result;
-    };
-
-    // function line_uvw (point1_xy, point2_xy, width, target_div, _class) {
-    //     let result;
-    //     let center;
-    //     let style;
-    //     let length;
-    //     let angle;
-    //     let correctionX = 0;
-    //     let correctionY = 0;
-    //     // We have an endpoint in screen coordinates. To calculate relative width of the arrow, we need to calculate its position to uvw space.
-    //     let endPt_xy = screenToImagePlane (point2_xy); 
-    //     let endPt_uvw = imagePlaneToPerspective( endPt_xy, imagePlaneDepth) 
-    //     let sizeRefPt = [endPt_uvw.u + width, endPt_uvw.v, endPt_uvw.w];
-    //     point1_xy = Object.values(point1_xy);
-    //     point2_xy = Object.values(point2_xy);
-
-    //     length = distance(point1_xy, point2_xy);
-        
-    //     if (point1_xy[1] < point2_xy[1]) {
-    //         angle = vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
-    //     } else {
-    //         angle = -vectorAngle(vectorFromPoints(point1_xy, point2_xy), [1, 0]);
-    //     }
-
-
-    //     // Relative width calculation
-        
-        
-    //     // console.log(sizeRefPt);
-
-    //     console.log(endPt_uvw, sizeRefPt)
-        
-    //     let sizeRefPtOnImagePlane = perspectiveToImagePlane(sizeRefPt, imagePlaneDepth);
-    //     console.log(endPt_xy, sizeRefPtOnImagePlane);
-    //     let sizeScale = distance(endPt_xy, sizeRefPtOnImagePlane);
-    //     console.log(sizeScale);
-    //     // let initialSize = distance(perspectiveToImagePlane([0,0,imagePlaneDepth], imagePlaneDepth), perspectiveToImagePlane( [size, 0, imagePlaneDepth] , imagePlaneDepth));
-    //     let currentSize = Math.ceil(sizeScale * width);
-
-    //     let correctionVec;
-    //     correctionVec = vectorFromPoints(point1_xy, point2_xy);
-    //     correctionVec = [-correctionVec[1], correctionVec[0]];
-    //     correctionVec = setVectorMagnitude(correctionVec, ((width)/2)*currentSize);
-
-    //     result = `
-    //         <div class="${_class}" style="
-    //             position: absolute;
-    //             top: ${point1_xy[1]}px;
-    //             left: ${point1_xy[0]}px;
-    //             height: ${width * currentSize}px;
-    //             width: ${length}px;
-    //             transform-origin: 0px 0px;
-    //             transform: translate(${-correctionVec[0]}px, ${-correctionVec[1]}px) rotate(${angle}rad);
-    //             "></div>
-    //             `;
-    //     target_div.innerHTML = result;
-    //     // return result;
-    // };
-
-//
-    
+    };    
 
 // Perspective transformer functions
     
@@ -1403,8 +1336,7 @@
 
 
     // This function calculates time, when the arrow SHOULD arrive at tha target.
-        // distance to cover:
-        
+        // distance to cover:        
         
         function timeAtDist (startPoint_dh, distance, angle) {
             let timeAtTargetDistance;
