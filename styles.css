@@ -555,9 +555,15 @@ p {
     margin: 2em 2em 0 2em;    
 }
 
-@media (pointer: fine) {
-    
-    
+#rotate-screen {
+    display: none;
+    color: var(--cyan-light);
+    font-size: large;
+}
+
+/* Desktop */
+@media 
+(pointer: fine) { 
     #game-container {
         position: absolute;
         left: calc( (100vw - 45vh) / 2 );
@@ -567,29 +573,39 @@ p {
         overflow: hidden;
         outline: calc(var(--viewport-height) / 240 ) solid var(--ground-fallback);
     }
-
     .fullscreen {
         height: var(--viewport-height);
         width: var(--viewport-width);
     }
-
     #start-btn {
         width: calc((var(--viewport-width) / 108) * 30);
         height: calc((var(--viewport-width) / 108) * 30);
         left: calc(var(--viewport-width) / 2 - calc((var(--viewport-width) / 108) * 15));
     }
-
     #target, #target-fallback {
         width: var(--viewport-width);
         height: var(--viewport-height);
     }    
-
     #game-area {
         width: var(--viewport-width);
     }
-
     #stats {
         font-size: large;
     }
-    
+}
+
+/* Horizontal mobile and tablets */
+
+@media (pointer: coarse) and (orientation: landscape) {
+    #game-container {
+        display: none;
+    }
+
+    #rotate-screen {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        justify-content: center;
+        align-items: center;
+    }
 }
