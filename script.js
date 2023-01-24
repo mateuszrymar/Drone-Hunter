@@ -37,6 +37,7 @@
     const gameArea = document.getElementById('game-area');
     const debugPoints = document.getElementById('debug-points');
     const target = document.getElementById('target');
+    const healthBar = document.getElementById('health-bar');
     const ground = document.getElementById('ground');
     const leftHand = document.getElementById('left-hand');
     const rightHand = document.getElementById('right-hand');
