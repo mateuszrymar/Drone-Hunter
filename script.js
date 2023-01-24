@@ -31,6 +31,7 @@
     
     
 // Game elements
+    const gameContainer = document.getElementById('game-container');
     const backGround = document.getElementById('background');
     const root = document.querySelector(':root');
     const gameArea = document.getElementById('game-area');
@@ -75,10 +76,12 @@
     const runPps = document.getElementById("run-pps");
 
 // Perspective variables
+    const gameContainerWidth = gameContainer.offsetWidth;
+    const gameContainerHeight = gameContainer.offsetHeight;
     const screen = {
         name: 'screen',
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: gameContainerWidth,
+        height: gameContainerHeight,
         depth: 0,
     }
     const fov = 39.6;
@@ -86,11 +89,13 @@
     const imagePlaneDepth = 0.2;
     const imagePlane = {
         name: 'imagePlane',
-        width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180), // window.innerWidth, <<< TU MOZE BYĆ BUG
-        height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (window.innerWidth / window.innerHeight),
+        width: 2 * imagePlaneDepth * Math.tan((fov / 2) * (Math.PI) / 180),
+        height: (2 * imagePlaneDepth * Math.tan((fov / 2 * Math.PI / 180))) * (gameContainerWidth / gameContainerHeight),
         depth: imagePlaneDepth,
     }
-    const imagePlaneScale = imagePlane.width / window.innerWidth;
+    console.log(window.innerWidth);
+    console.log(gameContainer.offsetWidth);
+    const imagePlaneScale = imagePlane.width / gameContainerWidth;
     const perspective = {
         name: 'perspective',
     }
@@ -140,7 +145,7 @@
     let shotTrajectory;
     
 // Mode - specific variables
-    let debugMode = true;
+    let debugMode = false;
     let soundMode = false;
     let optionsMode = false;
     
@@ -159,7 +164,7 @@
     
 // Bow variables            
     let v0 = 40; // this will be a complex equation later.
-    let shotPreviewSteps = 16;
+    let shotPreviewSteps = 32;
     let arrowShaftPointsCount = 64;
 
 // Animation variables
@@ -174,59 +179,7 @@
     let stopSignal = false;
 
 // Debug
-    const testValues = 
-    [-10.800665, 30, 0,
-        10.800665, 30, 0,
-        0, 30, 0,
-        -3.600222, 10, 0,
-        3.600222, 10, 0,
-        0, 10, 0,
-        -10.800665, 30, 9.594765,
-        10.800665, 30, 9.594765,
-        0, 30, 9.594765,
-        -10.800665, 30, 19.18953,
-        10.800665, 30, 19.18953,
-        0, 30, 19.18953,
-        -10.800665, 30, -14.392148,
-        10.800665, 30, -14.392148,
-        0, 30, -14.392148,
-        -10.800665, 30, -28.784295,
-        10.800665, 30, -28.784295,
-        0, 30, -28.784295,
-        -3.600222, 10, 6.39651,
-        3.600222, 10, 6.39651,
-        0, 10, 6.39651,
-        -3.600222, 10, 3.198255,
-        3.600222, 10, 3.198255,
-        0, 10, 3.198255,
-        -3.600222, 10, -4.797383,
-        3.600222, 10, -4.797383,
-        0, 10, -4.797383,
-        -3.600222, 10, -9.594765,
-        3.600222, 10, -9.594765,
-        0, 10, -9.594765,
-        -10.800665, 30, 7.298407,
-        10.800665, 30, 7.298407,
-        0, 30, 7.298407,
-        -10.800665, 30, 6.211564,
-        10.800665, 30, 6.211564,
-        0, 30, 6.211564,
-        -10.800665, 30, 3.923787,
-        10.800665, 30, 3.923787,
-        0, 30, 3.923787,
-        -10.800665, 30, 2.120212,
-        10.800665, 30, 2.120212,
-        0, 30, 2.120212,
-        0, 30, -1.7,
-        10.800665, 30, -1.7,
-        -10.800665, 30, -1.7,
-        0, 30, -0.5,
-        0.61, 30, -0.5,
-        -0.61, 30, -0.5                 
-    ]
-
-
-
+    const testValues = [];
 //
 
 // GLOBAL UTILITIES SECTION ////////////////////////////////////////////////////////           
@@ -1061,7 +1014,7 @@
 
         tutorial.style.display = 'block';
         if (device === 'mouse') {
-            skip.addEventListener('click', skipTutorial);
+            skip.addEventListener('mouseup', skipTutorial);
         } else {
             skip.addEventListener('touchend', skipTutorial);
         }
@@ -1087,7 +1040,7 @@
 
         if (gameMode.mode === 'timeout') {
             timeout();
-            timer.style.display = 'table';
+            timer.style.display = 'flex';
         }
         if (gameMode.mode === 'killer') {
             timer.style.display = 'none';
@@ -1104,24 +1057,25 @@
 
 // TRIGGER EVENT /////////////////////////////
     function gameStarted (e) {
+        console.log('gameStarted');
         sceneState = 'bowAim';
         if (stopSignal === true) return;
     
-        console.log(sceneState);
-
-        if (device === 'mouse') {
-            gameArea.addEventListener('mousemove', rightHandAim);
-            gameArea.addEventListener('mouseup', bowReleased);
-
-        } else {
-            gameArea.addEventListener('touchmove', rightHandAim);
-            gameArea.addEventListener('touchend', bowReleased);
-        }
-
-
+        console.log(sceneState);        
+        
         arrowShaftPoints.style.display = 'block';
         trajectoryPoints.style.display = 'block';
         leftHandAim(e);
+
+        if (device === 'mouse') {
+            // gameArea.removeEventListener('mousedown', gameStarted);                
+            window.addEventListener('mousemove', rightHandAim);
+            window.addEventListener('mouseup', bowReleased);
+        } else {
+            // gameArea.removeEventListener('touchstart', gameStarted);
+            gameArea.addEventListener('touchmove', rightHandAim);
+            gameArea.addEventListener('touchend', bowReleased);
+        }
         };
 //
 
@@ -1133,7 +1087,7 @@
             let triggerX;
             let triggerY;
             if (device === 'mouse') {
-                triggerX = e.clientX - ((window.innerWidth - (window.innerHeight * 0.45)) / 2 );
+                triggerX = e.clientX - ((window.innerWidth - (gameContainerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1227,7 +1181,7 @@
 
 
             if (device === 'mouse') {
-                triggerX = e.clientX - ((window.innerWidth - (window.innerHeight * 0.45)) / 2 );
+                triggerX = e.clientX - ((window.innerWidth - (gameContainerHeight * 0.45)) / 2 );
                 triggerY = e.clientY;
             } else {
                 triggerX = e.touches[0].clientX;
@@ -1543,10 +1497,7 @@
             display(arwEndAtRel_uvw, arrowEndPoints, 'arrow-end', arrowSize, false);
             line(Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwEndAtRel_uvw, imagePlaneDepth))), 
                  Object.values(imagePlaneToScreen(perspectiveToImagePlane(arwHeadAtRel_uvw, imagePlaneDepth))), 
-                 8, arrowShaftPoints, 'arrow-shaft');
-
-
-            
+                 8, arrowShaftPoints, 'arrow-shaft');         
 
             
 
@@ -1565,6 +1516,14 @@
         playSound(soundBowShoot);      
         console.log(sceneState);
         console.log(`Arrow no:${arrowId}`);
+        if (device === 'mouse') {
+            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mouseup', bowReleased);
+        } else {
+            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchend', bowReleased);
+        }
+
         clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
@@ -1900,23 +1859,33 @@
     function displayEndScreen (delay) {
         stopSignal = true;
         
-        // if (device === 'mouse') {
-
-        gameArea.removeEventListener('touchmove', rightHandAim);
-        gameArea.removeEventListener('touchend', bowReleased);
+        if (device === 'mouse') {
+            window.removeEventListener('mousemove', rightHandAim);
+            window.removeEventListener('mouseup', bowReleased);
+        } else {
+            gameArea.removeEventListener('touchmove', rightHandAim);
+            gameArea.removeEventListener('touchend', bowReleased);
+        }
         clearDisplay(trajectoryPoints);
         clearDisplay(arrowHeadPoints);
         clearDisplay(arrowEndPoints);
         clearDisplay(arrowShaftPoints);
+        timer.style.display = 'none'
         
         leftHand.style.setProperty('display', 'none');
         rightHand.style.setProperty('display', 'none');
         sceneState = 'gameOver';
         console.log(sceneState);
-        gameModeName.innerHTML = ` ${gameMode.mode} `
-        previousModeBtn.addEventListener('touchstart', previousMode);
-        nextModeBtn.addEventListener('touchstart', nextMode);
-        playAgainBtn.addEventListener('touchend', continueGame);
+        gameModeName.innerHTML = ` ${gameMode.mode} `;
+        if (device === 'mouse') {
+            previousModeBtn.addEventListener('mousedown', previousMode);
+            nextModeBtn.addEventListener('mousedown', nextMode);
+            playAgainBtn.addEventListener('mouseup', continueGame);        
+        } else {
+            previousModeBtn.addEventListener('touchstart', previousMode);
+            nextModeBtn.addEventListener('touchstart', nextMode);
+            playAgainBtn.addEventListener('touchend', continueGame);
+        }
         calculateStats();
         
         setTimeout(() => {
@@ -2040,7 +2009,11 @@
         endScreen.style.display = 'none';
         arrowShaftPoints.style.display = 'none';
         trajectoryPoints.style.display = 'none';
-        playAgainBtn.removeEventListener('touchend', continueGame);
+        if (device === 'mouse') {
+            playAgainBtn.removeEventListener('mouseup', continueGame);
+        } else {
+            playAgainBtn.removeEventListener('touchend', continueGame);
+        }
         totalScore = 0;
         streakLength = 0;
         arrowId=0;
