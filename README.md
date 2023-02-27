@@ -1,4 +1,5 @@
-## Live: https://colorbaseapp.netlify.app/
+## Live: https://mateuszrymar.github.io/Drone-Hunter/
+
 
 <p align="center">
   <img width="256" height="256" src="https://user-images.githubusercontent.com/118372766/214276301-dfc881ac-337a-4f12-a987-a243c9db8fd2.png">
