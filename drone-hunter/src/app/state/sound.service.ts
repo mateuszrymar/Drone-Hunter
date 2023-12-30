@@ -10,9 +10,9 @@ export class SoundService {
   public soundText: string;
   
   private _isSoundOn$: WritableSignal<boolean>;
+  private _soundTexts = ["sound off", "sound on"];
   private _soundtrackFile = new Audio('assets/sounds/music.mp3');
   private _soundtrackVolume = 0.4;
-  private _soundTexts = ["sound off", "sound on"];
 
   constructor() {
     this.soundtrack = this._soundtrackFile;
