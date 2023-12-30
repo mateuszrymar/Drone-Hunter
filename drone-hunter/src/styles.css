@@ -258,13 +258,13 @@ input:checked + .slider:before {
 }
 
 #title-screen {    
-    background-image: url('assets/title-screen.png');    
+    background-image: url('assets/images/title-screen.png');    
     z-index: 1;
 }
 
 #tutorial {
     display: none;    
-    background-image: url('assets/tutorial.gif');    
+    background-image: url('assets/images/tutorial.gif');    
     z-index: 1;
 }
 
@@ -277,7 +277,7 @@ input:checked + .slider:before {
 }
 
 #start-btn {
-    background-image: url('assets/start-btn.png');    
+    background-image: url('assets/images/start-btn.png');    
     z-index: 1;
     position: absolute;
     width: var(--start-btn-width);
@@ -292,7 +292,7 @@ input:checked + .slider:before {
 
 #start-btn:hover, #start-btn:active {
 
-    background-image: url('assets/start-btn-glow.png');
+    background-image: url('assets/images/start-btn-glow.png');
     transform: scale(calc(33 / 32));    
 
 }
@@ -372,7 +372,7 @@ input:checked + .slider:before {
     opacity: 100%;
 }
 #background {
-    background-image: url('assets/background.png');
+    background-image: url('assets/images/background.png');
     z-index: -600;
 }
 
@@ -382,7 +382,7 @@ input:checked + .slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('assets/10FX.png');
+    background-image: url('assets/images/10FX.png');
     background-position: 50% var(--sky-percentage);
     background-repeat: no-repeat;
     background-size: cover;
@@ -405,12 +405,12 @@ input:checked + .slider:before {
 }
 
 #target{
-    background-image: url('assets/target.gif');
+    background-image: url('assets/images/target.gif');
     z-index: -30;
 }
 
 #target-fallback{
-    background-image: url('assets/target-fallback.png');
+    background-image: url('assets/images/target-fallback.png');
     z-index: -31;
 }
 
@@ -492,7 +492,7 @@ input:checked + .slider:before {
 
 #end {
     display: none;
-    background-image: url(assets/end-screen.png);
+    background-image: url(assets/images/end-screen.png);
     color: var(--pink2);
     z-index: 1;
 }
@@ -552,7 +552,7 @@ p {
     width: var(--play-again-btn-width);
     height: var(--play-again-btn-height);
 
-    background-image: url('assets/play-again-btn.png');
+    background-image: url('assets/images/play-again-btn.png');
     background-size: cover;
 }
 #credits,

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SoundService } from '../../state/sound.service';
 
 @Component({
   selector: 'app-ui',
@@ -8,5 +9,9 @@ import { Component } from '@angular/core';
   styleUrl: './ui.component.css'
 })
 export class UiComponent {
+
+  constructor(public soundService: SoundService) {
+
+  }
 
 }

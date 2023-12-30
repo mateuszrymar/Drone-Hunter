@@ -1,7 +1,12 @@
 <section class="ui">
     <label id="menu" class="switch">
         <input type="checkbox" id="toggle">
-        <span id="menu-slider" class="slider ui label"><span id ='slider-label'>sound off</span></span>
+        <span id="menu-slider" 
+            class="slider ui label" 
+            (click)="this.soundService.toggleSound()"
+        >
+            <span id ='slider-label'>sound off</span>
+        </span>
         <span id="menu-burger" class="burger ui label" style="display: none;">
             <span id ='burger-label'>menu</span>
             <p id="option-return" style="display: none;">return</p>
