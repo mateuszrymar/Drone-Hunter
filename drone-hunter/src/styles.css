@@ -1,1 +1,627 @@
-/* You can add global styles to this file, and also import other style files */
+/* variable library */
+:root {
+    --ui-grey: rgba(100, 100, 100, 0.5);
+    --ui-text: rgba(48, 119, 144, 1);
+    --ui-switch: rgba(16, 54, 66, 1);
+    --ui-shadow: rgba(8, 36, 48, 1);
+    
+    --score-text: rgba(64, 137, 152, 1);
+    --score-text-add: rgba(98, 177, 2070, 1);
+    --score-text-10:  rgba(212, 181, 117, 1);
+    --score-text-shadow: rgba(74, 255, 232, 1);
+    --score-text-shadow-10: rgba(152, 103, 83, 1);
+    --score-gold: rgb(235, 77, 29);
+    --health-bar-hp-left: rgb(85, 119, 75);
+    --health-bar--hp-gone: rgb(54, 58, 62);
+    
+    --hand: rgba(48, 119, 144, 0.5);
+    --trajectory: rgba(248, 161, 171, 1); /*  */
+    --arw-head: rgba(48, 96, 118, 1);
+    --arw-shaft: rgba(54, 58, 62, 1);
+    --arw-end: rgba(111, 62, 64, 1);
+    
+    --pink1: rgba(228, 193, 190, 1);
+    --pink2: rgba(248, 161, 171, 1);
+    --cyan-light: rgba(74, 255, 232, 1);
+    
+    --sky-height: 40vh;
+    --sky-percentage: 40%;
+    --sky-fallback: rgba(88, 174, 199, 1);
+    --ground-fallback: rgba(11, 40, 47, 1);
+    --margins: rgba(1, 28, 37, 1);
+    
+    --target-size: ; /* Calculated in JS */
+    /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
+    --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3)); */
+    --target-border: calc((var(--target-size))*0.01);
+    --point-area-size: calc(var(--target-size)/20);
+
+    --left-hand-size: 48px;
+
+    --right-hand-size: 64px;    
+
+    --viewport-height: 100vh;
+    --viewport-width: calc(var(--viewport-height) * 0.45);
+
+    /* all width's are parameterized here(except widths with min/max/fit content) */
+    --switch-width: 30px;  
+    --slider-before-width: 13px;
+    --menu-burger_p-width: 20vw;
+    --test-point-width: 2px;
+    --start-btn-width: calc((100vw / 108) * 30);
+    --start-btn-hover_active-width: calc((100vw / 108) * 32);
+    --trajectory-width: 4px;
+    --arrow-end-width: 16px;
+    --game-area-width: 100vw;
+    --sky-width: 100vw;
+    --ground-width: 100vw;
+    --fullscreen-width: 100vw;
+    --explosion-10-width: 100vw;
+    --target_fallback-width: 100vw;
+    --right-hand-width: 4em;
+    --play-again-btn-width: calc((var(--viewport-width) / 108) * 83);
+    --play-again-btn-height: calc((var(--viewport-width) / 108) * 30);
+
+}
+
+
+html, body {
+    margin: 0; 
+    height: 100%; 
+    overflow: hidden;
+    image-rendering: pixelated;
+}
+
+body {
+    margin: 0;
+    font-family: 'Silkscreen', sans-serif;
+    position: relative;
+    user-select: none;
+    background-color: var(--margins);
+
+}
+
+.ui {
+    color: var(--ui-text);
+    text-shadow: 1px 1px var(--ui-shadow);
+    height: 3em;
+    z-index: 10;
+}
+
+#timer {
+    display: none;
+    position: absolute;
+    top: calc(var(--sky-height) * 0.2);
+    width: 100%;
+    justify-content: center;
+    font-size: calc(var(--viewport-width) * 0.1 );
+    margin: 2em auto;
+}
+
+/* Debug Toggle */
+#debug-points {
+    display: none;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+}
+
+
+.switch {
+    position: relative;
+    display: inline-block;
+    top: 1em;
+    left: 1em;
+    width: var(--switch-width);
+    height: 17px;
+}
+
+input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+
+.slider:before {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+    height: 13px;
+    width: var(--slider-before-width);
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--cyan-light);
+    /* background-color: var(--ui-text); */
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+  
+input:checked + .slider {
+    background-color: var(--ui-switch);
+}
+  
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--ui-text);
+}
+  
+input:checked + .slider:before {
+    -webkit-transform: translateX(13px);
+    -ms-transform: translateX(13px);
+    transform: translateX(13px);
+}  
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--ui-switch);
+    box-shadow: 1px 1px var(--ui-shadow);
+    border: 1px solid var(--cyan-light);
+    transition: .4s;
+    border-radius: 17px;
+    height: 17px;
+}
+
+.burger {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: 1px 1px var(--ui-shadow);
+    transition: .4s;
+    border-radius: 0px;
+    font-size: 1em;
+    height: 28px;
+}
+
+
+
+#menu-toggle #sound-toggle {
+    display: none;
+}
+
+#slider-label, #burger-label {
+    position: absolute;
+    color: var(--cyan-light);
+    width: max-content;
+    left: 2em;
+}
+
+#burger-label {
+    color: var(--ui-text);
+    left: 0em;
+}
+
+#menu-burger > p {
+    position: relative;
+    left: 0;
+    top: 0;
+    padding: 0.2em 1em 0.4em 6em;
+    margin: 2px;
+    background: var(--cyan-light);
+    width: var(--menu-burger_p-width);
+    transform: translateX(-5px);
+    z-index: -1;
+}
+
+
+
+
+
+#score {
+    position: absolute;
+    display: none;
+    /* display: block; */
+    top: 1em;
+    right: 1em;
+    /* animation: scoreAdd 1.9s normal forwards; */
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-out;
+}
+
+@keyframes scoreAdd {
+    0% {
+        color: var(--score-text);
+    }
+    5% {
+        color: var(--score-text-add);
+    }
+    70% {
+        color: var(--score-text-add);
+    }    
+    100% {
+        color: var(--score-text);
+    }
+}
+
+
+.debug-text {
+    font-size: 0.75em;
+    margin-left: 60px;
+    margin-bottom: 10px;
+    color: var(--trajectory);
+}
+
+.test-point {
+    position: absolute;
+    width: var(--test-point-width);
+    height: 2px;
+    background-color: black;
+    transform: translate(-1px, -1px);
+    z-index: 20;
+}
+
+#title-screen {    
+    background-image: url('assets/title-screen.png');    
+    z-index: 1;
+}
+
+#tutorial {
+    display: none;    
+    background-image: url('assets/tutorial.gif');    
+    z-index: 1;
+}
+
+#skip {
+    display: table;
+    margin: 25vh auto;
+    color: var(--cyan-light);
+    font-size: 1.5em;
+
+}
+
+#start-btn {
+    background-image: url('assets/start-btn.png');    
+    z-index: 1;
+    position: absolute;
+    width: var(--start-btn-width);
+    height: calc((100vw / 108) * 30);
+    top: 55vh;
+    left: calc(50vw - calc((100vw / 108) * 15));
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+}
+
+#start-btn:hover, #start-btn:active {
+
+    background-image: url('assets/start-btn-glow.png');
+    transform: scale(calc(33 / 32));    
+
+}
+
+/* GAME OBJECTS */
+
+.trajectory {
+    position: absolute;
+    width: var(--trajectory-width);
+    height: var(--trajectory-width);
+    border-radius: 50%;
+    background-color: var(--trajectory);
+    opacity: 100%;
+    transform: translate(-2px, -2px);
+    box-shadow: 1px 1px 0 var(--arw-end);
+    z-index: 30;
+}
+
+.arrow-head {
+    position: absolute;
+    background-color: var(--arw-head);
+    z-index: 20;
+}
+
+.arrow-shaft {
+    background-color: var(--arw-shaft);
+    z-index: 21;
+}
+
+.arrow-end {
+    position: absolute;
+    width: var(--arrow-end-width);
+    height: 16px;
+    background-color: var(--arw-end);
+    transform: translate(-8px, -8px);
+    z-index: 22;
+}
+
+#game-area {
+    height: calc(100vh - 3em) ;
+    width: var(--game-area-width);
+    top: 0;
+    left: 0;
+    z-index: -10;
+}
+
+#sky {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: var(--sky-width);
+    height: var(--sky-height) ;
+    background: var(--sky-fallback);
+    background: linear-gradient(0deg, rgba(19,59,67,1) 0%, rgba(39,103,121,1) 20%,  rgba(75,156,181,1) 40%, rgba(106,195,218,1) 100%);
+    z-index: -601;
+}
+
+#ground {
+    position: absolute;
+    top: var(--sky-height);
+    width: var(--ground-width);
+    height: calc(100vh - var(--sky-height));
+    background: var(--ground-fallback);
+    background: linear-gradient(0deg, rgba(1,28,37,1) 0%, rgba(1,28,37,1) 20%, rgba(24,62,63,1) 75%, rgba(19,59,67,1) 100%);    z-index: -499;
+    z-index: -601;
+}
+
+.fullscreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+}
+#background {
+    background-image: url('assets/background.png');
+    z-index: -600;
+}
+
+#explosion-10 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/10FX.png');
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0%;
+    z-index: -1;
+}
+
+#target, #target-fallback {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--target_fallback-width);
+    height: 100vh;
+    background-position: 50% var(--sky-percentage);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+    justify-content: center;
+}
+
+#target{
+    background-image: url('assets/target.gif');
+    z-index: -30;
+}
+
+#target-fallback{
+    background-image: url('assets/target-fallback.png');
+    z-index: -31;
+}
+
+#health-bar {
+    display: none;
+    margin-top: calc(var(--viewport-height) * 0.33);
+    width: calc( var(--viewport-width) * 0.2 );
+    height: calc( var(--viewport-width) * 0.01 );
+    background-color: var(--ui-shadow);
+    z-index: -31;
+}
+#hp-left{
+    position: relative;
+    background-color: var(--health-bar-hp-left);
+    width: 100%;
+    height: 100%;
+    z-index: -30;
+}
+
+#left-hand {
+    display: none;
+    flex-direction: column;
+    width: var(--left-hand-size);
+    height: var(--left-hand-size);
+    background-color: none;
+    border: 4px solid var(--hand);
+    border-radius: 50%;
+    position: absolute;       
+    z-index: 30;
+    left: calc((100vw - (var(--target-size) * -2 + var(--target-border)*2))/2); 
+    top: calc(var(--sky-height) - var(--target-size) * -2); 
+
+}
+
+#right-hand {
+    display: none;
+    width: var(--right-hand-width);
+    height: 4em;
+    background-color: none;
+    border: 6px solid var(--hand);
+    border-radius: 50%;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    z-index: 30;
+    /* --target-position-X: calc((100vw - (var(--target-size) + var(--target-border)*2))/2); 
+    --target-position-Y: calc(var(--sky-height) - var(--target-size) * (2 / 3));  */
+}
+
+.hit-score {
+    position: absolute;
+    font-size: 2em;
+    font-weight: 800;
+    color: var(--score-text);
+    text-shadow: 0px 1px var(--score-text-shadow);
+    opacity: 0;
+    animation: opacityOn 2.5s normal forwards;
+    animation-timing-function: ease-out;
+    z-index: 11;
+}
+
+@keyframes opacityOn {
+    0% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    5% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    70% {
+        opacity: 1;
+    }    
+    100% {
+        opacity: 0;
+        transform: translateY(-60px);
+    }
+}
+
+#end {
+    display: none;
+    background-image: url(assets/end-screen.png);
+    color: var(--pink2);
+    z-index: 1;
+}
+
+
+h2 {
+    font-size: 2em;
+}
+
+h3 {
+    color: var(--pink2);
+    display: table;
+    margin: 10vh auto 0 auto;
+    font-size: 1.5em;
+}
+
+button {
+    background: none;
+    color: var(--cyan-light);
+    font-size: 1em;
+    border: 2px solid var(--cyan-light);
+    border-style: outset;
+}
+
+/* button:hover, button:active {
+    box-shadow: 0 0 10px var(--cyan-light);
+} */
+
+p {
+    margin: 0 auto;
+}
+
+#game-mode {
+    color: var(--cyan-light);
+    margin: 0 auto 0 auto;
+
+}
+
+
+#play-again {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    bottom: 5vh;
+    /* left: calc((var(--viewport-width) / 108 / 2) * (108 - 83)); */
+    color: var(--cyan-light);
+    text-align: center;
+}
+
+#play-again-btn {
+    position: relative;
+    margin: 2vh auto 5vh auto;
+    /* left: calc(50vw - calc((100vw / 108) * 83)); */
+
+    width: var(--play-again-btn-width);
+    height: var(--play-again-btn-height);
+
+    background-image: url('assets/play-again-btn.png');
+    background-size: cover;
+}
+#credits,
+#credits a:-webkit-any-link {
+    color: var(--pink2);
+    font-size: small;
+}
+
+#stats {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: medium;
+    margin: 1em 2em 0 2em;  
+}
+
+#rotate-screen {
+    display: none;
+    color: var(--cyan-light);
+    font-size: large;
+}
+
+/* Desktop */
+@media 
+(pointer: fine) { 
+    #game-container {
+        position: absolute;
+        left: calc( (100vw - 45vh) / 2 );
+        top: 0%;
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+        overflow: hidden;
+        outline: calc(var(--viewport-height) / 240 ) solid var(--ground-fallback);
+    }
+    .fullscreen {
+        height: var(--viewport-height);
+        width: var(--viewport-width);
+    }
+    #start-btn {
+        width: calc((var(--viewport-width) / 108) * 30);
+        height: calc((var(--viewport-width) / 108) * 30);
+        left: calc(var(--viewport-width) / 2 - calc((var(--viewport-width) / 108) * 15));
+    }
+    #target, #target-fallback {
+        width: var(--viewport-width);
+        height: var(--viewport-height);
+    }    
+    #game-area {
+        width: var(--viewport-width);
+    }
+    #stats {
+        font-size: large;
+    }
+    
+}
+
+/* Horizontal mobile and tablets */
+
+@media (pointer: coarse) and (orientation: landscape) {
+    #game-container {
+        display: none;
+    }
+
+    #rotate-screen {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        justify-content: center;
+        align-items: center;
+    }
+}
