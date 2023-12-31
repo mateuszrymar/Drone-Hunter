@@ -263,7 +263,6 @@ input:checked + .slider:before {
 }
 
 #tutorial {
-    display: none;    
     background-image: url('assets/images/tutorial.gif');    
     z-index: 1;
 }

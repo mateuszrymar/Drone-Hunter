@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { DeviceService } from '../../state/device.service';
+import { ScreenService } from '../../state/screen.service';
+import { ScreenState } from '../../model/screen-state.enum';
 
 @Component({
   selector: 'app-start-screen',
@@ -10,9 +12,17 @@ import { DeviceService } from '../../state/device.service';
 })
 export class StartScreenComponent {
 
-  constructor(public deviceService: DeviceService) { }
+  public startScreenName = ScreenState.start;
+  public tutorialScreenName = ScreenState.tutorial;
 
-  public startTutorial() {
+  private isTutorialSkipped = false;
+
+  constructor(
+    public deviceService: DeviceService,
+    public screenService: ScreenService) { }
+
+  public runTutorial() {
+    this.screenService.runTutorial();
     // startBtn.style.display = 'none';
     // titleScreen.style.display = 'none';
     // burgerMenuOn();
@@ -24,10 +34,15 @@ export class StartScreenComponent {
     //   tutorial.addEventListener('touchend', skipTutorial);
     // }
     
-    // setTimeout(() => {
-    //   if (tutorialSkipped === false) {
-    //     skipTutorial();
-    //   }
-    // }, "5380");
+    setTimeout(() => {
+      if (this.isTutorialSkipped === false) {
+        this.skipTutorial();
+      }
+    }, 5600);
+  }
+
+  public skipTutorial() {
+    this.isTutorialSkipped = true;
+    this.screenService.runGame();
   }
 }

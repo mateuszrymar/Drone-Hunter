@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ScreenService } from '../../state/screen.service';
+import { ScreenState } from '../../model/screen-state.enum';
 
 @Component({
   selector: 'app-game-screen',
@@ -9,4 +11,7 @@ import { Component } from '@angular/core';
 })
 export class GameScreenComponent {
 
+  public gameStateName = ScreenState.game;
+
+  constructor(public screenService: ScreenService) { }
 }

@@ -1,12 +1,23 @@
 <section id="start">
-    <h1 id="title-screen" class="fullscreen"></h1>
-    <div id="start-btn" 
-        (mousedown)="deviceService.setMouse()"
-        (touchstart)="deviceService.setTouch()"
-        (mouseup)="startTutorial()"
-        (touchend)="startTutorial()"></div>
+    
+    @if (screenService.ScreenState() === startScreenName) {
+        <h1 id="title-screen" class="fullscreen"></h1>
+        <div id="start-btn" 
+            (mousedown)="deviceService.setMouse()"
+            (touchstart)="deviceService.setTouch()"
+            (mouseup)="runTutorial()"
+            (touchend)="runTutorial()">
+        </div>
+    }
+
     <div id="start-up"></div>
-    <div id="tutorial" class="fullscreen">
-        <span id="skip">skip tutorial</span>
-    </div>
+
+    @if (screenService.ScreenState() === tutorialScreenName) {
+        <div id="tutorial" class="fullscreen"
+            (click)="skipTutorial()"
+        >
+            <span id="skip">skip tutorial</span>
+        </div>
+    }
+
 </section>
