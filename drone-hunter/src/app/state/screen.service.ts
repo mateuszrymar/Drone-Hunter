@@ -1,4 +1,4 @@
-import { Injectable, signal, Signal } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { ScreenState } from '../model/screen-state.enum';
 
 @Injectable({
@@ -6,25 +6,23 @@ import { ScreenState } from '../model/screen-state.enum';
 })
 export class ScreenService {
 
-  public ScreenState: Signal<ScreenState>;
+  public ScreenState$: WritableSignal<ScreenState> = signal(ScreenState.start);
 
-  constructor() {
-    this.ScreenState = signal(ScreenState.start);
-  }
+  constructor() { }
 
   public runTutorial() {
     console.log("Tutorial started");    
-    this.ScreenState = signal(ScreenState.tutorial);
+    this.ScreenState$.set(ScreenState.tutorial);
   }
   
   public runGame() {
     console.log("Game started");    
-    this.ScreenState = signal(ScreenState.game);
+    this.ScreenState$.set(ScreenState.game);
   }
   
   public endGame() {
     console.log("Game ended");
-    this.ScreenState = signal(ScreenState.end);
+    this.ScreenState$.set(ScreenState.end);
   }
 
 }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ScreenService } from '../../state/screen.service';
-import { ScreenState } from '../../model/screen-state.enum';
+import { ScreenService } from '../../../state/screen.service';
+import { ScreenState } from '../../../model/screen-state.enum';
 
 @Component({
   selector: 'app-game-screen',

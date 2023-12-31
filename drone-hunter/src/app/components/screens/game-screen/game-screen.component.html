@@ -1,22 +1,16 @@
 <section id="game-area">
     <div id="point-area-1" class="point-area"></div>
-    <div id="ground"></div>
-    <div id="sky"></div>
     <div id="fx">
         <div id="target-hit"></div>
         <div id="explosion-10" class="fullscreen"></div>
         <div id="ground-hit"></div>
         <div id="background-fx"></div>
     </div>
-    <div id="background" class="fullscreen"></div>
-    @if (screenService.ScreenState() === gameStateName) {
-        <div id="target">
-            <div id="health-bar">
-                <div id="hp-left"></div>
-            </div>
+    <div id="target">
+        <div id="health-bar">
+            <div id="hp-left"></div>
         </div>
-    }
-    <div id="target-fallback"></div>
+    </div>
     <div id="left-hand"></div>
     <div id="right-hand"></div>
     <div id="debug-points"></div>

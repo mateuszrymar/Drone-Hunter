@@ -1,6 +1,27 @@
 <main id="game-container">
-    <app-start-screen></app-start-screen>
-    <app-ui></app-ui>
-    <app-game-screen></app-game-screen>
-    <app-end-screen></app-end-screen>
+
+    <app-ui/>
+
+    @if (screenService.ScreenState$() === startScreen) {
+        <app-start-screen/>
+    }
+    @if (screenService.ScreenState$() === tutorialScreen) {
+        <app-tutorial-screen/>
+    }
+    @if (screenService.ScreenState$() === gameScreen) {
+        <app-game-screen/>
+    }
+    @if (screenService.ScreenState$() === endScreen) {
+        <app-end-screen/>
+    }
+
+    <section id="game-area">
+        <div id="background" class="fullscreen"></div>
+        <div id="background-fallback">
+            <div id="ground"></div>
+            <div id="sky"></div>
+        </div>
+        <div id="target-fallback"></div>
+    </section>
+
 </main>

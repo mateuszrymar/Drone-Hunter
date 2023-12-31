@@ -7,10 +7,10 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 export class SoundService {
 
   public soundtrack: HTMLAudioElement;
-  public soundText: string;
   
   private _isSoundOn$: WritableSignal<boolean>;
   private _soundTexts = ["sound off", "sound on"];
+  private _soundText$: WritableSignal<string>;
   private _soundtrackFile = new Audio('assets/sounds/music.mp3');
   private _soundtrackVolume = 0.4;
 
@@ -20,12 +20,17 @@ export class SoundService {
     this.soundtrack.volume = this._soundtrackVolume;
 
     this._isSoundOn$ = signal(false);
-    this.soundText = this._soundTexts[Number(this._isSoundOn$)];
-   }
+    this._soundText$ = signal(this._soundTexts[Number(this._isSoundOn$())]);
+  }
+  
+  public get soundText$() {
+    return this._soundText$;
+  }
+  
 
   public toggleSound() {
     this._isSoundOn$.set(!this._isSoundOn$());
-    this.soundText = this._soundTexts[Number(this._isSoundOn$())];
+    this._soundText$.set(this._soundTexts[Number(this._isSoundOn$())]);
 
     if (this._isSoundOn$()) {
       this.soundOn();

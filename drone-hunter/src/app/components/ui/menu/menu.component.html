@@ -1,0 +1,12 @@
+<span id="menu-burger" class="burger ui label">
+    <span id ='burger-label' (click)="toggle()">
+        menu
+    </span>
+    @if (isOpen) {
+        <p id="option-return" (click)="close()">return</p>
+        <p id="option-sound" (click)="soundService.toggleSound()">
+            {{this.soundText$()}}
+        </p>
+        <p id="option-end-game" (click)="endGame()">end game</p>
+    }
+</span>

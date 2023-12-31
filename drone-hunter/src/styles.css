@@ -82,6 +82,7 @@ body {
 }
 
 .ui {
+    /* position: absolute; */
     color: var(--ui-text);
     text-shadow: 1px 1px var(--ui-shadow);
     height: 3em;
@@ -211,13 +212,10 @@ input:checked + .slider:before {
 }
 
 
-
-
-
 #score {
     position: absolute;
-    display: none;
-    /* display: block; */
+    /* display: none; */
+    display: block;
     top: 1em;
     right: 1em;
     /* animation: scoreAdd 1.9s normal forwards; */
@@ -336,6 +334,11 @@ input:checked + .slider:before {
     top: 0;
     left: 0;
     z-index: -10;
+}
+
+#background-fallback {
+    position: absolute;
+    top: 0;
 }
 
 #sky {
@@ -490,7 +493,6 @@ input:checked + .slider:before {
 }
 
 #end {
-    display: none;
     background-image: url(assets/images/end-screen.png);
     color: var(--pink2);
     z-index: 1;

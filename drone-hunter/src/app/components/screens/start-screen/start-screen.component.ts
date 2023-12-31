@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { DeviceService } from '../../state/device.service';
-import { ScreenService } from '../../state/screen.service';
-import { ScreenState } from '../../model/screen-state.enum';
+import { DeviceService } from '../../../state/device.service';
+import { ScreenService } from '../../../state/screen.service';
+import { ScreenState } from '../../../model/screen-state.enum';
 
 @Component({
   selector: 'app-start-screen',
@@ -34,11 +34,11 @@ export class StartScreenComponent {
     //   tutorial.addEventListener('touchend', skipTutorial);
     // }
     
-    setTimeout(() => {
-      if (this.isTutorialSkipped === false) {
-        this.skipTutorial();
-      }
-    }, 5600);
+    // setTimeout(() => {
+    //   if (this.isTutorialSkipped === false) {
+    //     this.skipTutorial();
+    //   }
+    // }, 5600);
   }
 
   public skipTutorial() {

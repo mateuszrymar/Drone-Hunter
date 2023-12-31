@@ -1,18 +1,28 @@
 <section class="ui">
+
     <label id="menu" class="switch">
-        <input type="checkbox" id="toggle">
-        <span id="menu-slider" 
-            class="slider ui label" 
-            (click)="this.soundService.toggleSound()"
-        >
-            <span id ='slider-label'>sound off</span>
-        </span>
-        <span id="menu-burger" class="burger ui label" style="display: none;">
-            <span id ='burger-label'>menu</span>
-            <p id="option-return" style="display: none;">return</p>
-            <p id="option-sound" style="display: none;">sound: off</p>
-            <p id="option-end-game" style="display: none;">end game</p>
-        </span>
+        <input type="checkbox" id="toggle">        
+        @if (this.screenService.ScreenState$() === start) {
+            <span id="menu-slider" 
+                class="slider ui label" 
+                (click)="this.soundService.toggleSound()"
+            >
+                <span id ='slider-label'>{{this.toggleText$()}}</span>
+            </span>
+        }
+        @if (this.screenService.ScreenState$() === game) {
+            <app-menu></app-menu>
+            <!-- <span id="menu-burger" class="burger ui label">
+                <span id ='burger-label'>menu</span>
+                <p id="option-return">return</p>
+                <p id="option-sound" style="display: none;">sound: off</p>
+                <p id="option-end-game" style="display: none;">end game</p>
+            </span> -->
+        }
     </label>
-    <span id="score" class="ui">score: 0</span>
+
+    @if (this.screenService.ScreenState$() === game) {
+        <span id="score" class="ui">score: 0</span>
+    }
+    
 </section>    
