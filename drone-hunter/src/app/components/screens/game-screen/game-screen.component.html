@@ -18,11 +18,7 @@
             <div id="hp-left"></div>
         </div>
     </div>
-    @if (gameService.gameState$() === aim 
-        || gameService.gameState$() === draw
-    ) {
-        <app-hand-left/>
-    }
+    <app-hand-left [position]="leftHandPosition"/>
     <app-hand-right/>
     <div id="debug-points"></div>
     <div id="trajectory-points"></div>

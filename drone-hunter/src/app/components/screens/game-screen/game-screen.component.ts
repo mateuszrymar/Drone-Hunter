@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { ScreenService } from '../../../state/screen.service';
 import { GameService } from '../../../state/game.service';
 import { ScreenState } from '../../../model/screen-state.enum';
@@ -6,6 +6,7 @@ import { HandLeftComponent } from "../../hand-left/hand-left.component";
 import { HandRightComponent } from "../../hand-right/hand-right.component";
 import { GameState } from '../../../model/game-state.enum';
 import { PerspectiveService } from '../../../perspective/perspective.service';
+import { Point2D } from '../../../model/geometry';
 
 
 @Component({
@@ -18,8 +19,8 @@ import { PerspectiveService } from '../../../perspective/perspective.service';
 export class GameScreenComponent {
 
   public gameStateName = ScreenState.game;
-  public aim = GameState.bowAim;
-  public draw = GameState.bowDraw;
+  public leftHandPosition!: Point2D;
+  private gameContainerWidth = this.perspectiveService.gameContainerWidth;
   private gameContainerHeight = this.perspectiveService.gameContainerHeight;
 
   constructor(
@@ -27,6 +28,14 @@ export class GameScreenComponent {
     public gameService: GameService,
     public perspectiveService: PerspectiveService
   ) { }
+
+  ngAfterViewInit() {
+    this.gameContainerWidth = this.perspectiveService.gameContainerWidth;
+    console.log("width: ", this.gameContainerWidth);    
+    this.gameContainerHeight = this.perspectiveService.gameContainerHeight;
+    console.log("height: ", this.gameContainerHeight);    
+
+  }
 
   public gameStarted(e: Event) {
     this.gameService.aimBow();
@@ -46,14 +55,16 @@ export class GameScreenComponent {
   }
 
   private aimLeftHand(e: Event) {
-    let triggerX;
-    let triggerY;
+
+    this.leftHandPosition = {x: 0, y: 0};
+
     if (e instanceof MouseEvent) {
-      triggerX = e.clientX - ((window.innerWidth - (this.gameContainerHeight * 0.45)) / 2 );
-      triggerY = e.clientY;
+      this.leftHandPosition.x = e.clientX - ((window.innerWidth - (this.gameContainerWidth * 0.45)) / 2 );
+      // this.leftHandPosition.x = e.clientX;
+      this.leftHandPosition.y = e.clientY;
     } else if (e instanceof TouchEvent) {
-      triggerX = e.touches[0].clientX;
-      triggerY = e.touches[0].clientY;
+      this.leftHandPosition.x = e.touches[0].clientX;
+      this.leftHandPosition.y = e.touches[0].clientY;
     } else throw new Error("Unsupported device!");
 
 

@@ -6,7 +6,7 @@ import { ScreenDimensions } from '../model/screen-dimensions.interface'
 })
 export class PerspectiveService implements AfterViewInit {
 
-  @ViewChild('game-container') gameContainer!: ElementRef;
+  // @ViewChild('game-container') gameContainer!: ElementRef;
 
   public gameContainerWidth!: number;
   public gameContainerHeight!: number;
@@ -20,11 +20,16 @@ export class PerspectiveService implements AfterViewInit {
     name: 'perspective',
   }
 
+  private gameContainer = document.getElementById('game-container');
+
   constructor() { }
 
   ngAfterViewInit() {
-    this.gameContainerWidth = this.gameContainer.nativeElement.offsetWidth;
-    this.gameContainerHeight = this.gameContainer.nativeElement.offsetHeight;
+    
+    this.gameContainerWidth = this.gameContainer!.offsetWidth;
+    this.gameContainerHeight = this.gameContainer!.offsetHeight;
+    console.log(this.gameContainerWidth);
+    
     this.screen = {
       name: 'screen',
       width: this.gameContainerWidth,
@@ -38,5 +43,9 @@ export class PerspectiveService implements AfterViewInit {
       depth: this.imagePlaneDepth,
     }
     this.imagePlaneScale = this.imagePlane.width / this.gameContainerWidth;
+  }
+
+  public saveViewContainerWidth() {
+    // @TODO: save sizes of DOM elements correctly.
   }
 }

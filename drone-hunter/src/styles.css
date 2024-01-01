@@ -338,6 +338,7 @@ input:checked + .slider:before {
 
 #background-fallback {
     position: absolute;
+    pointer-events: none;
     top: 0;
 }
 
