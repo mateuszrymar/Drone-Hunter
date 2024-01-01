@@ -433,7 +433,7 @@ input:checked + .slider:before {
 }
 
 #left-hand {
-    display: none;
+    /* display: none; */
     flex-direction: column;
     width: var(--left-hand-size);
     height: var(--left-hand-size);

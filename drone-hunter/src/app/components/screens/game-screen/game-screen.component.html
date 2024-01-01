@@ -1,4 +1,11 @@
-<section id="game-area">
+<section id="game-area"
+    (mousedown)="gameStarted($event)"
+    (touchstart)="gameStarted($event)"
+    (mousemove)="bowAimed()"
+    (touchmove)="bowAimed()"
+    (mouseup)="bowReleased()"
+    (touchend)="bowReleased()"
+>
     <div id="point-area-1" class="point-area"></div>
     <div id="fx">
         <div id="target-hit"></div>
@@ -11,8 +18,12 @@
             <div id="hp-left"></div>
         </div>
     </div>
-    <div id="left-hand"></div>
-    <div id="right-hand"></div>
+    @if (gameService.gameState$() === aim 
+        || gameService.gameState$() === draw
+    ) {
+        <app-hand-left/>
+    }
+    <app-hand-right/>
     <div id="debug-points"></div>
     <div id="trajectory-points"></div>
     <div id="arrow-head-points"></div>
